@@ -1,0 +1,1 @@
+  const { data, error } = await supabase.rpc('verify_login', { p_username: username, p_hash: passwordHash });\n\n  if (error) {\n    throw new Error('Login failed');\n  }\n\n  if (data.length === 0) {\n    throw new Error('Invalid credentials');\n  }\n\n  const user = data[0];\n  return user;\n
