@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Zain Dental">
-<title>Zain Dental Cloud</title>
+<title>Zain Clinic for Oral and Dental Medicine and Surgery - Cloud Portal</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
@@ -22,7 +22,7 @@ button,input,select,textarea{font-family:inherit}
 button{cursor:pointer;border:none}
 #app{display:flex;flex-direction:column;height:100%;height:100dvh}
 #hdr{background:#0D0D0D;border-bottom:1px solid var(--border);padding:13px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:10px}
-#hdr-title{font-size:15px;font-weight:700;color:var(--gold)}
+#hdr-title{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:700;color:var(--gold)}
 #content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(62px + var(--sb))}
 #nav{position:fixed;bottom:0;left:0;right:0;background:#0A0A0A;border-top:1px solid var(--border);display:flex;padding-bottom:var(--sb);z-index:200}
 .nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:9px 2px 8px;background:none;color:var(--muted);font-size:9px;font-weight:600;gap:3px;letter-spacing:.2px;transition:color .15s;min-width:0}
@@ -31,7 +31,7 @@ button{cursor:pointer;border:none}
 /* Login */
 #login{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;z-index:999}
 .l-logo{font-size:52px;margin-bottom:6px}
-.l-title{font-size:22px;font-weight:700;color:var(--gold);margin-bottom:3px}
+.l-title{font-size:20px;text-align:center;font-weight:700;color:var(--gold);margin-bottom:3px}
 .l-sub{font-size:13px;color:var(--muted);margin-bottom:32px}
 .fld{width:100%;margin-bottom:14px}
 .fld label{display:block;font-size:10px;font-weight:700;color:var(--gold);letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px}
@@ -117,8 +117,32 @@ button{cursor:pointer;border:none}
 .bar-track{flex:1;background:#222;border-radius:4px;height:22px;overflow:hidden}
 .bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:8px;min-width:4px}
 .bar-val{font-size:11px;font-weight:700;color:#fff;white-space:nowrap}
-#toast{position:fixed;bottom:calc(76px + var(--sb));left:50%;transform:translateX(-50%) translateY(20px);background:#1E1E1E;border:1px solid #444;color:var(--text);padding:9px 18px;border-radius:20px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;z-index:9999}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* New Toast Design */
+#toast {
+  position: fixed;
+  bottom: calc(86px + var(--sb));
+  left: 50%;
+  transform: translateX(-50%) translateY(30px) scale(0.95);
+  background: #1E1E1E;
+  border: 1px solid var(--gold);
+  color: var(--text);
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  z-index: 10000;
+}
+#toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+
 .spin{width:28px;height:28px;border:3px solid #2A2A2A;border-top-color:var(--gold);border-radius:50%;animation:sp .7s linear infinite;margin:36px auto}
 @keyframes sp{to{transform:rotate(360deg)}}
 .ldg{display:flex;justify-content:center;padding:36px}
@@ -140,10 +164,9 @@ button{cursor:pointer;border:none}
 </head>
 <body>
 
-<!-- Login -->
 <div id="login">
   <div class="l-logo">🦷</div>
-  <div class="l-title">Zain Dental</div>
+  <div class="l-title">Zain Clinic for Oral and Dental Medicine and Surgery</div>
   <div class="l-sub">Cloud Portal</div>
   <div class="fld"><label>Username</label><input id="lu" type="text" autocapitalize="none" placeholder="Enter username"></div>
   <div class="fld"><label>Password</label><input id="lp" type="password" placeholder="Enter password"></div>
@@ -151,10 +174,9 @@ button{cursor:pointer;border:none}
   <div class="errmsg" id="lerr"></div>
 </div>
 
-<!-- App Shell -->
 <div id="app" style="display:none">
   <div id="hdr">
-    <span id="hdr-title">🦷 Zain Dental</span>
+    <span id="hdr-title">🦷 Zain Clinic</span>
     <div style="display:flex;align-items:center;gap:8px">
       <span id="hdr-user" style="font-size:11px;color:var(--muted)"></span>
       <button onclick="doLogout()" style="background:none;border:1px solid #333;border-radius:7px;color:#777;padding:4px 8px;font-size:11px">Out</button>
@@ -162,7 +184,6 @@ button{cursor:pointer;border:none}
   </div>
   <div id="content">
 
-    <!-- SCHEDULE -->
     <div id="t-sched" class="pg" style="display:none">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <div class="pg-title" style="margin-bottom:0">Schedule</div>
@@ -178,7 +199,6 @@ button{cursor:pointer;border:none}
       </button>
     </div>
 
-    <!-- QUEUE -->
     <div id="t-queue" class="pg" style="display:none">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <div class="pg-title" style="margin-bottom:0">Live Queue</div>
@@ -187,7 +207,6 @@ button{cursor:pointer;border:none}
       <div id="queue-body"><div class="ldg"><div class="spin"></div></div></div>
     </div>
 
-    <!-- PATIENTS -->
     <div id="t-patients" class="pg" style="display:none">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <div class="pg-title" style="margin-bottom:0">Patients</div>
@@ -200,7 +219,6 @@ button{cursor:pointer;border:none}
       <div id="pat-list"><div class="empty">Type to search</div></div>
     </div>
 
-    <!-- BILLING -->
     <div id="t-billing" class="pg" style="display:none">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <div class="pg-title" style="margin-bottom:0">Billing</div>
@@ -220,7 +238,6 @@ button{cursor:pointer;border:none}
       <div id="inv-list"><div class="ldg"><div class="spin"></div></div></div>
     </div>
 
-    <!-- CLINICAL -->
     <div id="t-clinical" class="pg" style="display:none">
       <div class="pg-title">Clinical</div>
       <div class="srch"><span class="srch-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="17" height="17"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
@@ -230,34 +247,29 @@ button{cursor:pointer;border:none}
       <div id="cl-body"><div class="empty">Search for a patient</div></div>
     </div>
 
-    <!-- MORE -->
     <div id="t-more" class="pg" style="display:none">
       <div class="pg-title">More</div>
       <div class="more-grid">
-        <button class="more-btn" onclick="openSheet('reports')">
+        <button id="btn-reports" class="more-btn" onclick="openSheet('reports')">
           <div class="more-ico">📊</div>
           <div><div class="more-lbl">Reports</div><div class="more-sub">Revenue & stats</div></div>
         </button>
-        <button class="more-btn" onclick="openSheet('staff-mgmt')">
+        <button id="btn-staff" class="more-btn" onclick="openSheet('staff-mgmt')">
           <div class="more-ico">👥</div>
           <div><div class="more-lbl">Staff</div><div class="more-sub">Manage team & login</div></div>
         </button>
-
-
         <button class="more-btn" onclick="openSheet('services')">
           <div class="more-ico">💰</div>
           <div><div class="more-lbl">Services & Prices</div><div class="more-sub">Manage price list</div></div>
         </button>
-        <button class="more-btn" onclick="openSheet('expenses')">
+        <button id="btn-expenses" class="more-btn" onclick="openSheet('expenses')">
           <div class="more-ico">🏥</div>
           <div><div class="more-lbl">Clinic Expenses</div><div class="more-sub">Monthly expenses</div></div>
         </button>
       </div>
     </div>
 
-  </div><!-- /content -->
-
-  <nav id="nav">
+  </div><nav id="nav">
     <button class="nb" data-t="sched" onclick="sw('sched')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Schedule</button>
     <button class="nb" data-t="queue" onclick="sw('queue')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Queue</button>
     <button class="nb" data-t="patients" onclick="sw('patients')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>Patients</button>
@@ -267,9 +279,6 @@ button{cursor:pointer;border:none}
   </nav>
 </div>
 
-<!-- ═══ SHEETS ═══ -->
-
-<!-- Patient detail -->
 <div class="sheet" id="sh-patient">
   <div class="sh-hdr"><button class="back" onclick="closeSheet('patient')">‹</button>
     <div style="flex:1"><div id="sh-pat-name" class="sh-title"></div><div id="sh-pat-num" class="sh-sub"></div></div>
@@ -278,7 +287,6 @@ button{cursor:pointer;border:none}
   <div id="sh-pat-body" style="padding-bottom:40px"></div>
 </div>
 
-<!-- Edit Patient Sheet -->
 <div class="sheet" id="sh-edit-patient">
   <div class="sh-hdr">
     <button class="back" onclick="closeSheet('edit-patient')">‹</button>
@@ -290,7 +298,7 @@ button{cursor:pointer;border:none}
       <div class="ff"><label>First Name *</label><input id="ep-fname" type="text"></div>
       <div class="ff"><label>Last Name</label><input id="ep-lname" type="text"></div>
     </div>
-    <div class="ff"><label>Phone</label><input id="ep-phone" type="tel"></div>
+    <div class="ff"><label>Phone</label><input id="ep-phone" type="tel" dir="ltr"></div>
     <div class="ff"><label>Email</label><input id="ep-email" type="email"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <div class="ff"><label>Date of Birth</label><input id="ep-dob" type="date"></div>
@@ -336,7 +344,6 @@ button{cursor:pointer;border:none}
   </div>
 </div>
 
-<!-- Invoice detail -->
 <div class="sheet" id="sh-inv">
   <div class="sh-hdr"><button class="back" onclick="closeSheet('inv')">‹</button>
     <div style="flex:1"><div id="sh-inv-title" class="sh-title">Invoice</div><div id="sh-inv-sub" class="sh-sub"></div></div>
@@ -345,7 +352,6 @@ button{cursor:pointer;border:none}
   <div id="sh-inv-body" style="padding-bottom:40px"></div>
 </div>
 
-<!-- New Invoice -->
 <div class="sheet" id="sh-inv-new">
   <div class="sh-hdr"><button class="back" onclick="closeSheet('inv-new')">‹</button>
     <div class="sh-title">New Invoice</div>
@@ -376,7 +382,6 @@ button{cursor:pointer;border:none}
   </div>
 </div>
 
-<!-- New Appointment -->
 <div class="sheet" id="sh-new-appt">
   <div class="sh-hdr"><button class="back" onclick="closeSheet('new-appt')">‹</button>
     <div class="sh-title">New Appointment</div>
@@ -404,7 +409,7 @@ button{cursor:pointer;border:none}
           <div class="ff" style="margin:0"><label>First Name *</label><input id="na-new-fname" type="text" placeholder="First name" style="width:100%;background:#1C1C1C;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text)"></div>
           <div class="ff" style="margin:0"><label>Last Name *</label><input id="na-new-lname" type="text" placeholder="Last name" style="width:100%;background:#1C1C1C;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text)"></div>
         </div>
-        <div class="ff" style="margin-bottom:8px"><label>Phone</label><input id="na-new-phone" type="tel" placeholder="Phone number" style="width:100%;background:#1C1C1C;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text)"></div>
+        <div class="ff" style="margin-bottom:8px"><label>Phone</label><input id="na-new-phone" type="tel" dir="ltr" placeholder="Phone number" style="width:100%;background:#1C1C1C;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text)"></div>
       </div>
     </div>
     <div class="ff"><label>Date</label><input type="date" id="na-date"></div>
@@ -420,7 +425,6 @@ button{cursor:pointer;border:none}
   </div>
 </div>
 
-<!-- New Patient -->
 <div class="sheet" id="sh-new-patient">
   <div class="sh-hdr"><button class="back" onclick="closeSheet('new-patient')">‹</button>
     <div class="sh-title">New Patient</div>
@@ -430,7 +434,7 @@ button{cursor:pointer;border:none}
       <div class="ff"><label>First Name *</label><input id="np-fname" type="text"></div>
       <div class="ff"><label>Last Name</label><input id="np-lname" type="text"></div>
     </div>
-    <div class="ff"><label>Phone</label><input id="np-phone" type="tel"></div>
+    <div class="ff"><label>Phone</label><input id="np-phone" type="tel" dir="ltr"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <div class="ff"><label>Age</label><input id="np-age" type="number" min="0" max="120" placeholder="Years"></div>
       <div class="ff"><label>Gender</label><select id="np-gender"><option value="">—</option><option>Male</option><option>Female</option></select></div>
@@ -462,7 +466,6 @@ button{cursor:pointer;border:none}
   </div>
 </div>
 
-<!-- Reports -->
 <div class="sheet" id="sh-reports">
   <div class="sh-hdr"><button class="back" onclick="closeSheet('reports')">‹</button>
     <div class="sh-title">Reports</div>
@@ -470,12 +473,6 @@ button{cursor:pointer;border:none}
   <div id="sh-rep-body" class="pg" style="padding-bottom:40px"><div class="ldg"><div class="spin"></div></div></div>
 </div>
 
-<!-- Staff -->
-
-
-
-
-<!-- Services & Prices Sheet -->
 <div class="sheet" id="sh-services">
   <div class="sh-hdr">
     <button class="back" onclick="closeSheet('services')">‹</button>
@@ -487,7 +484,6 @@ button{cursor:pointer;border:none}
   </div>
 </div>
 
-<!-- Add/Edit Service Sheet -->
 <div class="sheet" id="sh-service-edit">
   <div class="sh-hdr">
     <button class="back" onclick="closeSheet('service-edit')">‹</button>
@@ -495,7 +491,7 @@ button{cursor:pointer;border:none}
   </div>
   <div class="pg" style="padding-bottom:40px">
     <div class="ff"><label>Service Name</label><input id="svc-name" type="text" placeholder="e.g. Root Canal"></div>
-    <div class="ff"><label>Price (EGP)</label><input id="svc-price" type="number" step="0.01" min="0" placeholder="0.00"></div>
+    <div class="ff"><label>Price (EGP)</label><input id="svc-price" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00"></div>
     <div class="ff"><label>Category</label>
       <select id="svc-cat" style="width:100%;background:#1C1C1C;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text)">
         <option value="General">General</option>
@@ -514,7 +510,6 @@ button{cursor:pointer;border:none}
   </div>
 </div>
 
-<!-- Staff Management Sheet -->
 <div class="sheet" id="sh-staff-mgmt">
   <div class="sh-hdr">
     <button class="back" onclick="closeSheet('staff-mgmt')">‹</button>
@@ -526,7 +521,6 @@ button{cursor:pointer;border:none}
   </div>
 </div>
 
-<!-- Add/Edit Staff Sheet -->
 <div class="sheet" id="sh-staff-edit">
   <div class="sh-hdr">
     <button class="back" onclick="closeSheet('staff-edit')">‹</button>
@@ -543,7 +537,7 @@ button{cursor:pointer;border:none}
         <option value="receptionist">Receptionist</option>
       </select>
     </div>
-    <div class="ff"><label>Phone</label><input id="stf-phone" type="tel" placeholder="01012345678"></div>
+    <div class="ff"><label>Phone</label><input id="stf-phone" type="tel" dir="ltr" placeholder="01012345678"></div>
     <div style="background:#1A1A2A;border:1px solid #5B9CF6;border-radius:10px;padding:14px;margin-bottom:14px">
       <div style="font-size:11px;font-weight:700;color:#5B9CF6;margin-bottom:10px;letter-spacing:.5px;text-transform:uppercase">🔑 Login Credentials</div>
       <div class="ff" style="margin-bottom:10px"><label>Password</label><input id="stf-pass" type="password" placeholder="Enter password"></div>
@@ -559,7 +553,6 @@ button{cursor:pointer;border:none}
   </div>
 </div>
 
-<!-- Appointment Detail Sheet -->
 <div class="sheet" id="sh-appt-detail">
   <div class="sh-hdr">
     <button class="back" onclick="closeSheet('appt-detail')">‹</button>
@@ -568,7 +561,6 @@ button{cursor:pointer;border:none}
   <div id="sh-appt-body" class="pg" style="padding-bottom:40px"></div>
 </div>
 
-<!-- Edit Treatment Sheet -->
 <div class="sheet" id="sh-edit-tx">
   <div class="sh-hdr">
     <button class="back" onclick="closeSheet('edit-tx')">‹</button>
@@ -579,7 +571,7 @@ button{cursor:pointer;border:none}
     <div class="ff"><label>Procedure Name</label><input id="etx-name" type="text"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <div class="ff"><label>Tooth #</label><input id="etx-tooth" type="number" placeholder="FDI #"></div>
-      <div class="ff"><label>Cost (EGP)</label><input id="etx-cost" type="number" step="0.01" min="0"></div>
+      <div class="ff"><label>Cost (EGP)</label><input id="etx-cost" type="number" inputmode="decimal" step="0.01" min="0"></div>
     </div>
     <div class="ff"><label>Date</label><input id="etx-date" type="date"></div>
     <div class="ff"><label>Diagnosis / Notes</label><textarea id="etx-notes"></textarea></div>
@@ -587,7 +579,6 @@ button{cursor:pointer;border:none}
   </div>
 </div>
 
-<!-- Edit Invoice Sheet -->
 <div class="sheet" id="sh-edit-inv">
   <div class="sh-hdr">
     <button class="back" onclick="closeSheet('edit-inv')">‹</button>
@@ -615,7 +606,6 @@ button{cursor:pointer;border:none}
   </div>
 </div>
 
-<!-- Clinic Expenses Sheet -->
 <div class="sheet" id="sh-expenses">
   <div class="sh-hdr">
     <button class="back" onclick="closeSheet('expenses')">‹</button>
@@ -623,19 +613,15 @@ button{cursor:pointer;border:none}
     <button onclick="openAddExpense()" style="background:linear-gradient(135deg,var(--gold),var(--gold2));color:#111;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:800;cursor:pointer">+ Add</button>
   </div>
   <div class="pg" style="padding-bottom:40px">
-    <!-- Month Selector -->
     <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center">
       <input type="month" id="exp-month" class="dt-sel" style="flex:1;color:var(--gold)" onchange="loadExpenses()">
       <button class="ref-btn" onclick="loadExpenses()">↻</button>
     </div>
-    <!-- Summary -->
     <div id="exp-summary" style="margin-bottom:14px"></div>
-    <!-- List -->
     <div id="exp-list"><div class="ldg"><div class="spin"></div></div></div>
   </div>
 </div>
 
-<!-- Add/Edit Expense Sheet -->
 <div class="sheet" id="sh-expense-edit">
   <div class="sh-hdr">
     <button class="back" onclick="closeSheet('expense-edit')">‹</button>
@@ -657,7 +643,7 @@ button{cursor:pointer;border:none}
         <option value="Other">✏ Other</option>
       </select>
     </div>
-    <div class="ff"><label>Amount (EGP)</label><input id="exp-amount" type="number" step="0.01" min="0" placeholder="0.00"></div>
+    <div class="ff"><label>Amount (EGP)</label><input id="exp-amount" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00"></div>
     <div class="ff"><label>Date</label><input id="exp-date" type="date"></div>
     <div class="ff"><label>Details / Notes (optional)</label><textarea id="exp-notes" placeholder="e.g. invoice number, supplier name…"></textarea></div>
     <input id="exp-title" type="hidden">
@@ -678,7 +664,15 @@ const SL={scheduled:"Scheduled",confirmed:"Confirmed",completed:"Done",cancelled
 const SN={scheduled:"confirmed",confirmed:"completed",completed:"scheduled",cancelled:"scheduled","no-show":"scheduled"};
 const MONTHS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-let USER=JSON.parse(localStorage.getItem("zd_user")||"null");
+let USER = null;
+try {
+  const stored = localStorage.getItem("zd_user");
+  if (stored) USER = JSON.parse(stored);
+} catch (e) {
+  console.error("Failed to parse user data", e);
+  localStorage.removeItem("zd_user");
+}
+
 let _niPatId=null,_naPatId=null,_clPatId=null,_invFilter="all";
 let _niItems=[],_procs=[],_naMode="existing";
 let _tmrs={};
@@ -749,6 +743,17 @@ function showApp(){
   document.getElementById("app").style.display="flex";
   document.getElementById("hdr-user").textContent=USER?.full_name||"";
   document.getElementById("sched-dt").value=today();
+
+  // إخفاء الأقسام الحساسة إذا لم يكن المستخدم مديراً
+  const isAdmin = USER?.role === "admin";
+  const btnReports = document.getElementById("btn-reports");
+  const btnStaff = document.getElementById("btn-staff");
+  const btnExpenses = document.getElementById("btn-expenses");
+
+  if (btnReports) btnReports.style.display = isAdmin ? "flex" : "none";
+  if (btnStaff) btnStaff.style.display = isAdmin ? "flex" : "none";
+  if (btnExpenses) btnExpenses.style.display = isAdmin ? "flex" : "none";
+
   loadProcs();
   sw("sched");
 }
@@ -764,7 +769,7 @@ function sw(tab){
   document.getElementById("hdr-title").textContent={
     sched:"📅 Schedule",queue:"👥 Queue",patients:"🔍 Patients",
     billing:"🧾 Billing",clinical:"🦷 Clinical",more:"☰ More"
-  }[tab]||"Zain Dental";
+  }[tab]||"🦷 Zain Clinic";
   if(tab==="sched") loadSched();
   if(tab==="queue") loadQueue();
   if(tab==="billing") loadInvoices();
@@ -774,6 +779,13 @@ function sw(tab){
 
 // ── Sheets ────────────────────────────────────────────────────────────────────
 function openSheet(name){
+  // حماية إضافية: منع فتح التقارير والمصروفات وإدارة الموظفين لغير الإدارة
+  const adminOnlySheets = ['reports', 'staff-mgmt', 'expenses'];
+  if (adminOnlySheets.includes(name) && USER?.role !== 'admin') {
+    toast("عذراً، هذه الصلاحية متاحة للمدير فقط 🔒");
+    return;
+  }
+
   document.getElementById("sh-"+name).classList.add("open");
   if(name==="reports") loadReports();
   if(name==="whatsapp-list") loadWAList();
@@ -807,7 +819,7 @@ function apptRow(a){
   const c=SC[a.status]||"#888",bg=c+"1E",t=(a.appointment_time||"").slice(0,5)||"—";
   const pname=a.patients?`${a.patients.first_name} ${a.patients.last_name}`:a.patient_name||"Unknown";
   const phone=a.patients?.phone||"";
-  const waMsg=encodeURIComponent(`🦷 عيادة الدكتور عبدالله زين لطب الأسنان\nالسيد/ة ${pname}، لديك موعد بتاريخ ${a.appointment_date} الساعة ${t}.\nنتطلع لرؤيتكم 😊`);
+  const waMsg=encodeURIComponent(`عيادة د. عبدالله سامي زين لطب وجراحة الفم والأسنان 🦷\nمرحباً أستاذ/ة ${pname}،\nنذكركم بموعدكم القادم بتاريخ ${a.appointment_date} الساعة ${t}.\n\nللتواصل أو الاستفسار: 01555563997\nنتطلع لرؤيتكم 😊`);
   return `<div class="ar row-sep">
     <div class="ar-bar" style="background:${c}"></div>
     <div class="ar-body" onclick="openAppt(${JSON.stringify(a).replace(/'/g,'\\&#39;').replace(/`/g,'\\&#96;')})">
@@ -861,7 +873,7 @@ async function openAppt(a){
   const dt=a.appointment_date||"";
 
   // Arabic WhatsApp message
-  const waMsg=encodeURIComponent(`لديك موعد مع عيادة الدكتور عبدالله زين لطب الأسنان\nاليوم: ${dt}\nالساعة: ${t}\nنتطلع لرؤيتكم 🦷`);
+  const waMsg=encodeURIComponent(`عيادة د. عبدالله سامي زين لطب وجراحة الفم والأسنان 🦷\nمرحباً أستاذ/ة ${pname}،\nنذكركم بموعدكم القادم بتاريخ ${dt} الساعة ${t}.\n\nللتواصل أو الاستفسار: 01555563997\nنتطلع لرؤيتكم 😊`);
 
   const statusColors={scheduled:"#5B9CF6",confirmed:"#34D399",completed:"#C9A84C",cancelled:"#F87171","no-show":"#6B7280"};
   const statusLabels={scheduled:"Scheduled",confirmed:"Confirmed",completed:"Done",cancelled:"Cancelled","no-show":"No-show"};
@@ -881,7 +893,6 @@ async function openAppt(a){
       </div>
     </div>
 
-    <!-- Status Selector -->
     <div class="slbl">Update Status</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">
       ${[["scheduled","#5B9CF6","📅 Scheduled"],["confirmed","#34D399","✅ Confirmed"],["completed","#C9A84C","✔ Done"],["no-show","#6B7280","👻 No-show"],["cancelled","#F87171","✗ Cancelled"]].map(([s,col,lbl])=>`
@@ -892,7 +903,6 @@ async function openAppt(a){
       </button>`).join("")}
     </div>
 
-    <!-- WhatsApp Reminder -->
     <div class="slbl">Send Appointment Reminder</div>
     <div style="background:#0D2A1A;border:1px solid #25D36644;border-radius:13px;padding:16px;margin-bottom:14px">
       <div style="font-size:12px;color:#25D366;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px">
@@ -900,10 +910,11 @@ async function openAppt(a){
         WhatsApp Reminder
       </div>
       <div style="background:#111;border-radius:8px;padding:12px;margin-bottom:12px;font-size:13px;color:#ccc;line-height:1.7;direction:rtl;text-align:right;font-family:Arial,sans-serif">
-        لديك موعد مع عيادة الدكتور عبدالله زين لطب الأسنان<br>
-        📅 اليوم: ${dt}<br>
-        🕐 الساعة: ${t}<br>
-        نتطلع لرؤيتكم 🦷
+        عيادة د. عبدالله سامي زين لطب وجراحة الفم والأسنان 🦷<br>
+        مرحباً أستاذ/ة ${esc(pname)}،<br>
+        نذكركم بموعدكم القادم بتاريخ ${dt} الساعة ${t}.<br>
+        للتواصل أو الاستفسار: 01555563997<br>
+        نتطلع لرؤيتكم 😊
       </div>
       ${phone?`
       <button onclick="window.open('https://wa.me/${intlPhone}?text=${waMsg}','_blank')"
@@ -914,7 +925,6 @@ async function openAppt(a){
       :`<div style="text-align:center;color:var(--red);font-size:12px;font-weight:600;padding:8px">⚠ No phone number registered for this patient</div>`}
     </div>
 
-    <!-- View Patient Profile -->
     <button onclick="closeSheet('appt-detail');openPat(${a.patient_id})"
       style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer">
       👤 View Patient Profile
@@ -1090,7 +1100,7 @@ async function openPat(pid){
     </div>`).join(""):'<div class="empty" style="padding:16px">No treatments</div>';
   document.getElementById("sh-pat-body").innerHTML=`
     <div class="ig">
-      <div class="ii"><div class="ii-lbl">Phone</div><div class="ii-val">${esc(p.phone||"—")}</div></div>
+      <div class="ii"><div class="ii-lbl">Phone</div><div class="ii-val" dir="ltr">${esc(p.phone||"—")}</div></div>
       <div class="ii"><div class="ii-lbl">Date of Birth</div><div class="ii-val">${p.date_of_birth?p.date_of_birth+" ("+age(p.date_of_birth)+"y)":"—"}</div></div>
       <div class="ii"><div class="ii-lbl">Blood Type</div><div class="ii-val">${esc(p.blood_type||"—")}</div></div>
       <div class="ii"><div class="ii-lbl">City</div><div class="ii-val">${esc(p.city||"—")}</div></div>
@@ -1215,7 +1225,7 @@ async function openInv(id){
     <div class="card" style="margin:0 14px 14px">${pmtsHtml}</div>
     ${remaining>0?`<div class="pg" style="padding-top:0">
       <div class="slbl">Record Payment</div>
-      <div class="ff"><label>Amount</label><input type="number" id="pay-amt" value="${remaining.toFixed(2)}" step="0.01" min="0.01"></div>
+      <div class="ff"><label>Amount</label><input type="number" inputmode="decimal" id="pay-amt" value="${remaining.toFixed(2)}" step="0.01" min="0.01"></div>
       <div class="ff"><label>Method</label><select id="pay-meth"><option value="cash">Cash</option><option value="card">Card</option><option value="bank_transfer">Bank Transfer</option><option value="insurance">Insurance</option></select></div>
       <button class="btn-g" style="border-radius:10px;padding:13px" onclick="recordPayment(${id})">Record Payment</button>
     </div>`:""}`;
@@ -1266,7 +1276,7 @@ function addNIItem(){
   </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
     <div class="ff" style="margin:0"><label>Qty</label><input id="ni-qty-${idx}" type="number" value="1" min="1" oninput="niCalc(${idx})" style="width:100%;background:#1A1A1A;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text)"></div>
-    <div class="ff" style="margin:0"><label>Price (EGP)</label><input id="ni-price-${idx}" type="number" value="0" step="0.01" oninput="niCalc(${idx})" style="width:100%;background:#1A1A1A;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text)"></div>
+    <div class="ff" style="margin:0"><label>Price (EGP)</label><input id="ni-price-${idx}" type="number" inputmode="decimal" value="0" step="0.01" oninput="niCalc(${idx})" style="width:100%;background:#1A1A1A;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text)"></div>
   </div>`;
   d.appendChild(div);
 }
@@ -1460,7 +1470,7 @@ async function loadCLPat(pid,name){
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
         <div class="ff" style="margin:0"><label>Tooth #</label><select id="cl-tooth" style="width:100%;background:#1C1C1C;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text)">${toothOpts()}</select></div>
-        <div class="ff" style="margin:0"><label>Cost (EGP)</label><input id="cl-cost" type="number" step="0.01" min="0" value="0" style="width:100%;background:#1C1C1C;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text)"></div>
+        <div class="ff" style="margin:0"><label>Cost (EGP)</label><input id="cl-cost" type="number" inputmode="decimal" step="0.01" min="0" value="0" style="width:100%;background:#1C1C1C;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text)"></div>
       </div>
       <div class="ff"><label>Diagnosis / Notes</label><textarea id="cl-notes" style="width:100%;background:#1C1C1C;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text);resize:vertical;min-height:60px"></textarea></div>
       <button class="btn-g" style="border-radius:10px;padding:13px" onclick="submitTx()">Save Treatment</button>
@@ -1612,7 +1622,7 @@ async function loadWAList(){
       const pname=a.patients?`${a.patients.first_name} ${a.patients.last_name}`:a.patient_name||"Unknown";
       const phone=a.patients?.phone||"";
       const t=(a.appointment_time||"").slice(0,5);
-      const msg=encodeURIComponent(`🦷 عيادة الدكتور عبدالله زين لطب الأسنان\nالسيد/ة ${pname}، لديك موعد بتاريخ ${a.appointment_date} الساعة ${t}.\nنتطلع لرؤيتكم 😊`);
+      const msg=encodeURIComponent(`عيادة د. عبدالله سامي زين لطب وجراحة الفم والأسنان 🦷\nمرحباً أستاذ/ة ${pname}،\nنذكركم بموعدكم القادم بتاريخ ${a.appointment_date} الساعة ${t}.\n\nللتواصل أو الاستفسار: 01555563997\nنتطلع لرؤيتكم 😊`);
       return `<div class="pr row-sep" style="flex-direction:column;align-items:stretch;padding:12px 14px">
         <div style="display:flex;align-items:center;gap:10px">
           <div class="av" style="width:32px;height:32px;font-size:12px">${(pname[0]||"?").toUpperCase()}</div>
@@ -1635,7 +1645,7 @@ async function sendAllWA(appts){
     if(!phone) continue;
     const pname=a.patients?`${a.patients.first_name} ${a.patients.last_name}`:a.patient_name||"";
     const t=(a.appointment_time||"").slice(0,5);
-    const msg=encodeURIComponent(`🦷 عيادة الدكتور عبدالله زين لطب الأسنان\nالسيد/ة ${pname}، لديك موعد بتاريخ ${a.appointment_date} الساعة ${t}.\nنتطلع لرؤيتكم 😊`);
+    const msg=encodeURIComponent(`عيادة د. عبدالله سامي زين لطب وجراحة الفم والأسنان 🦷\nمرحباً أستاذ/ة ${pname}،\nنذكركم بموعدكم القادم بتاريخ ${a.appointment_date} الساعة ${t}.\n\nللتواصل أو الاستفسار: 01555563997\nنتطلع لرؤيتكم 😊`);
     window.open("https://wa.me/"+toEG(rawPhone)+"?text="+msg,"_blank");
     sent++;
     await new Promise(r=>setTimeout(r,800));
@@ -1720,7 +1730,7 @@ function renderEditInvItem(it,i){
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <div class="ff" style="margin:0"><label>Qty</label><input id="einv-qty-${i}" type="number" value="${it.quantity||1}" min="1" oninput="editInvCalc(${i})" style="width:100%;background:#1A1A1A;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text)"></div>
-      <div class="ff" style="margin:0"><label>Price (EGP)</label><input id="einv-price-${i}" type="number" value="${it.unit_price||0}" step="0.01" oninput="editInvCalc(${i})" style="width:100%;background:#1A1A1A;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text)"></div>
+      <div class="ff" style="margin:0"><label>Price (EGP)</label><input id="einv-price-${i}" type="number" inputmode="decimal" value="${it.unit_price||0}" step="0.01" oninput="editInvCalc(${i})" style="width:100%;background:#1A1A1A;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;color:var(--text)"></div>
     </div>`;
   rows.appendChild(div);
 }
