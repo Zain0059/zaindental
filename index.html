@@ -1,0 +1,2412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#E8F5EE">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Zain Dental Clinic">
+<title>Zain Dental Clinic — Cloud Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* ══════════════════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════════════════ */
+:root {
+  /* Palette — White / Mint */
+  --bg:        #E8F5EE;
+  --surface:   #FFFFFF;
+  --card:      #FFFFFF;
+  --card2:     #EFF9F4;
+  --border:    #C0E4D0;
+  --border2:   #99CCAE;
+
+  /* Brand — Mint Green */
+  --blue:      #0A8F63;
+  --blue-dim:  #0A8F630D;
+  --blue-low:  #0A8F631A;
+  --blue-glow: #0A8F6330;
+
+  /* Status */
+  --green:     #059669;
+  --red:       #DC2626;
+  --amber:     #D97706;
+  --purple:    #7C3AED;
+  --slate:     #6B7280;
+
+  /* Text */
+  --text:      #0C2A1C;
+  --text-dim:  #2D6A4E;
+  --text-muted:#7BA993;
+
+  /* Safe area */
+  --sb: env(safe-area-inset-bottom, 0px);
+
+  /* Typography */
+  --font:      'DM Sans', system-ui, sans-serif;
+  --mono:      'DM Mono', 'Courier New', monospace;
+
+  /* Radius */
+  --r-sm:  8px;
+  --r-md:  12px;
+  --r-lg:  16px;
+  --r-xl:  20px;
+  --r-full:999px;
+}
+
+/* ══════════════════════════════════════════════
+   RESET & BASE
+══════════════════════════════════════════════ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0; padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 15px;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+}
+button, input, select, textarea { font-family: inherit; }
+button { cursor: pointer; border: none; background: none; }
+
+/* ══════════════════════════════════════════════
+   APP SHELL
+══════════════════════════════════════════════ */
+#app { display: flex; flex-direction: column; height: 100dvh; }
+
+/* Header */
+#hdr {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  position: relative;
+}
+#hdr::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+#hdr-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -.2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#hdr-title svg { color: var(--blue); }
+
+#hdr-right { display: flex; align-items: center; gap: 8px; }
+#hdr-user {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-dim);
+  background: var(--blue-low);
+  padding: 4px 10px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--border);
+}
+.out-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text-muted);
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all .15s;
+}
+.out-btn:active { background: var(--bg); color: var(--red); border-color: var(--red); }
+
+/* Content area */
+#content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(68px + var(--sb));
+}
+
+/* ══════════════════════════════════════════════
+   BOTTOM NAV
+══════════════════════════════════════════════ */
+#nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(255,255,255,.97);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: stretch;
+  padding-bottom: var(--sb);
+  z-index: 200;
+  height: calc(58px + var(--sb));
+  box-shadow: 0 -4px 20px rgba(10,143,99,.07);
+  backdrop-filter: blur(12px);
+}
+.nb {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 2px 6px;
+  background: none;
+  color: var(--text-muted);
+  font-size: 9px;
+  font-weight: 600;
+  gap: 4px;
+  letter-spacing: .3px;
+  text-transform: uppercase;
+  transition: color .2s;
+  position: relative;
+  min-width: 0;
+}
+.nb svg {
+  width: 20px; height: 20px;
+  stroke-width: 1.7;
+  flex-shrink: 0;
+  transition: transform .2s;
+}
+.nb.on { color: var(--blue); }
+.nb.on svg { transform: translateY(-1px); }
+.nb.on::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 32px; height: 2px;
+  background: var(--blue);
+  border-radius: 0 0 var(--r-sm) var(--r-sm);
+  box-shadow: 0 0 8px var(--blue-glow);
+}
+
+/* ══════════════════════════════════════════════
+   LOGIN
+══════════════════════════════════════════════ */
+#login {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 28px;
+  z-index: 999;
+}
+.l-logo-wrap {
+  width: 130px; height: 130px;
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  box-shadow: none;
+}
+.l-logo-wrap svg { color: var(--blue); width: 110px; height: 110px; filter: drop-shadow(0 4px 16px #0A8F6330); }
+.l-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 4px;
+  letter-spacing: -.4px;
+}
+.l-sub {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 36px;
+  text-align: center;
+  font-weight: 500;
+}
+.login-card {
+  width: 100%;
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 4px 0;
+}
+.fld { width: 100%; margin-bottom: 14px; }
+.fld label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 7px;
+}
+.fld input {
+  width: 100%;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px 16px;
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 500;
+  transition: border-color .2s, box-shadow .2s;
+  box-shadow: 0 2px 8px rgba(10,100,60,.06);
+}
+.fld input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px var(--blue-dim);
+}
+.btn-primary {
+  width: 100%;
+  background: linear-gradient(135deg, #0A8F63, #0DBF85);
+  color: #fff;
+  border-radius: var(--r-md);
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: .2px;
+  transition: opacity .2s, box-shadow .2s;
+  box-shadow: 0 4px 20px #0A8F6330;
+}
+.btn-primary:active { opacity: .8; }
+.errmsg {
+  color: var(--red);
+  font-size: 12px;
+  text-align: center;
+  margin-top: 12px;
+  min-height: 18px;
+  font-weight: 500;
+}
+
+/* ══════════════════════════════════════════════
+   PAGE LAYOUT
+══════════════════════════════════════════════ */
+.pg { padding: 16px; }
+.pg-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -.4px;
+  margin-bottom: 16px;
+}
+.sec-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.slbl {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+/* ══════════════════════════════════════════════
+   CARDS & ROWS
+══════════════════════════════════════════════ */
+.card {
+  background: var(--card);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 12px rgba(10,100,60,.07);
+}
+.row-sep { border-bottom: 1px solid var(--border); }
+.row-sep:last-child { border-bottom: none; }
+
+/* Stats grid */
+.sg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.sc {
+  background: var(--card);
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  padding: 16px 14px 14px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(10,100,60,.07);
+}
+.sc::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--ac, var(--blue));
+  box-shadow: 0 0 12px var(--ac, var(--blue));
+}
+.sc-ico {
+  width: 32px; height: 32px;
+  border-radius: var(--r-sm);
+  background: color-mix(in srgb, var(--ac, var(--blue)) 12%, transparent);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 10px;
+}
+.sc-ico svg { width: 16px; height: 16px; color: var(--ac, var(--blue)); }
+.sc-val {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -1px;
+  line-height: 1;
+  font-family: var(--mono);
+}
+.sc-lbl {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  margin-top: 5px;
+}
+
+/* Appointment row */
+.ar {
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+}
+.ar-bar { width: 3px; flex-shrink: 0; }
+.ar-body {
+  flex: 1;
+  padding: 12px 13px;
+  min-width: 0;
+  cursor: pointer;
+}
+.ar-time {
+  font-size: 16px;
+  font-weight: 700;
+  font-family: var(--mono);
+  margin-bottom: 2px;
+  line-height: 1;
+}
+.ar-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ar-type { font-size: 11px; color: var(--text-dim); margin-top: 1px; }
+.ar-act {
+  padding: 8px 10px 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+/* Status select in appt rows */
+.status-sel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 5px 7px;
+  cursor: pointer;
+  max-width: 108px;
+}
+
+/* Patient row */
+.pr {
+  display: flex;
+  align-items: center;
+  padding: 13px 14px;
+  gap: 12px;
+  cursor: pointer;
+  transition: background .12s;
+}
+.pr:active { background: var(--card2); }
+.av {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0A8F63, #0DBF85);
+  border: 1px solid var(--blue-glow);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--blue);
+  flex-shrink: 0;
+  font-family: var(--mono);
+}
+.pr-info { flex: 1; min-width: 0; }
+.pr-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.pr-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+.pr-arr { color: var(--text-muted); font-size: 15px; }
+
+/* Search input */
+.srch { position: relative; margin-bottom: 14px; }
+.srch input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 11px 14px 11px 42px;
+  font-size: 14px;
+  color: var(--text);
+  transition: border-color .2s;
+}
+.srch input:focus { border-color: var(--blue); outline: none; box-shadow: 0 0 0 3px var(--blue-dim); }
+.srch-ico {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+/* Date selector */
+.dt-sel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text);
+  padding: 7px 11px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--mono);
+}
+.ref-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text-dim);
+  padding: 7px 11px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.ref-btn:active { background: var(--card2); }
+
+/* Pills / filters */
+.pill-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.pill {
+  padding: 6px 14px;
+  border-radius: var(--r-full);
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all .15s;
+}
+.pill.on {
+  background: var(--blue-low);
+  color: var(--blue);
+  border-color: var(--border2);
+}
+
+/* Small buttons */
+.small-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text-dim);
+  padding: 7px 13px;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all .15s;
+}
+.small-btn:active { background: var(--card2); }
+.small-btn.primary {
+  color: var(--blue);
+  border-color: var(--blue-glow);
+  background: var(--blue-dim);
+}
+
+/* WhatsApp button */
+.wa-btn {
+  background: #DCFCE7;
+  border: 1px solid #16A34A30;
+  border-radius: var(--r-full);
+  padding: 4px 9px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #15803D;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* ══════════════════════════════════════════════
+   MORE GRID
+══════════════════════════════════════════════ */
+.more-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.more-btn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  transition: border-color .2s, background .15s;
+  text-align: left;
+}
+.more-btn:active { background: var(--card2); border-color: var(--border2); }
+.more-ico {
+  width: 40px; height: 40px;
+  border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.more-ico svg { width: 20px; height: 20px; }
+.more-lbl { font-size: 13px; font-weight: 700; color: var(--text); }
+.more-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+/* ══════════════════════════════════════════════
+   INVOICE ROWS
+══════════════════════════════════════════════ */
+.inv-row {
+  display: flex;
+  align-items: center;
+  padding: 13px 14px;
+  gap: 12px;
+  cursor: pointer;
+  transition: background .12s;
+}
+.inv-row:active { background: var(--card2); }
+.inv-num { font-size: 11px; font-weight: 700; color: var(--blue); margin-bottom: 2px; font-family: var(--mono); }
+.inv-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.inv-date { font-size: 11px; color: var(--text-dim); }
+.inv-amt { text-align: right; flex-shrink: 0; }
+.inv-total { font-size: 14px; font-weight: 800; color: var(--text); font-family: var(--mono); }
+.inv-status { font-size: 10px; font-weight: 700; letter-spacing: .4px; margin-top: 3px; }
+.s-paid { color: var(--green); }
+.s-partial { color: var(--amber); }
+.s-unpaid { color: var(--red); }
+
+/* ══════════════════════════════════════════════
+   FORMS
+══════════════════════════════════════════════ */
+.ff { margin-bottom: 12px; }
+.ff label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.ff input,
+.ff select,
+.ff textarea {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--text);
+  transition: border-color .2s, box-shadow .2s;
+}
+.ff input:focus,
+.ff select:focus,
+.ff textarea:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px var(--blue-dim);
+  outline: none;
+}
+.ff select option { background: #0F1E31; }
+.ff textarea { resize: vertical; min-height: 70px; }
+
+/* Global select / input style (used inline) */
+select, input[type="date"], input[type="time"],
+input[type="text"], input[type="tel"], input[type="email"],
+input[type="number"], input[type="password"], input[type="search"],
+input[type="month"] {
+  font-family: var(--font);
+}
+
+/* ══════════════════════════════════════════════
+   SHEETS (slide-in panels)
+══════════════════════════════════════════════ */
+.sheet {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  z-index: 500;
+  transform: translateX(100%);
+  transition: transform .28s cubic-bezier(.4, 0, .2, 1);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.sheet.open { transform: translateX(0); }
+.sh-hdr {
+  background: var(--card);
+  padding: 0 16px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.back {
+  background: none;
+  color: var(--text-dim);
+  font-size: 22px;
+  line-height: 1;
+  padding: 4px 8px 4px 0;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+.back:active { color: var(--text); }
+.sh-title { font-size: 15px; font-weight: 700; color: var(--text); }
+.sh-sub { font-size: 11px; color: var(--text-dim); margin-top: 1px; }
+.sh-action-btn {
+  background: var(--blue);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: opacity .2s;
+}
+.sh-action-btn:active { opacity: .8; }
+.sh-danger-btn {
+  background: none;
+  border: 1px solid rgba(220,38,38,.35);
+  border-radius: var(--r-sm);
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--red);
+  cursor: pointer;
+}
+
+/* Info grid inside sheets */
+.ig {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 14px;
+}
+.ii {
+  background: var(--surface);
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+}
+.ii.full { grid-column: 1 / -1; }
+.ii-lbl {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  margin-bottom: 4px;
+}
+.ii-val { font-size: 13px; font-weight: 600; color: var(--text); }
+
+/* Badges */
+.badge {
+  display: inline-block;
+  border-radius: var(--r-sm);
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  margin: 2px;
+}
+.b-red   { background: #F8717118; color: var(--red);    border: 1px solid #F8717130; }
+.b-blue  { background: var(--blue-low); color: var(--blue);  border: 1px solid var(--blue-glow); }
+.b-green { background: #34D39918; color: var(--green);  border: 1px solid #34D39930; }
+.b-gold  { background: #FBBF2418; color: var(--amber);  border: 1px solid #FBBF2430; }
+
+/* ══════════════════════════════════════════════
+   CHARTS / BARS (Reports)
+══════════════════════════════════════════════ */
+.bar-wrap { padding: 4px 0 8px; }
+.bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.bar-label { font-size: 10px; color: var(--text-dim); width: 28px; text-align: right; flex-shrink: 0; font-family: var(--mono); }
+.bar-track { flex: 1; background: var(--border); border-radius: 4px; height: 20px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; display: flex; align-items: center; padding-left: 8px; min-width: 4px; }
+.bar-val { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.85); white-space: nowrap; font-family: var(--mono); }
+
+/* ══════════════════════════════════════════════
+   STAFF
+══════════════════════════════════════════════ */
+.role-badge { font-size: 10px; font-weight: 700; letter-spacing: .4px; padding: 3px 8px; border-radius: var(--r-full); }
+.r-admin      { background: #0A8F631A; color: #0A8F63; border: 1px solid #0A8F6330; }
+.r-dentist    { background: #7C3AED12; color: #6D28D9; border: 1px solid #7C3AED25; }
+.r-assistant  { background: #05966912; color: #047857; border: 1px solid #05966925; }
+
+/* ══════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════ */
+#toast {
+  position: fixed;
+  bottom: calc(78px + var(--sb));
+  left: 50%;
+  transform: translateX(-50%) translateY(14px) scale(.95);
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 10px 20px;
+  border-radius: var(--r-full);
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0;
+  transition: all .25s cubic-bezier(.4, 0, .2, 1);
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5), 0 0 0 1px var(--blue-glow);
+  z-index: 10000;
+}
+#toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0) scale(1);
+}
+
+/* ══════════════════════════════════════════════
+   LOADERS / EMPTY
+══════════════════════════════════════════════ */
+.spin {
+  width: 26px; height: 26px;
+  border: 2px solid var(--border);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: sp .7s linear infinite;
+  margin: 36px auto;
+}
+@keyframes sp { to { transform: rotate(360deg); } }
+.ldg { display: flex; justify-content: center; padding: 36px; }
+.empty { text-align: center; padding: 44px 20px; color: var(--text-muted); font-size: 13px; }
+
+/* ══════════════════════════════════════════════
+   DELETE BUTTON
+══════════════════════════════════════════════ */
+.btn-danger {
+  width: 100%;
+  background: none;
+  border: 1px solid #F8717140;
+  border-radius: var(--r-md);
+  padding: 13px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--red);
+  margin-top: 10px;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.btn-danger:active { background: #F8717110; border-color: var(--red); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     LOGIN
+══════════════════════════════════════════ -->
+<div id="login">
+  <div class="l-logo-wrap">
+    <svg viewBox="0 0 100 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Tooth body -->
+      <path d="M30 22C22 22 15 29 15 38C15 52 22 64 27 72L30 85C31 89 34 91 37 91C40 91 42 89 43 85L50 62C57 85 58 88 59 89C60 90 62 91 64 91C67 91 69 89 70 85L73 72C78 64 85 52 85 38C85 29 78 22 70 22C63 22 58 26 50 26C42 26 37 22 30 22Z" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Z letter inside -->
+      <path d="M36 36H62L38 54H64" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <div class="l-title">Zain Dental Clinic</div>
+  <div class="l-sub">Oral &amp; Dental Medicine and Surgery</div>
+  <div class="login-card">
+    <div class="fld"><label>Username</label><input id="lu" type="text" autocapitalize="none" placeholder="Enter username"></div>
+    <div class="fld" style="margin-bottom:20px"><label>Password</label><input id="lp" type="password" placeholder="Enter password"></div>
+    <button class="btn-primary" id="lbtn" onclick="doLogin()">Sign In</button>
+    <div class="errmsg" id="lerr"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     APP SHELL
+══════════════════════════════════════════ -->
+<div id="app" style="display:none">
+  <div id="hdr">
+    <div id="hdr-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3C9.8 3 8 4.3 7.5 6C6.7 5.5 5.5 5.6 4.8 6.5C4 7.5 4.5 9 5.3 9.8C5.6 10.1 5.7 10.5 5.7 11C5.7 14 7.5 17 9.2 18.8L9.7 20.5C9.9 21.4 10.6 22 11.5 22H12.5C13.4 22 14.1 21.4 14.3 20.5L14.8 18.8C16.5 17 18.3 14 18.3 11C18.3 10.5 18.4 10.1 18.7 9.8C19.5 9 20 7.5 19.2 6.5C18.5 5.6 17.3 5.5 16.5 6C16 4.3 14.2 3 12 3Z"/>
+        <path d="M10 10.5L11.5 12L15 8.5" stroke-width="1.6"/>
+      </svg>
+      Zain Dental Clinic
+    </div>
+    <div id="hdr-right">
+      <span id="hdr-user"></span>
+      <button class="out-btn" onclick="doLogout()">Sign out</button>
+    </div>
+  </div>
+
+  <div id="content">
+
+    <!-- SCHEDULE -->
+    <div id="t-sched" class="pg" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div class="pg-title" style="margin:0">Schedule</div>
+        <div style="display:flex;gap:7px;align-items:center">
+          <input type="date" class="dt-sel" id="sched-dt" onchange="loadSched()">
+          <button class="ref-btn" onclick="loadSched()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14" stroke-width="2.2"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+          </button>
+        </div>
+      </div>
+      <div id="sched-list"><div class="ldg"><div class="spin"></div></div></div>
+      <button class="btn-primary" style="border-radius:var(--r-md);padding:15px;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px" onclick="openSheet('new-appt')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="17" height="17" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        New Appointment
+      </button>
+    </div>
+
+    <!-- QUEUE -->
+    <div id="t-queue" class="pg" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div class="pg-title" style="margin:0">Live Queue</div>
+        <button class="ref-btn" onclick="loadQueue()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14" stroke-width="2.2"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+        </button>
+      </div>
+      <div id="queue-body"><div class="ldg"><div class="spin"></div></div></div>
+    </div>
+
+    <!-- PATIENTS -->
+    <div id="t-patients" class="pg" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div class="pg-title" style="margin:0">Patients</div>
+        <button class="small-btn primary" onclick="openSheet('new-patient')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="12" height="12" stroke-width="2.5" style="display:inline;vertical-align:middle;margin-right:4px"><path d="M12 5v14M5 12h14"/></svg>
+          New Patient
+        </button>
+      </div>
+      <div class="srch">
+        <span class="srch-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+        <input id="pat-q" type="search" placeholder="Name, phone, ID…" oninput="searchPats(this.value)">
+      </div>
+      <div id="pat-list"><div class="empty">Type to search</div></div>
+    </div>
+
+    <!-- BILLING -->
+    <div id="t-billing" class="pg" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div class="pg-title" style="margin:0">Billing</div>
+        <button class="small-btn primary" onclick="openSheet('inv-new')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="12" height="12" stroke-width="2.5" style="display:inline;vertical-align:middle;margin-right:4px"><path d="M12 5v14M5 12h14"/></svg>
+          Invoice
+        </button>
+      </div>
+      <div class="srch" style="margin-bottom:10px">
+        <span class="srch-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+        <input id="inv-srch" type="search" placeholder="Name, invoice #…" oninput="renderInvoices()">
+      </div>
+      <div class="pill-row">
+        <div class="pill on" data-ifilter="all" onclick="setIFilter('all',this)">All</div>
+        <div class="pill" data-ifilter="unpaid" onclick="setIFilter('unpaid',this)">Unpaid</div>
+        <div class="pill" data-ifilter="partial" onclick="setIFilter('partial',this)">Partial</div>
+        <div class="pill" data-ifilter="paid" onclick="setIFilter('paid',this)">Paid</div>
+        <div class="pill on" id="inv-today-pill" onclick="toggleTodayFilter(this)">Today</div>
+      </div>
+      <div id="inv-list"><div class="ldg"><div class="spin"></div></div></div>
+    </div>
+
+    <!-- CLINICAL -->
+    <div id="t-clinical" class="pg" style="display:none">
+      <div class="pg-title">Clinical</div>
+      <div class="srch">
+        <span class="srch-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+        <input id="cl-q" type="search" placeholder="Name, phone, ID…" oninput="srchCL(this.value)">
+      </div>
+      <div id="cl-pres" style="background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden;display:none;margin-bottom:10px"></div>
+      <div id="cl-body"><div class="empty">Search for a patient to begin</div></div>
+    </div>
+
+    <!-- MORE -->
+    <div id="t-more" class="pg" style="display:none">
+      <div class="pg-title">More</div>
+      <div class="more-grid">
+        <button id="btn-reports" class="more-btn" onclick="openSheet('reports')">
+          <div class="more-ico" style="background:#0A8F6312"><svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.8" stroke-linecap="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg></div>
+          <div><div class="more-lbl">Reports</div><div class="more-sub">Revenue &amp; stats</div></div>
+        </button>
+        <button id="btn-staff" class="more-btn" onclick="openSheet('staff-mgmt')">
+          <div class="more-ico" style="background:#7C3AED12"><svg viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div><div class="more-lbl">Staff</div><div class="more-sub">Manage team</div></div>
+        </button>
+        <button class="more-btn" onclick="openSheet('services')">
+          <div class="more-ico" style="background:#05966912"><svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          <div><div class="more-lbl">Services &amp; Prices</div><div class="more-sub">Manage price list</div></div>
+        </button>
+        <button id="btn-expenses" class="more-btn" onclick="openSheet('expenses')">
+          <div class="more-ico" style="background:#D9770612"><svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="1.8" stroke-linecap="round"><path d="M19 5c-1.5 0-2.8.4-3.9 1-1.1.7-1.9 1.5-2.1 2h-.1c-.2-.5-1-1.3-2.1-2-1.1-.6-2.4-1-3.9-1C4 5 2 7.6 2 10.6c0 4.5 5.5 7.9 10 11.4 4.5-3.5 10-6.9 10-11.4C22 7.6 20 5 19 5z"/></svg></div>
+          <div><div class="more-lbl">Expenses</div><div class="more-sub">Monthly expenses</div></div>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav id="nav">
+    <button class="nb" data-t="sched" onclick="sw('sched')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      Schedule
+    </button>
+    <button class="nb" data-t="queue" onclick="sw('queue')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Queue
+    </button>
+    <button class="nb" data-t="patients" onclick="sw('patients')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+      Patients
+    </button>
+    <button class="nb" data-t="billing" onclick="sw('billing')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+      Billing
+    </button>
+    <button class="nb" data-t="clinical" onclick="sw('clinical')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3C9.8 3 8 4.3 7.5 6C6.7 5.5 5.5 5.6 4.8 6.5C4 7.5 4.5 9 5.3 9.8C5.6 10.1 5.7 10.5 5.7 11C5.7 14 7.5 17 9.2 18.8L9.7 20.5C9.9 21.4 10.6 22 11.5 22H12.5C13.4 22 14.1 21.4 14.3 20.5L14.8 18.8C16.5 17 18.3 14 18.3 11C18.3 10.5 18.4 10.1 18.7 9.8C19.5 9 20 7.5 19.2 6.5C18.5 5.6 17.3 5.5 16.5 6C16 4.3 14.2 3 12 3Z" stroke-width="1.7"/><path d="M10 10.5L11.5 12L15 8.5" stroke-width="1.6"/></svg>
+      Clinical
+    </button>
+    <button class="nb" data-t="more" onclick="sw('more')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg>
+      More
+    </button>
+  </nav>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SHEETS
+══════════════════════════════════════════ -->
+
+<!-- Patient detail -->
+<div class="sheet" id="sh-patient">
+  <div class="sh-hdr">
+    <button class="back" onclick="closeSheet('patient')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div style="flex:1"><div id="sh-pat-name" class="sh-title"></div><div id="sh-pat-num" class="sh-sub"></div></div>
+    <button class="sh-action-btn" onclick="openEditPat()">Edit</button>
+  </div>
+  <div id="sh-pat-body" style="padding-bottom:40px"></div>
+</div>
+
+<!-- Edit patient -->
+<div class="sheet" id="sh-edit-patient">
+  <div class="sh-hdr">
+    <button class="back" onclick="closeSheet('edit-patient')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div style="flex:1"><div class="sh-title">Edit Patient</div></div>
+    <button class="sh-danger-btn" onclick="deletePatient()">Delete</button>
+  </div>
+  <div class="pg" style="padding-bottom:40px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="ff"><label>First Name *</label><input id="ep-fname" type="text"></div>
+      <div class="ff"><label>Last Name</label><input id="ep-lname" type="text"></div>
+    </div>
+    <div class="ff"><label>Phone</label><input id="ep-phone" type="tel" dir="ltr"></div>
+    <div class="ff"><label>Email</label><input id="ep-email" type="email"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="ff"><label>Date of Birth</label><input id="ep-dob" type="date"></div>
+      <div class="ff"><label>Gender</label><select id="ep-gender"><option value="">—</option><option>Male</option><option>Female</option></select></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="ff"><label>City</label><input id="ep-city" type="text"></div>
+      <div class="ff"><label>Blood Type</label><select id="ep-blood"><option value="">—</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div>
+    </div>
+    <div class="ff"><label>Allergies</label><select id="ep-allergies"><option value="">None</option><option>Penicillin</option><option>Latex</option><option>Aspirin / NSAIDs</option><option>Local Anesthetics</option><option>Codeine / Opioids</option><option>Iodine / Antiseptics</option></select></div>
+    <div class="ff"><label>Medical Conditions</label><select id="ep-conditions"><option value="">None</option><option>Diabetes</option><option>Hypertension</option><option>Heart Disease</option><option>Blood Clotting Disorder</option><option>Osteoporosis</option><option>Asthma</option></select></div>
+    <div class="ff"><label>Current Medications</label><textarea id="ep-medications"></textarea></div>
+    <div class="ff"><label>Notes</label><textarea id="ep-notes"></textarea></div>
+    <button class="btn-primary" style="border-radius:var(--r-md);padding:14px" onclick="saveEditPat()">Save Changes</button>
+  </div>
+</div>
+
+<!-- Invoice detail -->
+<div class="sheet" id="sh-inv">
+  <div class="sh-hdr">
+    <button class="back" onclick="closeSheet('inv')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div style="flex:1"><div id="sh-inv-title" class="sh-title">Invoice</div><div id="sh-inv-sub" class="sh-sub"></div></div>
+    <button id="inv-edit-btn" class="sh-action-btn" onclick="openEditInv()">Edit</button>
+  </div>
+  <div id="sh-inv-body" style="padding-bottom:40px"></div>
+</div>
+
+<!-- New Invoice -->
+<div class="sheet" id="sh-inv-new">
+  <div class="sh-hdr">
+    <button class="back" onclick="closeSheet('inv-new')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="sh-title">New Invoice</div>
+  </div>
+  <div class="pg" style="padding-bottom:40px">
+    <div class="ff">
+      <label>Patient</label>
+      <div class="srch" style="margin-bottom:4px">
+        <span class="srch-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+        <input id="ni-psrch" type="search" placeholder="Search patient…" oninput="srchNI(this.value)">
+      </div>
+      <div id="ni-pres" style="background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden;display:none;margin-bottom:4px"></div>
+      <div id="ni-psel" style="background:var(--blue-dim);border:1px solid var(--blue-glow);border-radius:var(--r-sm);padding:10px 13px;display:none">
+        <div style="font-size:10px;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Selected Patient</div>
+        <div id="ni-pname" style="font-weight:700;font-size:13px"></div>
+      </div>
+    </div>
+    <div class="ff"><label>Notes</label><textarea id="ni-notes" placeholder="Optional notes…"></textarea></div>
+    <div id="ni-items" style="margin-bottom:14px">
+      <div class="sec-hdr"><div class="slbl" style="margin:0">Line Items</div><button class="small-btn primary" onclick="addNIItem()">+ Add Item</button></div>
+      <div id="ni-item-rows"></div>
+    </div>
+    <div style="background:var(--card);border-radius:var(--r-md);padding:14px 16px;margin-bottom:16px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:12px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.8px">Total</div>
+      <div id="ni-total" style="font-size:22px;font-weight:800;color:var(--blue);font-family:var(--mono)">EGP 0.00</div>
+    </div>
+    <button class="btn-primary" style="border-radius:var(--r-md);padding:14px" onclick="submitInvoice()">Create Invoice</button>
+  </div>
+</div>
+
+<!-- New Appointment -->
+<div class="sheet" id="sh-new-appt">
+  <div class="sh-hdr">
+    <button class="back" onclick="closeSheet('new-appt')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="sh-title">New Appointment</div>
+  </div>
+  <div class="pg" style="padding-bottom:40px">
+    <div class="ff">
+      <label>Patient</label>
+      <div style="display:flex;gap:6px;margin-bottom:10px">
+        <button id="na-tab-existing" onclick="naSetMode('existing')" style="flex:1;padding:9px;border-radius:var(--r-sm);font-size:12px;font-weight:700;background:var(--blue-low);color:var(--blue);border:1px solid var(--blue-glow);cursor:pointer;transition:all .15s">Existing</button>
+        <button id="na-tab-new" onclick="naSetMode('new')" style="flex:1;padding:9px;border-radius:var(--r-sm);font-size:12px;font-weight:700;background:var(--card);color:var(--text-muted);border:1px solid var(--border);cursor:pointer;transition:all .15s">New Patient</button>
+      </div>
+      <div id="na-existing-fields">
+        <div class="srch" style="margin-bottom:4px">
+          <span class="srch-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+          <input id="na-psrch" type="text" placeholder="Search patient…" oninput="srchNA(this.value)">
+        </div>
+        <div id="na-pres" style="background:var(--card);border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden;display:none;margin-bottom:4px"></div>
+        <div id="na-psel" style="background:var(--blue-dim);border:1px solid var(--blue-glow);border-radius:var(--r-sm);padding:10px 13px;display:none">
+          <div style="font-size:10px;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Selected Patient</div>
+          <div id="na-pname" style="font-weight:700;font-size:13px"></div>
+        </div>
+      </div>
+      <div id="na-new-fields" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+          <div class="ff" style="margin:0"><label>First Name *</label><input id="na-new-fname" type="text" placeholder="First name"></div>
+          <div class="ff" style="margin:0"><label>Last Name *</label><input id="na-new-lname" type="text" placeholder="Last name"></div>
+        </div>
+        <div class="ff" style="margin-bottom:8px"><label>Phone</label><input id="na-new-phone" type="tel" dir="ltr" placeholder="Phone number"></div>
+      </div>
+    </div>
+    <div class="ff"><label>Date</label><input type="date" id="na-date"></div>
+    <div class="ff"><label>Time</label><input type="time" id="na-time"></div>
+    <div class="ff"><label>Type</label><select id="na-type"><option>General</option><option>Cleaning</option><option>Filling</option><option>Extraction</option><option>Root Canal</option><option>Crown</option><option>Whitening</option><option>Consultation</option><option>Emergency</option><option>Other</option></select></div>
+    <div class="ff"><label>Duration</label><select id="na-dur"><option value="15">15 min</option><option value="30" selected>30 min</option><option value="45">45 min</option><option value="60">60 min</option><option value="90">90 min</option></select></div>
+    <div class="ff"><label>Notes</label><input type="text" id="na-notes" placeholder="Optional…"></div>
+    <button class="btn-primary" style="border-radius:var(--r-md);padding:14px" onclick="submitAppt()">Book Appointment</button>
+  </div>
+</div>
+
+<!-- New Patient -->
+<div class="sheet" id="sh-new-patient">
+  <div class="sh-hdr">
+    <button class="back" onclick="closeSheet('new-patient')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="sh-title">New Patient</div>
+  </div>
+  <div class="pg" style="padding-bottom:40px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="ff"><label>First Name *</label><input id="np-fname" type="text"></div>
+      <div class="ff"><label>Last Name</label><input id="np-lname" type="text"></div>
+    </div>
+    <div class="ff"><label>Phone</label><input id="np-phone" type="tel" dir="ltr"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="ff"><label>Age</label><input id="np-age" type="number" min="0" max="120" placeholder="Years"></div>
+      <div class="ff"><label>Gender</label><select id="np-gender"><option value="">—</option><option>Male</option><option>Female</option></select></div>
+    </div>
+    <div class="ff"><label>Allergies</label><select id="np-allergies"><option value="">None</option><option>Penicillin</option><option>Latex</option><option>Aspirin / NSAIDs</option><option>Local Anesthetics</option><option>Codeine / Opioids</option><option>Iodine / Antiseptics</option></select></div>
+    <div class="ff"><label>Medical Conditions</label><select id="np-conditions"><option value="">None</option><option>Diabetes</option><option>Hypertension</option><option>Heart Disease</option><option>Blood Clotting Disorder</option><option>Osteoporosis</option><option>Asthma</option></select></div>
+    <div class="ff"><label>Notes</label><textarea id="np-notes"></textarea></div>
+    <button class="btn-primary" style="border-radius:var(--r-md);padding:14px" onclick="submitNewPatient()">Add Patient</button>
+  </div>
+</div>
+
+<!-- Reports -->
+<div class="sheet" id="sh-reports">
+  <div class="sh-hdr">
+    <button class="back" onclick="closeSheet('reports')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="sh-title">Reports</div>
+  </div>
+  <div id="sh-rep-body" class="pg" style="padding-bottom:40px"><div class="ldg"><div class="spin"></div></div></div>
+</div>
+
+<!-- Services -->
+<div class="sheet" id="sh-services">
+  <div class="sh-hdr">
+    <button class="back" onclick="closeSheet('services')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div style="flex:1"><div class="sh-title">Services &amp; Prices</div></div>
+    <button class="sh-action-btn" onclick="openAddService()">+ Add</button>
+  </div>
+  <div id="sh-services-body" class="pg" style="padding-bottom:40px"><div class="ldg"><div class="spin"></div></div></div>
+</div>
+
+<!-- Service edit -->
+<div class="sheet" id="sh-service-edit">
+  <div class="sh-hdr">
+    <button class="back" onclick="closeSheet('service-edit')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="sh-title" id="service-edit-title">New Service</div>
+  </div>
+  <div class="pg" style="padding-bottom:40px">
+    <div class="ff"><label>Service Name</label><input id="svc-name" type="text" placeholder="e.g. Root Canal"></div>
+    <div class="ff"><label>Price (EGP)</label><input id="svc-price" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00"></div>
+    <div class="ff"><label>Category</label><select id="svc-cat"><option value="General">General</option><option value="Preventive">Preventive</option><option value="Restorative">Restorative</option><option value="Surgical">Surgical</option><option value="Endodontic">Endodontic</option><option value="Prosthetic">Prosthetic</option><option value="Cosmetic">Cosmetic</option><option value="Diagnostic">Diagnostic</option><option value="Other">Other</option></select></div>
+    <button class="btn-primary" style="border-radius:var(--r-md);padding:14px" onclick="saveService()">Save Service</button>
+    <button id="svc-delete-btn" onclick="deleteService()" class="btn-danger" style="display:none">Delete Service</button>
+  </div>
+</div>
+
+<!-- Staff management -->
+<div class="sheet" id="sh-staff-mgmt">
+  <div class="sh-hdr">
+    <button class="back" onclick="closeSheet('staff-mgmt')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div style="flex:1"><div class="sh-title">Staff Management</div></div>
+    <button class="sh-action-btn" onclick="openAddStaff()">+ Add</button>
+  </div>
+  <div id="sh-staff-mgmt-body" class="pg" style="padding-bottom:40px"><div class="ldg"><div class="spin"></div></div></div>
+</div>
+
+<!-- Staff edit -->
+<div class="sheet" id="sh-staff-edit">
+  <div class="sh-hdr">
+    <button class="back" onclick="closeSheet('staff-edit')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="sh-title" id="staff-edit-title">New Staff Member</div>
+  </div>
+  <div class="pg" style="padding-bottom:40px">
+    <div class="ff"><label>Full Name</label><input id="stf-name" type="text" placeholder="Dr. Ahmed Ali"></div>
+    <div class="ff"><label>Username</label><input id="stf-user" type="text" placeholder="ahmed.ali" autocapitalize="none"></div>
+    <div class="ff"><label>Role</label><select id="stf-role"><option value="admin">Admin</option><option value="dentist">Dentist</option><option value="assistant" selected>Assistant</option><option value="receptionist">Receptionist</option></select></div>
+    <div class="ff"><label>Phone</label><input id="stf-phone" type="tel" dir="ltr" placeholder="01012345678"></div>
+    <div style="background:#0A1A2E;border:1px solid var(--blue-glow);border-radius:var(--r-md);padding:16px;margin-bottom:14px">
+      <div style="font-size:10px;font-weight:700;color:var(--blue);margin-bottom:12px;letter-spacing:.8px;text-transform:uppercase;display:flex;align-items:center;gap:6px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="13" height="13" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Login Credentials
+      </div>
+      <div class="ff" style="margin-bottom:10px"><label>Password</label><input id="stf-pass" type="password" placeholder="Enter password"></div>
+      <div class="ff" style="margin-bottom:0"><label>Confirm Password</label><input id="stf-pass2" type="password" placeholder="Repeat password"></div>
+    </div>
+    <div id="stf-status-row" style="display:none;margin-bottom:14px">
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text)">
+        <input type="checkbox" id="stf-active" style="width:18px;height:18px;accent-color:var(--blue)"> Active (can login)
+      </label>
+    </div>
+    <button class="btn-primary" style="border-radius:var(--r-md);padding:14px" onclick="saveStaff()">Save Staff Member</button>
+    <button id="stf-delete-btn" onclick="deleteStaff()" class="btn-danger" style="display:none">Remove Staff Member</button>
+  </div>
+</div>
+
+<!-- Appointment detail -->
+<div class="sheet" id="sh-appt-detail">
+  <div class="sh-hdr">
+    <button class="back" onclick="closeSheet('appt-detail')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div style="flex:1"><div id="sh-appt-title" class="sh-title">Appointment</div><div id="sh-appt-sub" class="sh-sub"></div></div>
+  </div>
+  <div id="sh-appt-body" class="pg" style="padding-bottom:40px"></div>
+</div>
+
+<!-- Edit treatment -->
+<div class="sheet" id="sh-edit-tx">
+  <div class="sh-hdr">
+    <button class="back" onclick="closeSheet('edit-tx')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div style="flex:1"><div class="sh-title">Edit Treatment</div></div>
+    <button class="sh-danger-btn" onclick="deleteTx()">Delete</button>
+  </div>
+  <div class="pg" style="padding-bottom:40px">
+    <div class="ff"><label>Procedure Name</label><input id="etx-name" type="text"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="ff"><label>Tooth #</label><input id="etx-tooth" type="number" placeholder="FDI #"></div>
+      <div class="ff"><label>Cost (EGP)</label><input id="etx-cost" type="number" inputmode="decimal" step="0.01" min="0"></div>
+    </div>
+    <div class="ff"><label>Date</label><input id="etx-date" type="date"></div>
+    <div class="ff"><label>Diagnosis / Notes</label><textarea id="etx-notes"></textarea></div>
+    <button class="btn-primary" style="border-radius:var(--r-md);padding:14px" onclick="saveEditTx()">Save Changes</button>
+  </div>
+</div>
+
+<!-- Edit invoice -->
+<div class="sheet" id="sh-edit-inv">
+  <div class="sh-hdr">
+    <button class="back" onclick="closeSheet('edit-inv')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div style="flex:1"><div class="sh-title">Edit Invoice</div></div>
+    <button class="sh-danger-btn" onclick="deleteInv()">Delete</button>
+  </div>
+  <div class="pg" style="padding-bottom:40px">
+    <div class="ff"><label>Notes</label><textarea id="einv-notes"></textarea></div>
+    <div class="ff"><label>Status</label><select id="einv-status"><option value="unpaid">Unpaid</option><option value="partial">Partial</option><option value="paid">Paid</option></select></div>
+    <div id="einv-items-section" style="margin-bottom:14px">
+      <div class="sec-hdr"><div class="slbl" style="margin:0">Line Items</div><button class="small-btn primary" onclick="addEditInvItem()">+ Add Item</button></div>
+      <div id="einv-item-rows"></div>
+    </div>
+    <div style="background:var(--card);border-radius:var(--r-md);padding:14px 16px;margin-bottom:16px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:12px;color:var(--text-dim);font-weight:600;text-transform:uppercase;letter-spacing:.8px">New Total</div>
+      <div id="einv-total" style="font-size:22px;font-weight:800;color:var(--blue);font-family:var(--mono)">EGP 0.00</div>
+    </div>
+    <button class="btn-primary" style="border-radius:var(--r-md);padding:14px" onclick="saveEditInv()">Save Changes</button>
+  </div>
+</div>
+
+<!-- Expenses -->
+<div class="sheet" id="sh-expenses">
+  <div class="sh-hdr">
+    <button class="back" onclick="closeSheet('expenses')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div style="flex:1"><div class="sh-title">Clinic Expenses</div><div id="exp-month-sub" class="sh-sub"></div></div>
+    <button class="sh-action-btn" onclick="openAddExpense()">+ Add</button>
+  </div>
+  <div class="pg" style="padding-bottom:40px">
+    <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center">
+      <input type="month" id="exp-month" class="dt-sel" style="flex:1" onchange="loadExpenses()">
+      <button class="ref-btn" onclick="loadExpenses()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14" stroke-width="2.2"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+      </button>
+    </div>
+    <div id="exp-summary" style="margin-bottom:14px"></div>
+    <div id="exp-list"><div class="ldg"><div class="spin"></div></div></div>
+  </div>
+</div>
+
+<!-- Expense edit -->
+<div class="sheet" id="sh-expense-edit">
+  <div class="sh-hdr">
+    <button class="back" onclick="closeSheet('expense-edit')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div style="flex:1"><div class="sh-title" id="exp-edit-title">Add Expense</div></div>
+    <button id="exp-delete-btn" onclick="deleteExpense()" class="sh-danger-btn" style="display:none">Delete</button>
+  </div>
+  <div class="pg" style="padding-bottom:40px">
+    <div class="ff"><label>Category</label><select id="exp-cat" onchange="expCatChange(this)"><option value="Rent">Rent</option><option value="Electricity">Electricity</option><option value="Water">Water</option><option value="Salaries">Salaries</option><option value="Supplies">Supplies</option><option value="Maintenance">Maintenance</option><option value="Marketing">Marketing</option><option value="Medical Equipment">Medical Equipment</option><option value="Miscellaneous">Miscellaneous</option><option value="Other">Other</option></select></div>
+    <div class="ff"><label>Amount (EGP)</label><input id="exp-amount" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00"></div>
+    <div class="ff"><label>Date</label><input id="exp-date" type="date"></div>
+    <div class="ff"><label>Details / Notes (optional)</label><textarea id="exp-notes" placeholder="e.g. invoice number, supplier name…"></textarea></div>
+    <input id="exp-title" type="hidden">
+    <button class="btn-primary" style="border-radius:var(--r-md);padding:14px" onclick="saveExpense()">Save Expense</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════════
+     ALL JAVASCRIPT (unchanged logic)
+══════════════════════════════════════════ -->
+<script>
+const SUPABASE_URL = 'https://nfbwdbizeepxjxmtuhxz.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mYndkYml6ZWVweGp4bXR1aHh6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM2MTAzNjcsImV4cCI6MjA4OTE4NjM2N30.UFtvS4wc4vBFc6_XewvhMypjFWh9kxhtuzJr7x0i6gk';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const SC={scheduled:"#3B82F6",confirmed:"#059669",completed:"#0A8F63",cancelled:"#DC2626","no-show":"#6B7280"};
+const SL={scheduled:"Scheduled",confirmed:"Confirmed",completed:"Done",cancelled:"Cancelled","no-show":"No-show"};
+const SN={scheduled:"confirmed",confirmed:"completed",completed:"scheduled",cancelled:"scheduled","no-show":"scheduled"};
+const MONTHS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+let USER = null;
+try {
+  const stored = localStorage.getItem("zd_user");
+  if (stored) USER = JSON.parse(stored);
+} catch (e) { localStorage.removeItem("zd_user"); }
+
+let _niPatId=null,_naPatId=null,_clPatId=null,_invFilter="all";
+let _niItems=[],_procs=[],_naMode="existing";
+let _tmrs={};
+
+async function sha256(msg){
+  function rightRotate(v,a){return(v>>>a)|(v<<(32-a));}
+  const K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  let H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  const bytes=new TextEncoder().encode(msg);
+  const bits=bytes.length*8;
+  const extra=((bytes.length+9)%64===0)?0:64-((bytes.length+9)%64);
+  const padded=new Uint8Array(bytes.length+1+extra+8);
+  padded.set(bytes);padded[bytes.length]=0x80;
+  const dv=new DataView(padded.buffer);
+  dv.setUint32(padded.length-4,bits,false);
+  for(let offset=0;offset<padded.length;offset+=64){
+    const W=new Array(64);
+    for(let i=0;i<16;i++)W[i]=dv.getUint32(offset+i*4,false);
+    for(let i=16;i<64;i++){const s0=(rightRotate(W[i-15],7)^rightRotate(W[i-15],18)^(W[i-15]>>>3))>>>0;const s1=(rightRotate(W[i-2],17)^rightRotate(W[i-2],19)^(W[i-2]>>>10))>>>0;W[i]=(W[i-16]+s0+W[i-7]+s1)>>>0;}
+    let [a,b,c,d,e,f,g,h]=H;
+    for(let i=0;i<64;i++){const S1=(rightRotate(e,6)^rightRotate(e,11)^rightRotate(e,25))>>>0;const ch=((e&f)^(~e&g))>>>0;const t1=(h+S1+ch+K[i]+W[i])>>>0;const S0=(rightRotate(a,2)^rightRotate(a,13)^rightRotate(a,22))>>>0;const maj=((a&b)^(a&c)^(b&c))>>>0;const t2=(S0+maj)>>>0;h=g;g=f;f=e;e=(d+t1)>>>0;d=c;c=b;b=a;a=(t1+t2)>>>0;}
+    H=[H[0]+a,H[1]+b,H[2]+c,H[3]+d,H[4]+e,H[5]+f,H[6]+g,H[7]+h].map(v=>v>>>0);
+  }
+  return H.map(v=>v.toString(16).padStart(8,"0")).join("");
+}
+
+function toothOpts(){
+  const T={18:"18 — Wisdom",17:"17 — Molar",16:"16 — Molar",15:"15 — Premolar",14:"14 — Premolar",13:"13 — Canine",12:"12 — Lateral Incisor",11:"11 — Central Incisor",21:"21 — Central Incisor",22:"22 — Lateral Incisor",23:"23 — Canine",24:"24 — Premolar",25:"25 — Premolar",26:"26 — Molar",27:"27 — Molar",28:"28 — Wisdom",38:"38 — Wisdom",37:"37 — Molar",36:"36 — Molar",35:"35 — Premolar",34:"34 — Premolar",33:"33 — Canine",32:"32 — Lateral Incisor",31:"31 — Central Incisor",41:"41 — Central Incisor",42:"42 — Lateral Incisor",43:"43 — Canine",44:"44 — Premolar",45:"45 — Premolar",46:"46 — Molar",47:"47 — Molar",48:"48 — Wisdom"};
+  const Q=[["Upper Right (Q1)",[18,17,16,15,14,13,12,11]],["Upper Left (Q2)",[21,22,23,24,25,26,27,28]],["Lower Left (Q3)",[31,32,33,34,35,36,37,38]],["Lower Right (Q4)",[41,42,43,44,45,46,47,48]]];
+  return '<option value="">— Select Tooth —</option>'+Q.map(([lbl,teeth])=>`<optgroup label="${lbl}">${teeth.map(n=>`<option value="${n}">${T[n]}</option>`).join("")}</optgroup>`).join("");
+}
+
+function toast(m,ms=2400){
+  const t=document.getElementById("toast");
+  t.textContent=m;t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),ms);
+}
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function age(dob){const d=new Date(dob),n=new Date();let a=n.getFullYear()-d.getFullYear();if(n<new Date(n.getFullYear(),d.getMonth(),d.getDate()))a--;return a}
+function fmt(n,sym="EGP"){return sym+" "+(+n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}
+function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+async function doLogin(){
+  const btn=document.getElementById("lbtn"),err=document.getElementById("lerr");
+  const u=document.getElementById("lu").value.trim(),p=document.getElementById("lp").value;
+  if(!u||!p){err.textContent="Enter username and password";return}
+  btn.textContent="Signing in…";btn.disabled=true;err.textContent="";
+  try{
+    const hash=await sha256(p);
+    const {data,error}=await sb.from("staff").select("*").eq("username",u).eq("password_hash",hash).eq("is_active",true).single();
+    if(error||!data){err.textContent="Invalid credentials";btn.textContent="Sign In";btn.disabled=false;return}
+    USER=data;localStorage.setItem("zd_user",JSON.stringify(USER));
+    showApp();
+  }catch(e){err.textContent="Cannot connect";btn.textContent="Sign In";btn.disabled=false}
+}
+document.getElementById("lp").addEventListener("keydown",e=>e.key==="Enter"&&doLogin());
+
+function doLogout(){USER=null;localStorage.removeItem("zd_user");location.reload();}
+
+function showApp(){
+  document.getElementById("login").style.display="none";
+  document.getElementById("app").style.display="flex";
+  document.getElementById("hdr-user").textContent=USER?.full_name||"";
+  document.getElementById("sched-dt").value=today();
+  const isAdmin=USER?.role==="admin";
+  const btnReports=document.getElementById("btn-reports");
+  const btnStaff=document.getElementById("btn-staff");
+  const btnExpenses=document.getElementById("btn-expenses");
+  if(btnReports) btnReports.style.display=isAdmin?"flex":"none";
+  if(btnStaff) btnStaff.style.display=isAdmin?"flex":"none";
+  if(btnExpenses) btnExpenses.style.display=isAdmin?"flex":"none";
+  loadProcs();
+  sw("sched");
+}
+if(USER){showApp();}
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function sw(tab){
+  ["sched","queue","patients","billing","clinical","more"].forEach(t=>{
+    document.getElementById("t-"+t).style.display=t===tab?"block":"none";
+    document.querySelector(`.nb[data-t="${t}"]`).classList.toggle("on",t===tab);
+  });
+  const titles={sched:"Schedule",queue:"Live Queue",patients:"Patients",billing:"Billing",clinical:"Clinical",more:"More"};
+  document.getElementById("hdr-title").innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3C9.8 3 8 4.3 7.5 6C6.7 5.5 5.5 5.6 4.8 6.5C4 7.5 4.5 9 5.3 9.8C5.6 10.1 5.7 10.5 5.7 11C5.7 14 7.5 17 9.2 18.8L9.7 20.5C9.9 21.4 10.6 22 11.5 22H12.5C13.4 22 14.1 21.4 14.3 20.5L14.8 18.8C16.5 17 18.3 14 18.3 11C18.3 10.5 18.4 10.1 18.7 9.8C19.5 9 20 7.5 19.2 6.5C18.5 5.6 17.3 5.5 16.5 6C16 4.3 14.2 3 12 3Z"/><path d="M10 10.5L11.5 12L15 8.5" stroke-width="1.6"/></svg>${titles[tab]||"Zain Dental Clinic"}`;
+  if(tab==="sched") loadSched();
+  if(tab==="queue") loadQueue();
+  if(tab==="billing") loadInvoices();
+  if(tab==="patients"){document.getElementById("pat-q").value="";loadRecentPats();}
+  if(tab==="clinical"){document.getElementById("cl-q").value="";loadRecentClinical();}
+}
+
+// ── Sheets ────────────────────────────────────────────────────────────────────
+function openSheet(name){
+  const adminOnlySheets=['reports','staff-mgmt','expenses'];
+  if(adminOnlySheets.includes(name)&&USER?.role!=='admin'){toast("Access restricted — Admin only 🔒");return;}
+  document.getElementById("sh-"+name).classList.add("open");
+  if(name==="reports") loadReports();
+  if(name==="services") loadServices();
+  if(name==="staff-mgmt") loadStaffMgmt();
+  if(name==="expenses"){
+    if(!document.getElementById("exp-month").value)
+      document.getElementById("exp-month").value=today().slice(0,7);
+    loadExpenses();
+  }
+}
+function closeSheet(name){document.getElementById("sh-"+name).classList.remove("open")}
+
+// ── SCHEDULE ──────────────────────────────────────────────────────────────────
+async function loadSched(){
+  const dt=document.getElementById("sched-dt").value;
+  const el=document.getElementById("sched-list");
+  el.innerHTML='<div class="ldg"><div class="spin"></div></div>';
+  const {data,error}=await sb.from("appointments")
+    .select("*,patients(first_name,last_name,phone)")
+    .eq("appointment_date",dt).order("appointment_time");
+  if(error){el.innerHTML='<div class="empty">Failed to load</div>';return}
+  if(!data.length){el.innerHTML='<div class="empty">No appointments for this day</div>';return}
+  const visible=data.filter(a=>a.status!=='cancelled');
+  if(!visible.length){el.innerHTML='<div class="empty">No appointments for this day</div>';return}
+  el.innerHTML='<div class="card">'+visible.map(apptRow).join("")+"</div>";
+}
+
+function apptRow(a){
+  const c=SC[a.status]||"#888",t=(a.appointment_time||"").slice(0,5)||"—";
+  const pname=a.patients?`${a.patients.first_name} ${a.patients.last_name}`:a.patient_name||"Unknown";
+  const phone=a.patients?.phone||"";
+  const waMsg=encodeURIComponent(`عيادة د. عبدالله سامي زين لطب وجراحة الفم والأسنان 🦷\nمرحباً أستاذ/ة ${pname}،\nنذكركم بموعدكم القادم بتاريخ ${a.appointment_date} الساعة ${t}.\n\nللتواصل أو الاستفسار: 01555563997\nنتطلع لرؤيتكم 😊`);
+  return `<div class="ar row-sep">
+    <div class="ar-bar" style="background:${c}"></div>
+    <div class="ar-body" onclick="openAppt(${JSON.stringify(a).replace(/'/g,'\\&#39;').replace(/`/g,'\\&#96;')})">
+      <div class="ar-time" style="color:${c}">${t}</div>
+      <div class="ar-name">${esc(pname)}</div>
+      <div class="ar-type">${esc(a.appt_type||"General")} · ${a.duration_minutes||30}min${a.dentist_name?" · "+esc(a.dentist_name):""}</div>
+    </div>
+    <div class="ar-act">
+      <select onchange="changeStatus(${a.id},this.value)" onclick="event.stopPropagation()"
+        class="status-sel" style="border-color:${c}44;color:${c}">
+        <option value="scheduled" ${a.status==='scheduled'?'selected':''}>Scheduled</option>
+        <option value="confirmed" ${a.status==='confirmed'?'selected':''}>Confirmed</option>
+        <option value="completed" ${a.status==='completed'?'selected':''}>Done</option>
+        <option value="no-show" ${a.status==='no-show'?'selected':''}>No-show</option>
+        <option value="cancelled" ${a.status==='cancelled'?'selected':''}>Cancelled</option>
+      </select>
+      ${phone?`<button class="wa-btn" onclick="event.stopPropagation();sendWA('${phone}','${waMsg}')">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="10" height="10"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.138.562 4.144 1.545 5.879L.057 23.786a.5.5 0 0 0 .658.625l5.975-1.901A11.943 11.943 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22a9.941 9.941 0 0 1-5.073-1.384l-.362-.215-3.754 1.194 1.107-3.645-.234-.376A9.96 9.96 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+        WhatsApp
+      </button>`:""}
+    </div>
+  </div>`;
+}
+
+function toEG(phone){
+  let n=phone.replace(/\D/g,"");
+  if(n.startsWith("966")) n=n.slice(3);
+  if(n.startsWith("20")) n=n.slice(2);
+  if(n.startsWith("0")) n=n.slice(1);
+  return "20"+n;
+}
+function sendWA(phone,msg){window.open("https://wa.me/"+toEG(phone)+"?text="+msg,"_blank");}
+
+async function openAppt(a){
+  document.getElementById("sh-appt-title").textContent=(a.appointment_time||"").slice(0,5)+" · "+(a.appt_type||"General");
+  document.getElementById("sh-appt-sub").textContent=a.appointment_date||"";
+  document.getElementById("sh-appt-body").innerHTML='<div class="ldg"><div class="spin"></div></div>';
+  document.getElementById("sh-appt-detail").classList.add("open");
+  const {data:pat}=await sb.from("patients").select("*").eq("id",a.patient_id).single();
+  const phone=(pat?.phone||"").replace(/\D/g,"");
+  const intlPhone=toEG(phone);
+  const pname=pat?`${pat.first_name} ${pat.last_name}`:a.patient_name||"";
+  const t=(a.appointment_time||"").slice(0,5);
+  const dt=a.appointment_date||"";
+  const waMsg=encodeURIComponent(`عيادة د. عبدالله سامي زين لطب وجراحة الفم والأسنان 🦷\nمرحباً أستاذ/ة ${pname}،\nنذكركم بموعدكم القادم بتاريخ ${dt} الساعة ${t}.\n\nللتواصل أو الاستفسار: 01555563997\nنتطلع لرؤيتكم 😊`);
+  const c=SC[a.status]||"#888";
+  document.getElementById("sh-appt-body").innerHTML=`
+    <div style="background:var(--card);border-radius:var(--r-lg);border:1px solid var(--border);margin:14px;overflow:hidden">
+      <div style="height:3px;background:${c};box-shadow:0 0 12px ${c}60"></div>
+      <div class="ig">
+        <div class="ii"><div class="ii-lbl">Patient</div><div class="ii-val">${esc(pname)}</div></div>
+        <div class="ii"><div class="ii-lbl">Date</div><div class="ii-val" style="font-family:var(--mono)">${dt}</div></div>
+        <div class="ii"><div class="ii-lbl">Time</div><div class="ii-val" style="color:${c};font-size:20px;font-weight:800;font-family:var(--mono)">${t}</div></div>
+        <div class="ii"><div class="ii-lbl">Type</div><div class="ii-val">${esc(a.appt_type||"General")}</div></div>
+        <div class="ii"><div class="ii-lbl">Duration</div><div class="ii-val">${a.duration_minutes||30} min</div></div>
+        <div class="ii"><div class="ii-lbl">Dentist</div><div class="ii-val">${esc(a.dentist_name||"—")}</div></div>
+        ${a.notes?`<div class="ii full"><div class="ii-lbl">Notes</div><div class="ii-val" style="font-size:12px;font-weight:400">${esc(a.notes)}</div></div>`:""}
+      </div>
+    </div>
+    <div class="pg" style="padding-top:0">
+      <div class="slbl">Update Status</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px">
+        ${[["scheduled","#38BDF8","Scheduled"],["confirmed","#34D399","Confirmed"],["completed","#FBBF24","Done"],["no-show","#64748B","No-show"],["cancelled","#F87171","Cancelled"]].map(([s,col,lbl])=>`
+        <button onclick="changeStatus(${a.id},'${s}');this.closest('.pg').querySelectorAll('.status-btn').forEach(b=>{b.style.opacity='0.45';b.style.borderColor='var(--border)';b.style.background='var(--card)'});this.style.opacity='1';this.style.borderColor='${col}';this.style.background='color-mix(in srgb, ${col} 12%, transparent)'"
+          class="status-btn"
+          style="background:${s===a.status?`color-mix(in srgb, ${col} 12%, transparent)`:'var(--card)'};border:1.5px solid ${s===a.status?col:'var(--border)'};border-radius:var(--r-sm);padding:11px 8px;font-size:12px;font-weight:700;color:${col};cursor:pointer;opacity:${s===a.status?'1':'0.45'};transition:all .2s">
+          ${lbl}
+        </button>`).join("")}
+      </div>
+      <div class="slbl">Send Reminder</div>
+      <div style="background:#071A10;border:1px solid #25D36630;border-radius:var(--r-lg);padding:16px;margin-bottom:14px">
+        <div style="font-size:11px;font-weight:700;color:#25D366;margin-bottom:10px;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.8px">
+          <svg viewBox="0 0 24 24" fill="#25D366" width="14" height="14"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.138.562 4.144 1.545 5.879L.057 23.786a.5.5 0 0 0 .658.625l5.975-1.901A11.943 11.943 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22a9.941 9.941 0 0 1-5.073-1.384l-.362-.215-3.754 1.194 1.107-3.645-.234-.376A9.96 9.96 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+          WhatsApp Reminder
+        </div>
+        <div style="background:#0A0A0A;border-radius:var(--r-sm);padding:12px;margin-bottom:12px;font-size:13px;color:#ccc;line-height:1.7;direction:rtl;text-align:right;font-family:Arial,sans-serif">
+          عيادة د. عبدالله سامي زين لطب وجراحة الفم والأسنان 🦷<br>
+          مرحباً أستاذ/ة ${esc(pname)}،<br>
+          نذكركم بموعدكم القادم بتاريخ ${dt} الساعة ${t}.<br>
+          للتواصل أو الاستفسار: 01555563997<br>
+          نتطلع لرؤيتكم 😊
+        </div>
+        ${phone?`
+        <button onclick="window.open('https://wa.me/${intlPhone}?text=${waMsg}','_blank')"
+          style="width:100%;background:linear-gradient(135deg,#128C7E,#25D366);color:#fff;border:none;border-radius:var(--r-sm);padding:13px;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">
+          <svg viewBox="0 0 24 24" fill="white" width="16" height="16"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.138.562 4.144 1.545 5.879L.057 23.786a.5.5 0 0 0 .658.625l5.975-1.901A11.943 11.943 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22a9.941 9.941 0 0 1-5.073-1.384l-.362-.215-3.754 1.194 1.107-3.645-.234-.376A9.96 9.96 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+          Send to ${esc(pname)} · ${pat?.phone||""}
+        </button>`
+        :`<div style="text-align:center;color:var(--red);font-size:12px;font-weight:600;padding:8px">No phone number registered</div>`}
+      </div>
+      <button onclick="closeSheet('appt-detail');openPat(${a.patient_id})"
+        style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--r-sm);padding:13px;font-size:13px;font-weight:600;color:var(--text-dim);cursor:pointer">
+        View Patient Profile →
+      </button>
+    </div>`;
+}
+
+async function changeStatus(id,ns){
+  const {error}=await sb.from("appointments").update({status:ns}).eq("id",id);
+  if(!error){toast("→ "+SL[ns]);loadSched();}else toast("Failed ✗");
+}
+
+// ── QUEUE ─────────────────────────────────────────────────────────────────────
+async function loadQueue(){
+  const el=document.getElementById("queue-body");
+  el.innerHTML='<div class="ldg"><div class="spin"></div></div>';
+  const td=today();
+  const {data}=await sb.from("appointments").select("status").eq("appointment_date",td);
+  if(!data){el.innerHTML='<div class="empty">Failed</div>';return}
+  const by={};data.forEach(a=>{by[a.status]=(by[a.status]||0)+1});
+  const total=data.length;
+  const waiting=(by.scheduled||0)+(by.confirmed||0);
+  const {count:totalPats}=await sb.from("patients").select("*",{count:"exact",head:true});
+  const startOfMonth=td.slice(0,7)+"-01";
+  const {count:newPats}=await sb.from("patients").select("*",{count:"exact",head:true}).gte("created_at",startOfMonth);
+  const {data:invData}=await sb.from("invoices").select("total_amount,paid_amount,issue_date");
+  const monthRev=(invData||[]).filter(i=>i.issue_date>=startOfMonth).reduce((s,i)=>s+(+i.total_amount||0),0);
+  const outstanding=(invData||[]).filter(i=>i.status!=="paid").reduce((s,i)=>s+((+i.total_amount||0)-(+i.paid_amount||0)),0);
+  el.innerHTML=`
+  <div style="text-align:center;padding:32px 20px 24px">
+    <div style="font-size:96px;font-weight:900;color:var(--blue);line-height:1;letter-spacing:-6px;font-family:var(--mono);text-shadow:0 0 40px #38BDF830">${waiting}</div>
+    <div style="font-size:13px;color:var(--text-muted);margin-top:8px;font-weight:500;letter-spacing:.4px;text-transform:uppercase">Patients waiting</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 16px;margin-bottom:20px">
+    ${[["#38BDF8","Sched",by.scheduled||0],["#34D399","Conf",by.confirmed||0],["#FBBF24","Done",by.completed||0],["#F87171","Cancel",by.cancelled||0],["#64748B","No-show",by["no-show"]||0],["#D9EAFF","Total",total]].map(([c,l,v])=>`
+    <div style="background:var(--card);border-radius:var(--r-md);padding:14px 8px;text-align:center;border:1px solid var(--border)">
+      <div style="font-size:28px;font-weight:900;line-height:1;color:${c};font-family:var(--mono)">${v}</div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text-muted);margin-top:4px">${l}</div>
+    </div>`).join("")}
+  </div>
+  <div class="sg" style="padding:0 16px">
+    <div class="sc" style="--ac:var(--blue)">
+      <div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+      <div class="sc-val">${totalPats||0}</div><div class="sc-lbl">All Patients</div>
+    </div>
+    <div class="sc" style="--ac:var(--green)">
+      <div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+      <div class="sc-val">${newPats||0}</div><div class="sc-lbl">New This Month</div>
+    </div>
+    <div class="sc" style="--ac:var(--blue)">
+      <div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+      <div class="sc-val" style="font-size:16px">EGP ${(monthRev||0).toLocaleString(undefined,{maximumFractionDigits:0})}</div>
+      <div class="sc-lbl">Month Revenue</div>
+    </div>
+    <div class="sc" style="--ac:var(--red)">
+      <div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div>
+      <div class="sc-val" style="font-size:16px">EGP ${(outstanding||0).toLocaleString(undefined,{maximumFractionDigits:0})}</div>
+      <div class="sc-lbl">Outstanding</div>
+    </div>
+  </div>`;
+}
+
+// ── PATIENTS ──────────────────────────────────────────────────────────────────
+async function loadRecentPats(){
+  const el=document.getElementById("pat-list");
+  el.innerHTML='<div class="ldg"><div class="spin"></div></div>';
+  const {data}=await sb.from("patients").select("*").order("created_at",{ascending:false}).limit(20);
+  if(!data?.length){el.innerHTML='<div class="empty">No patients yet</div>';return}
+  el.innerHTML='<div class="slbl" style="padding:0 2px 6px">Recent Patients</div><div class="card">'+data.map(patRow).join("")+"</div>";
+}
+
+function searchPats(q){
+  clearTimeout(_tmrs.pat);
+  if(!q.trim()){loadRecentPats();return}
+  _tmrs.pat=setTimeout(async()=>{
+    const el=document.getElementById("pat-list");
+    el.innerHTML='<div class="ldg"><div class="spin"></div></div>';
+    const {data}=await sb.from("patients").select("*")
+      .or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%,phone.ilike.%${q}%,patient_number.ilike.%${q}%`)
+      .order("last_name").limit(50);
+    if(!data?.length){el.innerHTML='<div class="empty">No patients found</div>';return}
+    el.innerHTML='<div class="card">'+data.map(patRow).join("")+"</div>";
+  },300);
+}
+
+function patRow(p){
+  const ini=((p.first_name||" ")[0]+(p.last_name||" ")[0]).toUpperCase();
+  const d=p.date_of_birth?age(p.date_of_birth)+"y":"";
+  return `<div class="pr row-sep" onclick="openPat(${p.id})">
+    <div class="av">${ini}</div>
+    <div class="pr-info"><div class="pr-name">${esc(p.first_name)} ${esc(p.last_name)}</div>
+    <div class="pr-sub">${esc(p.patient_number||"")}${p.patient_number?" · ":""}${esc(p.phone||"—")}${d?" · "+d:""}</div></div>
+    <div class="pr-arr">›</div>
+  </div>`;
+}
+
+let _editPatId=null;
+function openEditPat(){if(!_editPatId) return;openSheet("edit-patient");}
+
+async function saveEditPat(){
+  const fn=document.getElementById("ep-fname").value.trim();
+  if(!fn){toast("First name required ✗");return}
+  const {error}=await sb.from("patients").update({
+    first_name:fn,last_name:document.getElementById("ep-lname").value.trim(),
+    phone:document.getElementById("ep-phone").value.trim(),email:document.getElementById("ep-email").value.trim(),
+    date_of_birth:document.getElementById("ep-dob").value||null,gender:document.getElementById("ep-gender").value,
+    city:document.getElementById("ep-city").value.trim(),blood_type:document.getElementById("ep-blood").value,
+    allergies:document.getElementById("ep-allergies").value.trim(),
+    medical_conditions:document.getElementById("ep-conditions").value.trim(),
+    current_medications:document.getElementById("ep-medications").value.trim(),
+    notes:document.getElementById("ep-notes").value.trim(),updated_at:new Date().toISOString(),
+  }).eq("id",_editPatId);
+  if(!error){toast("Patient updated ✓");closeSheet("edit-patient");openPat(_editPatId);}
+  else toast("Failed: "+error.message+" ✗");
+}
+
+async function deletePatient(){
+  if(!_editPatId) return;
+  if(!confirm("Delete this patient and all their records? This cannot be undone.")) return;
+  const {error}=await sb.from("patients").delete().eq("id",_editPatId);
+  if(!error){toast("Patient deleted ✓");closeSheet("edit-patient");closeSheet("patient");_editPatId=null;}
+  else toast("Failed: "+error.message+" ✗");
+}
+
+async function openPat(pid){
+  const sh=document.getElementById("sh-patient");
+  document.getElementById("sh-pat-name").textContent="Loading…";
+  document.getElementById("sh-pat-num").textContent="";
+  document.getElementById("sh-pat-body").innerHTML='<div class="ldg"><div class="spin"></div></div>';
+  sh.classList.add("open");
+  const [{data:p},{data:appts},{data:txs}]=await Promise.all([
+    sb.from("patients").select("*").eq("id",pid).single(),
+    sb.from("appointments").select("*").eq("patient_id",pid).order("appointment_date",{ascending:false}).limit(6),
+    sb.from("treatments").select("*").eq("patient_id",pid).order("date_performed",{ascending:false}).limit(6),
+  ]);
+  if(!p){document.getElementById("sh-pat-body").innerHTML='<div class="empty">Not found</div>';return}
+  _editPatId=pid;
+  document.getElementById("sh-pat-name").textContent=p.first_name+" "+p.last_name;
+  document.getElementById("sh-pat-num").textContent=(p.patient_number||"")+(p.gender?" · "+p.gender:"");
+  document.getElementById("ep-fname").value=p.first_name||"";
+  document.getElementById("ep-lname").value=p.last_name||"";
+  document.getElementById("ep-phone").value=p.phone||"";
+  document.getElementById("ep-email").value=p.email||"";
+  document.getElementById("ep-dob").value=p.date_of_birth||"";
+  document.getElementById("ep-gender").value=p.gender||"";
+  document.getElementById("ep-city").value=p.city||"";
+  document.getElementById("ep-blood").value=p.blood_type||"";
+  document.getElementById("ep-allergies").value=p.allergies||"";
+  document.getElementById("ep-conditions").value=p.medical_conditions||"";
+  document.getElementById("ep-medications").value=p.current_medications||"";
+  document.getElementById("ep-notes").value=p.notes||"";
+  const allgs=(p.allergies||"").split(",").map(s=>s.trim()).filter(Boolean);
+  const apptHtml=appts?.length?appts.map(a=>{
+    const c=SC[a.status]||"#888";
+    return `<div class="ar row-sep"><div class="ar-bar" style="background:${c}"></div>
+    <div class="ar-body"><div class="ar-time" style="color:${c}">${a.appointment_date} ${(a.appointment_time||"").slice(0,5)}</div>
+    <div class="ar-name" style="font-size:12px">${esc(a.appt_type||"General")}</div>
+    <div class="ar-type">${SL[a.status]||a.status}</div></div></div>`;
+  }).join(""):'<div class="empty" style="padding:16px">No history</div>';
+  const txHtml=txs?.length?txs.map(t=>`
+    <div class="row-sep" style="padding:11px 14px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${esc(t.procedure_name)}</div>
+        <div style="font-size:13px;font-weight:700;color:var(--blue);font-family:var(--mono)">EGP ${t.cost||0}</div>
+      </div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:2px">${t.date_performed||""}${t.tooth_number?" · Tooth "+t.tooth_number:""}</div>
+    </div>`).join(""):'<div class="empty" style="padding:16px">No treatments</div>';
+  document.getElementById("sh-pat-body").innerHTML=`
+    <div class="ig">
+      <div class="ii"><div class="ii-lbl">Phone</div><div class="ii-val" dir="ltr" style="font-family:var(--mono)">${esc(p.phone||"—")}</div></div>
+      <div class="ii"><div class="ii-lbl">Date of Birth</div><div class="ii-val">${p.date_of_birth?p.date_of_birth+" ("+age(p.date_of_birth)+"y)":"—"}</div></div>
+      <div class="ii"><div class="ii-lbl">Blood Type</div><div class="ii-val">${esc(p.blood_type||"—")}</div></div>
+      <div class="ii"><div class="ii-lbl">City</div><div class="ii-val">${esc(p.city||"—")}</div></div>
+      <div class="ii full"><div class="ii-lbl">Email</div><div class="ii-val">${esc(p.email||"—")}</div></div>
+      ${allgs.length?`<div class="ii full"><div class="ii-lbl">⚠ Allergies</div><div>${allgs.map(a=>`<span class="badge b-red">${esc(a)}</span>`).join("")}</div></div>`:""}
+      ${p.medical_conditions?`<div class="ii full"><div class="ii-lbl">Medical Conditions</div><div class="ii-val" style="font-size:12px;font-weight:400">${esc(p.medical_conditions)}</div></div>`:""}
+    </div>
+    <div style="padding:0 14px 8px"><div class="slbl">Appointments</div></div>
+    <div class="card" style="margin:0 14px 14px">${apptHtml}</div>
+    <div style="padding:0 14px 8px"><div class="slbl">Treatments</div></div>
+    <div class="card" style="margin:0 14px">${txHtml}</div>`;
+}
+
+async function submitNewPatient(){
+  const fn=document.getElementById("np-fname").value.trim();
+  if(!fn){toast("First name required ✗");return}
+  const {data,error}=await sb.from("patients").insert({
+    first_name:fn,last_name:document.getElementById("np-lname").value.trim(),
+    phone:document.getElementById("np-phone").value.trim(),
+    age:parseInt(document.getElementById("np-age").value)||null,
+    gender:document.getElementById("np-gender").value,
+    allergies:document.getElementById("np-allergies").value.trim(),
+    medical_conditions:document.getElementById("np-conditions").value.trim(),
+    notes:document.getElementById("np-notes").value.trim(),
+  }).select().single();
+  if(error){toast("Failed: "+error.message+" ✗");return}
+  toast("Patient added ✓");closeSheet("new-patient");
+  ["np-fname","np-lname","np-phone","np-allergies","np-conditions","np-notes"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("np-age").value="";document.getElementById("np-gender").value="";
+}
+
+// ── BILLING ───────────────────────────────────────────────────────────────────
+let _allInvoices=[];let _invToday=true;
+async function loadInvoices(){
+  const el=document.getElementById("inv-list");
+  el.innerHTML='<div class="ldg"><div class="spin"></div></div>';
+  const {data}=await sb.from("invoices").select("*").order("created_at",{ascending:false}).limit(200);
+  _allInvoices=data||[];renderInvoices();
+}
+function toggleTodayFilter(el){_invToday=!_invToday;el.classList.toggle("on",_invToday);renderInvoices();}
+function setIFilter(f,el){_invFilter=f;document.querySelectorAll("[data-ifilter]").forEach(e=>e.classList.toggle("on",e===el));renderInvoices();}
+function renderInvoices(){
+  const el=document.getElementById("inv-list");
+  let data=_allInvoices;
+  const q=(document.getElementById("inv-srch")?.value||"").trim().toLowerCase();
+  if(_invToday){const t=today();data=data.filter(i=>i.issue_date===t||(i.created_at&&i.created_at.startsWith(t)));}
+  if(_invFilter!=="all") data=data.filter(i=>i.status===_invFilter);
+  if(q) data=data.filter(i=>(i.patient_name||"").toLowerCase().includes(q)||(i.invoice_number||"").toLowerCase().includes(q));
+  if(!data.length){el.innerHTML='<div class="empty">No invoices</div>';return}
+  el.innerHTML='<div class="card">'+data.map(i=>{
+    const sc={paid:"s-paid",partial:"s-partial",unpaid:"s-unpaid"}[i.status]||"";
+    return `<div class="inv-row row-sep" onclick="openInv(${i.id})">
+      <div style="flex:1;min-width:0">
+        <div class="inv-num">${esc(i.invoice_number||"#"+i.id)}</div>
+        <div class="inv-name">${esc(i.patient_name||"")}</div>
+        <div class="inv-date" style="font-family:var(--mono)">${i.issue_date||""}</div>
+      </div>
+      <div class="inv-amt">
+        <div class="inv-total">EGP ${(+i.total_amount||0).toFixed(2)}</div>
+        <div class="inv-status ${sc}">${(i.status||"").toUpperCase()}</div>
+      </div>
+      <div style="color:var(--text-muted);font-size:15px;padding-left:6px">›</div>
+    </div>`;
+  }).join("")+"</div>";
+}
+
+async function openInv(id){
+  _editInvId=id;
+  document.getElementById("sh-inv-title").textContent="Invoice";
+  document.getElementById("sh-inv-sub").textContent="Loading…";
+  document.getElementById("sh-inv-body").innerHTML='<div class="ldg"><div class="spin"></div></div>';
+  openSheet("inv");
+  const [{data:inv},{data:items},{data:pmts}]=await Promise.all([
+    sb.from("invoices").select("*").eq("id",id).single(),
+    sb.from("invoice_items").select("*").eq("invoice_id",id),
+    sb.from("payments").select("*").eq("invoice_id",id).order("created_at"),
+  ]);
+  if(!inv){document.getElementById("sh-inv-body").innerHTML='<div class="empty">Not found</div>';return}
+  document.getElementById("sh-inv-title").textContent=inv.invoice_number||"#"+id;
+  document.getElementById("sh-inv-sub").textContent=(inv.patient_name||"")+" · "+(inv.issue_date||"");
+  const sc={paid:"b-green",partial:"b-gold",unpaid:"b-red"}[inv.status]||"b-gold";
+  const remaining=Math.max(0,(+inv.total_amount||0)-(+inv.paid_amount||0));
+  const itemsHtml=items?.length?items.map(it=>`
+    <div class="row-sep" style="padding:11px 14px;display:flex;justify-content:space-between;align-items:center">
+      <div><div style="font-size:13px;font-weight:600;color:var(--text)">${esc(it.description)}</div>
+      <div style="font-size:11px;color:var(--text-dim)">Qty: ${it.quantity||1} × EGP ${it.unit_price||0}</div></div>
+      <div style="font-size:13px;font-weight:700;color:var(--blue);font-family:var(--mono)">EGP ${it.total_price||0}</div>
+    </div>`):"" || '<div class="empty" style="padding:16px">No items</div>';
+  const pmtsHtml=pmts?.length?pmts.map(p=>`
+    <div class="row-sep" style="padding:11px 14px;display:flex;justify-content:space-between;align-items:center">
+      <div><div style="font-size:13px;font-weight:600;color:var(--green);font-family:var(--mono)">EGP ${p.amount}</div>
+      <div style="font-size:11px;color:var(--text-dim)">${p.payment_date||""} · ${p.payment_method||"cash"}</div></div>
+    </div>`):"" || '<div style="padding:12px 14px;font-size:12px;color:var(--text-muted)">No payments yet</div>';
+  document.getElementById("sh-inv-body").innerHTML=`
+    <div class="ig">
+      <div class="ii full" style="display:flex;justify-content:space-between;align-items:center">
+        <div><div class="ii-lbl">Status</div><span class="badge ${sc}">${(inv.status||"").toUpperCase()}</span></div>
+        <div style="text-align:right"><div class="ii-lbl">Total</div><div style="font-size:22px;font-weight:800;color:var(--blue);font-family:var(--mono)">EGP ${(+inv.total_amount||0).toFixed(2)}</div></div>
+      </div>
+      <div class="ii"><div class="ii-lbl">Paid</div><div class="ii-val" style="color:var(--green);font-family:var(--mono)">EGP ${(+inv.paid_amount||0).toFixed(2)}</div></div>
+      <div class="ii"><div class="ii-lbl">Remaining</div><div class="ii-val" style="color:${remaining>0?"var(--red)":"var(--green)"};font-family:var(--mono)">EGP ${remaining.toFixed(2)}</div></div>
+      ${inv.notes?`<div class="ii full"><div class="ii-lbl">Notes</div><div class="ii-val" style="font-size:12px;font-weight:400">${esc(inv.notes)}</div></div>`:""}
+    </div>
+    <div style="padding:0 14px 8px"><div class="slbl">Line Items</div></div>
+    <div class="card" style="margin:0 14px 14px">${itemsHtml}</div>
+    <div style="padding:0 14px 8px"><div class="slbl">Payments</div></div>
+    <div class="card" style="margin:0 14px 14px">${pmtsHtml}</div>
+    ${remaining>0?`<div class="pg" style="padding-top:0">
+      <div class="slbl">Record Payment</div>
+      <div class="ff"><label>Amount (EGP)</label><input type="number" inputmode="decimal" id="pay-amt" value="${remaining.toFixed(2)}" step="0.01" min="0.01"></div>
+      <div class="ff"><label>Method</label><select id="pay-meth"><option value="cash">Cash</option><option value="card">Card</option><option value="bank_transfer">Bank Transfer</option><option value="insurance">Insurance</option></select></div>
+      <button class="btn-primary" style="border-radius:var(--r-md);padding:13px" onclick="recordPayment(${id})">Record Payment</button>
+    </div>`:""}`;
+}
+
+async function recordPayment(invId){
+  const amt=parseFloat(document.getElementById("pay-amt")?.value||0);
+  const meth=document.getElementById("pay-meth")?.value||"cash";
+  if(!amt||amt<=0){toast("Invalid amount ✗");return}
+  const {error}=await sb.from("payments").insert({invoice_id:invId,amount:amt,payment_method:meth,payment_date:today(),received_by:USER?.full_name||""});
+  if(!error){toast("Payment recorded ✓");openInv(invId);loadInvoices();}else toast("Failed ✗");
+}
+
+// ── NEW INVOICE ───────────────────────────────────────────────────────────────
+let _niTmr=null;
+function srchNI(q){
+  clearTimeout(_niTmr);const el=document.getElementById("ni-pres");
+  if(!q.trim()){el.style.display="none";return}
+  _niTmr=setTimeout(async()=>{
+    const {data}=await sb.from("patients").select("id,first_name,last_name,patient_number").or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%`).limit(5);
+    if(!data?.length){el.style.display="none";return}
+    el.style.display="block";
+    el.innerHTML=data.map(p=>`<div onclick="selNIPat(${p.id},'${esc(p.first_name)} ${esc(p.last_name)}')" style="padding:11px 13px;border-bottom:1px solid var(--border);cursor:pointer;font-size:13px"><strong>${esc(p.first_name)} ${esc(p.last_name)}</strong> <span style="color:var(--text-muted);font-size:11px">${esc(p.patient_number||"")}</span></div>`).join("");
+  },280);
+}
+function selNIPat(id,name){
+  _niPatId=id;document.getElementById("ni-psel").style.display="block";
+  document.getElementById("ni-pname").textContent=name;
+  document.getElementById("ni-pres").style.display="none";document.getElementById("ni-psrch").value="";
+}
+function addNIItem(){
+  const idx=_niItems.length;_niItems.push({});
+  const d=document.getElementById("ni-item-rows");
+  const div=document.createElement("div");
+  div.id="ni-item-"+idx;
+  div.style.cssText="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:13px;margin-bottom:8px";
+  div.innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:10px">
+    <div style="font-size:10px;font-weight:700;color:var(--blue);letter-spacing:.8px;text-transform:uppercase">Item ${idx+1}</div>
+    <button onclick="removeNIItem(${idx})" style="background:none;border:none;color:var(--red);font-size:18px;cursor:pointer;line-height:1">×</button>
+  </div>
+  <div class="ff" style="margin-bottom:8px"><label>Description</label>
+    <select onchange="niProcSel(${idx},this)" style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 11px;font-size:13px;color:var(--text);margin-bottom:6px">
+      <option value="">— Pick procedure —</option>
+      ${_procs.map(p=>`<option value="${p.id}" data-cost="${p.default_cost}" data-name="${esc(p.name)}">${esc(p.name)} (EGP ${p.default_cost})</option>`).join("")}
+      <option value="custom">Custom…</option>
+    </select>
+    <input id="ni-desc-${idx}" type="text" placeholder="Or type description…" oninput="niCalc(${idx})" style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 11px;font-size:13px;color:var(--text)">
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div class="ff" style="margin:0"><label>Qty</label><input id="ni-qty-${idx}" type="number" value="1" min="1" oninput="niCalc(${idx})" style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 11px;font-size:13px;color:var(--text)"></div>
+    <div class="ff" style="margin:0"><label>Price (EGP)</label><input id="ni-price-${idx}" type="number" inputmode="decimal" value="0" step="0.01" oninput="niCalc(${idx})" style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 11px;font-size:13px;color:var(--text)"></div>
+  </div>`;
+  d.appendChild(div);
+}
+function niProcSel(idx,sel){const opt=sel.options[sel.selectedIndex];if(!opt.value||opt.value==="custom")return;document.getElementById("ni-desc-"+idx).value=opt.dataset.name||"";document.getElementById("ni-price-"+idx).value=opt.dataset.cost||0;niCalc(idx);}
+function removeNIItem(idx){const el=document.getElementById("ni-item-"+idx);if(el){el.remove();delete _niItems[idx];niTotalCalc();}}
+function niCalc(idx){const qty=parseFloat(document.getElementById("ni-qty-"+idx)?.value||1);const price=parseFloat(document.getElementById("ni-price-"+idx)?.value||0);const desc=document.getElementById("ni-desc-"+idx)?.value||"";_niItems[idx]={description:desc,quantity:qty,unit_price:price,total_price:qty*price};niTotalCalc();}
+function niTotalCalc(){const tot=_niItems.filter(Boolean).reduce((s,i)=>s+(i.total_price||0),0);document.getElementById("ni-total").textContent="EGP "+tot.toFixed(2);}
+
+async function submitInvoice(){
+  if(!_niPatId){toast("Select a patient ✗");return}
+  const items=_niItems.filter(i=>i&&i.description&&i.total_price>0);
+  if(!items.length){toast("Add at least one item ✗");return}
+  const total=items.reduce((s,i)=>s+i.total_price,0);
+  const {data:pat}=await sb.from("patients").select("first_name,last_name").eq("id",_niPatId).single();
+  const pname=pat?`${pat.first_name} ${pat.last_name}`:"";
+  const {data:inv,error}=await sb.from("invoices").insert({patient_id:_niPatId,patient_name:pname,total_amount:total,notes:document.getElementById("ni-notes").value,issue_date:today(),created_by:USER?.full_name||""}).select().single();
+  if(error){toast("Failed: "+error.message+" ✗");return}
+  await sb.from("invoice_items").insert(items.map(it=>({...it,invoice_id:inv.id})));
+  const treatments=items.map(it=>({patient_id:_niPatId,procedure_name:it.description,cost:it.total_price,date_performed:today(),dentist_name:USER?.full_name||"",diagnosis:"Via Invoice "+inv.invoice_number}));
+  await sb.from("treatments").insert(treatments);
+  toast("Invoice created ✓");closeSheet("inv-new");
+  _niPatId=null;_niItems=[];
+  document.getElementById("ni-psel").style.display="none";
+  document.getElementById("ni-notes").value="";
+  document.getElementById("ni-item-rows").innerHTML="";
+  document.getElementById("ni-total").textContent="EGP 0.00";
+  loadInvoices();
+}
+
+// ── NEW APPOINTMENT ───────────────────────────────────────────────────────────
+let _naTmr=null;
+function naSetMode(m){
+  _naMode=m;const isNew=m==="new";
+  document.getElementById("na-new-fields").style.display=isNew?"block":"none";
+  document.getElementById("na-existing-fields").style.display=isNew?"none":"block";
+  const nBtn=document.getElementById("na-tab-new"),eBtn=document.getElementById("na-tab-existing");
+  nBtn.style.cssText=`flex:1;padding:9px;border-radius:var(--r-sm);font-size:12px;font-weight:700;cursor:pointer;background:${isNew?"var(--blue-low)":"var(--card)"};color:${isNew?"var(--blue)":"var(--text-muted)"};border:1px solid ${isNew?"var(--blue-glow)":"var(--border)"};transition:all .15s`;
+  eBtn.style.cssText=`flex:1;padding:9px;border-radius:var(--r-sm);font-size:12px;font-weight:700;cursor:pointer;background:${isNew?"var(--card)":"var(--blue-low)"};color:${isNew?"var(--text-muted)":"var(--blue)"};border:1px solid ${isNew?"var(--border)":"var(--blue-glow)"};transition:all .15s`;
+  if(!isNew){_naPatId=null;document.getElementById("na-psel").style.display="none";document.getElementById("na-psrch").value="";}
+}
+function srchNA(q){
+  clearTimeout(_naTmr);const el=document.getElementById("na-pres");
+  if(!q.trim()){el.style.display="none";return}
+  _naTmr=setTimeout(async()=>{
+    const {data}=await sb.from("patients").select("id,first_name,last_name,patient_number").or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%`).limit(5);
+    if(!data?.length){el.style.display="none";return}
+    el.style.display="block";
+    el.innerHTML=data.map(p=>`<div onclick="selNAPat(${p.id},'${esc(p.first_name)} ${esc(p.last_name)}')" style="padding:11px 13px;border-bottom:1px solid var(--border);cursor:pointer;font-size:13px"><strong>${esc(p.first_name)} ${esc(p.last_name)}</strong> <span style="color:var(--text-muted);font-size:11px">${esc(p.patient_number||"")}</span></div>`).join("");
+  },280);
+}
+function selNAPat(id,name){
+  _naPatId=id;document.getElementById("na-psel").style.display="block";
+  document.getElementById("na-pname").textContent=name;
+  document.getElementById("na-pres").style.display="none";document.getElementById("na-psrch").value="";
+}
+async function submitAppt(){
+  const dt=document.getElementById("na-date").value,tm=document.getElementById("na-time").value;
+  if(!dt||!tm){toast("Date and time required ✗");return}
+  let pid=_naPatId,pname="";
+  if(_naMode==="new"){
+    const fn=document.getElementById("na-new-fname").value.trim(),ln=document.getElementById("na-new-lname").value.trim();
+    if(!fn){toast("First name required ✗");return}
+    const {data:newP,error}=await sb.from("patients").insert({first_name:fn,last_name:ln,phone:document.getElementById("na-new-phone").value.trim()}).select().single();
+    if(error){toast("Failed to create patient ✗");return}
+    pid=newP.id;pname=fn+" "+ln;toast("Patient created ✓");
+  }else{
+    const {data:pat}=await sb.from("patients").select("first_name,last_name").eq("id",pid).single();
+    pname=pat?`${pat.first_name} ${pat.last_name}`:"";
+  }
+  if(!pid){toast("Select or enter a patient ✗");return}
+  const {error}=await sb.from("appointments").insert({patient_id:pid,patient_name:pname,appointment_date:dt,appointment_time:tm,appt_type:document.getElementById("na-type").value,duration_minutes:parseInt(document.getElementById("na-dur").value),notes:document.getElementById("na-notes").value,status:"scheduled"});
+  if(!error){
+    toast("Appointment booked ✓");closeSheet("new-appt");
+    _naPatId=null;_naMode="existing";naSetMode("existing");
+    ["na-psrch","na-date","na-time","na-notes","na-new-fname","na-new-lname","na-new-phone"].forEach(id=>document.getElementById(id).value="");
+    sw("sched");
+  }else toast("Failed ✗");
+}
+
+// ── CLINICAL ──────────────────────────────────────────────────────────────────
+async function loadRecentClinical(){
+  const el=document.getElementById("cl-body");
+  document.getElementById("cl-pres").style.display="none";
+  el.innerHTML='<div class="ldg"><div class="spin"></div></div>';
+  const {data}=await sb.from("treatments").select("*,patients(first_name,last_name)").order("date_performed",{ascending:false}).limit(20);
+  if(!data?.length){el.innerHTML='<div class="empty">No clinical records yet</div>';return}
+  el.innerHTML='<div class="slbl" style="padding:0 2px 6px">Recent Clinical Records</div><div class="card">'+data.map(t=>{
+    const pname=t.patients?t.patients.first_name+' '+t.patients.last_name:'Unknown';
+    return `<div class="row-sep" style="padding:12px 14px;cursor:pointer" onclick="loadCLPat(${t.patient_id},'${pname}')">
+      <div style="font-size:13px;font-weight:600;color:var(--text)">${esc(pname)}</div>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:2px">${esc(t.procedure_name)} · ${t.date_performed||''}${t.tooth_number?' · Tooth '+t.tooth_number:''}</div>
+    </div>`;
+  }).join('')+'</div>';
+}
+
+let _clTmr=null;
+function srchCL(q){
+  clearTimeout(_clTmr);const el=document.getElementById("cl-pres");
+  if(!q.trim()){el.style.display="none";loadRecentClinical();return}
+  _clTmr=setTimeout(async()=>{
+    const {data}=await sb.from("patients").select("id,first_name,last_name,patient_number,phone")
+      .or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%,phone.ilike.%${q}%,patient_number.ilike.%${q}%`)
+      .order("last_name").limit(8);
+    if(!data?.length){el.style.display="none";return}
+    el.style.display="block";
+    el.innerHTML=data.map(p=>{
+      const ini=((p.first_name||" ")[0]+(p.last_name||" ")[0]).toUpperCase();
+      return `<div onclick="loadCLPat(${p.id},'${esc(p.first_name)} ${esc(p.last_name)}')" style="padding:11px 13px;border-bottom:1px solid var(--border);cursor:pointer;display:flex;align-items:center;gap:10px">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0B2A45,#1A4A6E);border:1px solid var(--blue-glow);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--blue);flex-shrink:0">${ini}</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--text)">${esc(p.first_name)} ${esc(p.last_name)}</div>
+          <div style="font-size:11px;color:var(--text-dim)">${esc(p.patient_number||'')} · ${esc(p.phone||'—')}</div>
+        </div>
+      </div>`;
+    }).join("");
+  },280);
+}
+
+async function loadCLPat(pid,name){
+  _clPatId=pid;
+  document.getElementById("cl-pres").style.display="none";
+  document.getElementById("cl-q").value=name;
+  const el=document.getElementById("cl-body");
+  el.innerHTML='<div class="ldg"><div class="spin"></div></div>';
+  const [{data:txs},{data:pat}]=await Promise.all([
+    sb.from("treatments").select("*").eq("patient_id",pid).order("date_performed",{ascending:false}),
+    sb.from("patients").select("*").eq("id",pid).single()
+  ]);
+  const txHtml=txs?.length?txs.map(t=>`
+    <div class="row-sep" style="padding:12px 14px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div style="flex:1;min-width:0;cursor:pointer" onclick="openEditTx(${t.id},'${esc(t.procedure_name)}',${t.cost||0},'${t.date_performed||today()}',${t.tooth_number||0},'${esc(t.diagnosis||'')}')">
+          <div style="font-size:13px;font-weight:600;color:var(--text)">${esc(t.procedure_name)}</div>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:2px">${t.date_performed||""}${t.tooth_number?" · Tooth "+t.tooth_number:""}${t.dentist_name?" · "+esc(t.dentist_name):""}</div>
+          ${t.diagnosis?`<div style="font-size:11px;color:var(--blue);opacity:.7;margin-top:3px;font-style:italic">${esc(t.diagnosis)}</div>`:""}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding-left:10px;flex-shrink:0">
+          <div style="font-size:13px;font-weight:700;color:var(--blue);font-family:var(--mono)">EGP ${t.cost||0}</div>
+          <button onclick="openEditTx(${t.id},'${esc(t.procedure_name)}',${t.cost||0},'${t.date_performed||today()}',${t.tooth_number||0},'${esc(t.diagnosis||'')}')" style="background:var(--card);border:1px solid var(--border);border-radius:var(--r-sm);color:var(--text-dim);padding:4px 8px;font-size:11px;cursor:pointer">Edit</button>
+        </div>
+      </div>
+    </div>`).join(""):'<div class="empty">No treatments</div>';
+  el.innerHTML=`
+    <div style="background:var(--blue-dim);border:1px solid var(--blue-glow);border-radius:var(--r-md);padding:12px 14px;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:700;color:var(--blue)">${esc(pat?.first_name||"")} ${esc(pat?.last_name||"")}</div>
+      ${pat?.allergies?`<div style="font-size:11px;color:var(--red);margin-top:3px;font-weight:500">⚠ ${esc(pat.allergies)}</div>`:""}
+    </div>
+    <div class="sec-hdr"><div class="slbl" style="margin:0">Treatment History</div><button class="small-btn primary" onclick="openAddTx()">+ Add Treatment</button></div>
+    <div class="card" style="margin-bottom:14px">${txHtml}</div>
+    <div id="cl-add-form" style="display:none">
+      <div class="slbl">New Treatment</div>
+      <div class="ff"><label>Procedure</label>
+        <select id="cl-proc" onchange="clProcSel(this)" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 11px;font-size:13px;color:var(--text);margin-bottom:6px">
+          <option value="">— Select —</option>
+          ${_procs.map(p=>`<option value="${p.id}" data-name="${esc(p.name)}" data-cost="${p.default_cost}">${esc(p.name)}</option>`).join("")}
+          <option value="custom">Custom…</option>
+        </select>
+        <input id="cl-proc-name" type="text" style="display:none">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <div class="ff" style="margin:0"><label>Tooth #</label><select id="cl-tooth" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 11px;font-size:13px;color:var(--text)">${toothOpts()}</select></div>
+        <div class="ff" style="margin:0"><label>Cost (EGP)</label><input id="cl-cost" type="number" inputmode="decimal" step="0.01" min="0" value="0" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 11px;font-size:13px;color:var(--text)"></div>
+      </div>
+      <div class="ff"><label>Diagnosis / Notes</label><textarea id="cl-notes" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 11px;font-size:13px;color:var(--text);resize:vertical;min-height:60px"></textarea></div>
+      <button class="btn-primary" style="border-radius:var(--r-md);padding:13px" onclick="submitTx()">Save Treatment</button>
+    </div>`;
+}
+function openAddTx(){const f=document.getElementById("cl-add-form");f.style.display=f.style.display==="none"?"block":"none";}
+function clProcSel(sel){const opt=sel.options[sel.selectedIndex];if(opt.value&&opt.value!=="custom"){document.getElementById("cl-proc-name").value=opt.dataset.name||"";document.getElementById("cl-cost").value=opt.dataset.cost||0;}}
+async function submitTx(){
+  if(!_clPatId){toast("No patient ✗");return}
+  const sel=document.getElementById("cl-proc");const opt=sel.options[sel.selectedIndex];
+  const name=(opt&&opt.value&&opt.value!=="custom")?(opt.dataset.name||opt.text):document.getElementById("cl-proc-name").value.trim();
+  if(!name){toast("Select a procedure ✗");return}
+  const cost=parseFloat(document.getElementById("cl-cost").value)||0;
+  const clNotes=document.getElementById("cl-notes").value;
+  const {data:tx,error}=await sb.from("treatments").insert({patient_id:_clPatId,procedure_name:name,tooth_number:document.getElementById("cl-tooth").value||null,cost,diagnosis:clNotes,date_performed:today(),dentist_name:USER?.full_name||""}).select().single();
+  if(!error){
+    toast("Treatment saved — creating invoice…");
+    const {data:pat}=await sb.from("patients").select("first_name,last_name").eq("id",_clPatId).single();
+    const pname=pat?`${pat.first_name} ${pat.last_name}`:"";
+    const {data:inv}=await sb.from("invoices").insert({patient_id:_clPatId,patient_name:pname,total_amount:cost,issue_date:today(),notes:clNotes,created_by:USER?.full_name||""}).select().single();
+    if(inv){
+      await sb.from("invoice_items").insert({invoice_id:inv.id,description:name,quantity:1,unit_price:cost,total_price:cost});
+      const invRef=(clNotes?clNotes+"\n":"")+"Via Invoice "+inv.invoice_number;
+      await sb.from("treatments").update({diagnosis:invRef}).eq("id",tx.id);
+      loadInvoices();loadCLPat(_clPatId,document.getElementById("cl-q").value);openInv(inv.id);
+    }else{loadCLPat(_clPatId,document.getElementById("cl-q").value);}
+  }else toast("Failed ✗");
+}
+
+// ── REPORTS ───────────────────────────────────────────────────────────────────
+async function loadReports(){
+  const el=document.getElementById("sh-rep-body");
+  el.innerHTML='<div class="ldg"><div class="spin"></div></div>';
+  const td=today();const startYear=td.slice(0,4)+"-01-01";const startMonth=td.slice(0,7)+"-01";
+  const [{data:invs},{data:appts},{data:txs},{count:totalPats},{data:exps}]=await Promise.all([
+    sb.from("invoices").select("total_amount,paid_amount,issue_date,status").gte("issue_date",startYear),
+    sb.from("appointments").select("status").gte("appointment_date",startYear),
+    sb.from("treatments").select("procedure_name,cost").gte("date_performed",startYear),
+    sb.from("patients").select("*",{count:"exact",head:true}),
+    sb.from("clinic_expenses").select("amount,category,expense_date").gte("expense_date",startYear)
+  ]);
+  const rev=new Array(12).fill(0);
+  (invs||[]).forEach(i=>{const m=new Date(i.issue_date).getMonth();if(m>=0&&m<12)rev[m]+=(+i.total_amount||0);});
+  const maxR=Math.max(...rev,1);
+  const revBars=rev.map((v,i)=>`<div class="bar-row"><div class="bar-label">${MONTHS[i]}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/maxR*100)}%;background:linear-gradient(90deg,#0E4A6E,#38BDF8)">${v>0?`<span class="bar-val">EGP ${v.toLocaleString(undefined,{maximumFractionDigits:0})}</span>`:""}</div></div></div>`).join("");
+  const byStatus={};(appts||[]).forEach(a=>{byStatus[a.status]=(byStatus[a.status]||0)+1});
+  const apptBars=Object.entries(byStatus).map(([s,c])=>`<div class="bar-row"><div class="bar-label" style="width:60px;text-align:right;font-size:9px;color:${SC[s]||"#888"}">${SL[s]||s}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(c/Math.max(...Object.values(byStatus),1)*100)}%;background:${SC[s]||"#888"}"><span class="bar-val">${c}</span></div></div></div>`).join("");
+  const procMap={};(txs||[]).forEach(t=>{if(!procMap[t.procedure_name])procMap[t.procedure_name]={cnt:0,rev:0};procMap[t.procedure_name].cnt++;procMap[t.procedure_name].rev+=(+t.cost||0);});
+  const topProcs=Object.entries(procMap).sort((a,b)=>b[1].cnt-a[1].cnt).slice(0,8);
+  const maxP=Math.max(...topProcs.map(([,v])=>v.cnt),1);
+  const procBars=topProcs.map(([name,v])=>`<div class="bar-row"><div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-dim);margin-bottom:3px"><span>${esc(name)}</span><span style="color:var(--blue)">${v.cnt}× · EGP ${v.rev.toLocaleString(undefined,{maximumFractionDigits:0})}</span></div><div class="bar-track" style="height:14px"><div class="bar-fill" style="width:${Math.round(v.cnt/maxP*100)}%;background:linear-gradient(90deg,#0A2E20,#34D399)"></div></div></div></div>`).join("");
+  const totalYear=rev.reduce((a,b)=>a+b,0);
+  const outstanding=(invs||[]).filter(i=>i.status!=="paid").reduce((s,i)=>s+Math.max(0,(+i.total_amount||0)-(+i.paid_amount||0)),0);
+  const totalExpenses=(exps||[]).reduce((s,e)=>s+(+e.amount||0),0);
+  const netProfit=totalYear-totalExpenses;
+  const expRev=new Array(12).fill(0);
+  (exps||[]).forEach(e=>{const m=new Date(e.expense_date).getMonth();if(m>=0&&m<12)expRev[m]+=(+e.amount||0);});
+  const maxE=Math.max(...expRev,1);
+  const expBars=expRev.map((v,i)=>`<div class="bar-row"><div class="bar-label">${MONTHS[i]}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v/maxE*100)}%;background:linear-gradient(90deg,#3D0A0A,#F87171)">${v>0?`<span class="bar-val">EGP ${v.toLocaleString(undefined,{maximumFractionDigits:0})}</span>`:""}</div></div></div>`).join("");
+  const expCats={};(exps||[]).forEach(e=>{expCats[e.category]=(expCats[e.category]||0)+(+e.amount||0);});
+  const expCatHtml=Object.entries(expCats).sort((a,b)=>b[1]-a[1]).map(([c,a])=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:12px;color:var(--text)">${esc(c)}</span><span style="font-size:12px;font-weight:700;color:var(--red);font-family:var(--mono)">EGP ${a.toFixed(0)}</span></div>`).join("");
+  const {count:newPats}=await sb.from("patients").select("*",{count:"exact",head:true}).gte("created_at",startMonth);
+  el.innerHTML=`
+    <div class="sg">
+      <div class="sc" style="--ac:var(--blue)"><div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="sc-val" style="font-size:16px">EGP ${(totalYear||0).toLocaleString(undefined,{maximumFractionDigits:0})}</div><div class="sc-lbl">${td.slice(0,4)} Revenue</div></div>
+      <div class="sc" style="--ac:var(--red)"><div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="sc-val" style="font-size:16px">EGP ${(totalExpenses||0).toLocaleString(undefined,{maximumFractionDigits:0})}</div><div class="sc-lbl">${td.slice(0,4)} Expenses</div></div>
+      <div class="sc" style="--ac:${netProfit>=0?"var(--green)":"var(--red)"}"><div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="${netProfit>=0?"16 7 22 7 22 13":"16 17 22 17 22 11"}"/></svg></div><div class="sc-val" style="font-size:16px">EGP ${Math.abs(netProfit||0).toLocaleString(undefined,{maximumFractionDigits:0})}</div><div class="sc-lbl">Net ${netProfit>=0?"Profit":"Loss"}</div></div>
+      <div class="sc" style="--ac:var(--amber)"><div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div><div class="sc-val" style="font-size:16px">EGP ${(outstanding||0).toLocaleString(undefined,{maximumFractionDigits:0})}</div><div class="sc-lbl">Outstanding</div></div>
+      <div class="sc" style="--ac:var(--green)"><div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div><div class="sc-val">${newPats||0}</div><div class="sc-lbl">New Patients</div></div>
+      <div class="sc" style="--ac:var(--blue)"><div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="sc-val">${totalPats||0}</div><div class="sc-lbl">Total Patients</div></div>
+    </div>
+    <div class="slbl">Monthly Revenue — ${td.slice(0,4)}</div>
+    <div class="card" style="padding:14px"><div class="bar-wrap">${revBars}</div></div>
+    <div class="slbl">Monthly Expenses — ${td.slice(0,4)}</div>
+    <div class="card" style="padding:14px"><div class="bar-wrap">${expBars}</div></div>
+    <div class="slbl">Expenses by Category</div>
+    <div class="card" style="padding:14px">${expCatHtml||'<div class="empty">No expenses recorded</div>'}</div>
+    <div class="slbl">Appointments by Status</div>
+    <div class="card" style="padding:14px"><div class="bar-wrap">${apptBars||'<div class="empty">No data</div>'}</div></div>
+    <div class="slbl">Top Procedures</div>
+    <div class="card" style="padding:14px"><div class="bar-wrap">${procBars||'<div class="empty">No data</div>'}</div></div>`;
+}
+
+// ── STAFF MANAGEMENT ─────────────────────────────────────────────────────────
+let _editStfId=null;
+async function loadStaffMgmt(){
+  const el=document.getElementById("sh-staff-mgmt-body");
+  el.innerHTML='<div class="ldg"><div class="spin"></div></div>';
+  const {data}=await sb.from("staff").select("id,username,full_name,role,phone,is_active").order("full_name");
+  if(!data){el.innerHTML='<div class="empty">Failed to load</div>';return}
+  const roleIco={admin:"👑",dentist:"🦷",assistant:"🩺",receptionist:"📋"};
+  el.innerHTML=`<div class="card">
+    ${data.map(s=>`
+    <div class="row-sep" style="display:flex;align-items:center;padding:13px 14px;gap:12px;cursor:pointer" onclick="editStaff(${s.id},'${esc(s.full_name)}','${esc(s.username)}','${s.role}','${esc(s.phone||'')}',${s.is_active})">
+      <div class="av" style="background:${s.role==='admin'?'linear-gradient(135deg,#0B2A45,#38BDF8)':s.role==='dentist'?'linear-gradient(135deg,#1A0B45,#A78BFA)':'linear-gradient(135deg,#0B2A1A,#34D399)'}">
+        ${(s.full_name||"?")[0].toUpperCase()}
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;color:var(--text)">${esc(s.full_name)}</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:2px">${roleIco[s.role]||""} ${s.role?.toUpperCase()} · @${esc(s.username)}</div>
+        ${s.phone?`<div style="font-size:11px;color:var(--text-muted)">${esc(s.phone)}</div>`:""}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+        <span class="role-badge ${s.role==='admin'?'r-admin':s.role==='dentist'?'r-dentist':'r-assistant'}">${s.role?.toUpperCase()}</span>
+        <span style="font-size:10px;font-weight:700;color:${s.is_active?"var(--green)":"var(--red)"}">${s.is_active?"● Active":"○ Inactive"}</span>
+      </div>
+    </div>`).join("")}
+  </div>`;
+}
+function openAddStaff(){
+  _editStfId=null;
+  document.getElementById("staff-edit-title").textContent="New Staff Member";
+  ["stf-name","stf-user","stf-phone","stf-pass","stf-pass2"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("stf-role").value="assistant";
+  document.getElementById("stf-delete-btn").style.display="none";
+  document.getElementById("stf-status-row").style.display="none";
+  openSheet("staff-edit");
+}
+function editStaff(id,name,username,role,phone,isActive){
+  _editStfId=id;
+  document.getElementById("staff-edit-title").textContent="Edit Staff Member";
+  document.getElementById("stf-name").value=name;
+  document.getElementById("stf-user").value=username;
+  document.getElementById("stf-role").value=role;
+  document.getElementById("stf-phone").value=phone;
+  document.getElementById("stf-pass").value="";
+  document.getElementById("stf-pass2").value="";
+  document.getElementById("stf-active").checked=isActive;
+  document.getElementById("stf-delete-btn").style.display="block";
+  document.getElementById("stf-status-row").style.display="block";
+  openSheet("staff-edit");
+}
+async function saveStaff(){
+  const name=document.getElementById("stf-name").value.trim();
+  const username=document.getElementById("stf-user").value.trim().toLowerCase();
+  const role=document.getElementById("stf-role").value;
+  const phone=document.getElementById("stf-phone").value.trim();
+  const pass=document.getElementById("stf-pass").value;
+  const pass2=document.getElementById("stf-pass2").value;
+  const isActive=document.getElementById("stf-active").checked;
+  if(!name){toast("Full name required ✗");return}
+  if(!username){toast("Username required ✗");return}
+  if(!_editStfId&&!pass){toast("Password required ✗");return}
+  if(pass&&pass!==pass2){toast("Passwords do not match ✗");return}
+  if(pass&&pass.length<6){toast("Password must be at least 6 characters ✗");return}
+  let updateData={full_name:name,username,role,phone,is_active:_editStfId?isActive:true};
+  if(pass) updateData.password_hash=await sha256(pass);
+  let error;
+  if(_editStfId){({error}=await sb.from("staff").update(updateData).eq("id",_editStfId));}
+  else{({error}=await sb.from("staff").insert(updateData));}
+  if(!error){toast(_editStfId?"Staff updated ✓":"Staff member added ✓");closeSheet("staff-edit");loadStaffMgmt();}
+  else{if(error.message.includes("unique"))toast("Username already exists ✗");else toast("Failed: "+error.message+" ✗");}
+}
+async function deleteStaff(){
+  if(!_editStfId) return;
+  if(USER?.id===_editStfId){toast("Cannot delete your own account ✗");return}
+  if(!confirm("Remove this staff member?")) return;
+  const {error}=await sb.from("staff").delete().eq("id",_editStfId);
+  if(!error){toast("Staff member removed ✓");closeSheet("staff-edit");loadStaffMgmt();}
+  else toast("Failed ✗");
+}
+
+// ── SERVICES & PRICES ─────────────────────────────────────────────────────────
+let _editSvcId=null;
+async function loadServices(){
+  const el=document.getElementById("sh-services-body");
+  el.innerHTML='<div class="ldg"><div class="spin"></div></div>';
+  const {data}=await sb.from("procedures_catalog").select("*").order("category,name");
+  if(!data){el.innerHTML='<div class="empty">Failed to load</div>';return}
+  const cats={};
+  data.forEach(s=>{const c=s.category||"Other";if(!cats[c])cats[c]=[];cats[c].push(s);});
+  let html="";
+  for(const [cat,svcs] of Object.entries(cats)){
+    html+=`<div class="slbl" style="margin-top:14px">${esc(cat)}</div><div class="card">`;
+    html+=svcs.map(s=>`
+      <div class="row-sep" style="display:flex;align-items:center;padding:13px 14px;gap:12px;cursor:pointer" onclick="editService(${s.id},'${esc(s.name)}',${s.default_cost},'${esc(s.category||'Other')}')">
+        <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--text)">${esc(s.name)}</div></div>
+        <div style="font-size:15px;font-weight:800;color:var(--blue);font-family:var(--mono)">EGP ${(+s.default_cost||0).toFixed(2)}</div>
+        <div style="color:var(--text-muted);font-size:15px">›</div>
+      </div>`).join("");
+    html+="</div>";
+  }
+  el.innerHTML=html||'<div class="empty">No services yet</div>';
+}
+function openAddService(){
+  _editSvcId=null;
+  document.getElementById("service-edit-title").textContent="New Service";
+  document.getElementById("svc-name").value="";document.getElementById("svc-price").value="";
+  document.getElementById("svc-cat").value="General";document.getElementById("svc-delete-btn").style.display="none";
+  openSheet("service-edit");
+}
+function editService(id,name,price,cat){
+  _editSvcId=id;
+  document.getElementById("service-edit-title").textContent="Edit Service";
+  document.getElementById("svc-name").value=name;document.getElementById("svc-price").value=price;
+  document.getElementById("svc-cat").value=cat;document.getElementById("svc-delete-btn").style.display="block";
+  openSheet("service-edit");
+}
+async function saveService(){
+  const name=document.getElementById("svc-name").value.trim();const price=parseFloat(document.getElementById("svc-price").value)||0;const cat=document.getElementById("svc-cat").value;
+  if(!name){toast("Enter service name ✗");return}
+  let error;
+  if(_editSvcId){({error}=await sb.from("procedures_catalog").update({name,default_cost:price,category:cat}).eq("id",_editSvcId));}
+  else{({error}=await sb.from("procedures_catalog").insert({name,default_cost:price,category:cat}));}
+  if(!error){toast(_editSvcId?"Service updated ✓":"Service added ✓");closeSheet("service-edit");loadServices();loadProcs();}
+  else toast("Failed: "+error.message+" ✗");
+}
+async function deleteService(){
+  if(!_editSvcId) return;if(!confirm("Delete this service?")) return;
+  const {error}=await sb.from("procedures_catalog").delete().eq("id",_editSvcId);
+  if(!error){toast("Service deleted ✓");closeSheet("service-edit");loadServices();loadProcs();}else toast("Failed ✗");
+}
+
+// ── EDIT TREATMENT ────────────────────────────────────────────────────────────
+let _editTxId=null;
+function openEditTx(id,name,cost,date,tooth,diagnosis){
+  _editTxId=id;
+  document.getElementById("etx-name").value=name;document.getElementById("etx-cost").value=cost;
+  document.getElementById("etx-date").value=date;document.getElementById("etx-tooth").value=tooth||"";
+  document.getElementById("etx-notes").value=diagnosis||"";openSheet("edit-tx");
+}
+async function saveEditTx(){
+  const name=document.getElementById("etx-name").value.trim();if(!name){toast("Procedure name required ✗");return}
+  const {error}=await sb.from("treatments").update({procedure_name:name,cost:parseFloat(document.getElementById("etx-cost").value)||0,date_performed:document.getElementById("etx-date").value,tooth_number:parseInt(document.getElementById("etx-tooth").value)||null,diagnosis:document.getElementById("etx-notes").value.trim()}).eq("id",_editTxId);
+  if(!error){toast("Treatment updated ✓");closeSheet("edit-tx");if(_clPatId) loadCLPat(_clPatId,document.getElementById("cl-q").value);}
+  else toast("Failed: "+error.message+" ✗");
+}
+async function deleteTx(){
+  if(!_editTxId) return;if(!confirm("Delete this treatment?")) return;
+  const {error}=await sb.from("treatments").delete().eq("id",_editTxId);
+  if(!error){toast("Treatment deleted ✓");closeSheet("edit-tx");if(_clPatId) loadCLPat(_clPatId,document.getElementById("cl-q").value);}
+  else toast("Failed ✗");
+}
+
+// ── EDIT INVOICE ──────────────────────────────────────────────────────────────
+let _editInvId=null,_editInvItems=[],_editInvOrigItems=[];
+async function openEditInv(){
+  if(!_editInvId) return;
+  const {data:items}=await sb.from("invoice_items").select("*").eq("invoice_id",_editInvId);
+  const {data:inv}=await sb.from("invoices").select("*").eq("id",_editInvId).single();
+  _editInvItems=items?[...items]:[];_editInvOrigItems=items?[...items]:[];
+  document.getElementById("einv-notes").value=inv?.notes||"";document.getElementById("einv-status").value=inv?.status||"unpaid";
+  const rows=document.getElementById("einv-item-rows");rows.innerHTML="";
+  _editInvItems.forEach((it,i)=>renderEditInvItem(it,i));calcEditInvTotal();openSheet("edit-inv");
+}
+function renderEditInvItem(it,i){
+  const rows=document.getElementById("einv-item-rows");const div=document.createElement("div");
+  div.id="einv-item-"+i;div.style.cssText="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:13px;margin-bottom:8px";
+  div.innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:8px"><div style="font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.8px">Item ${i+1}</div><button onclick="removeEditInvItem(${i})" style="background:none;border:none;color:var(--red);font-size:18px;cursor:pointer;line-height:1">×</button></div>
+  <div class="ff" style="margin-bottom:8px"><label>Description</label><input id="einv-desc-${i}" type="text" value="${esc(it.description||"")}" oninput="editInvCalc(${i})" style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 11px;font-size:13px;color:var(--text)"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="ff" style="margin:0"><label>Qty</label><input id="einv-qty-${i}" type="number" value="${it.quantity||1}" min="1" oninput="editInvCalc(${i})" style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 11px;font-size:13px;color:var(--text)"></div><div class="ff" style="margin:0"><label>Price (EGP)</label><input id="einv-price-${i}" type="number" inputmode="decimal" value="${it.unit_price||0}" step="0.01" oninput="editInvCalc(${i})" style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--r-sm);padding:9px 11px;font-size:13px;color:var(--text)"></div></div>`;
+  rows.appendChild(div);
+}
+function addEditInvItem(){const i=_editInvItems.length;_editInvItems.push({description:"",quantity:1,unit_price:0,total_price:0});renderEditInvItem(_editInvItems[i],i);}
+function removeEditInvItem(i){const el=document.getElementById("einv-item-"+i);if(el){el.remove();delete _editInvItems[i];calcEditInvTotal();}}
+function editInvCalc(i){const qty=parseFloat(document.getElementById("einv-qty-"+i)?.value||1);const price=parseFloat(document.getElementById("einv-price-"+i)?.value||0);const desc=document.getElementById("einv-desc-"+i)?.value||"";_editInvItems[i]={..._editInvItems[i],description:desc,quantity:qty,unit_price:price,total_price:qty*price};calcEditInvTotal();}
+function calcEditInvTotal(){const tot=_editInvItems.filter(Boolean).reduce((s,i)=>s+(i.total_price||0),0);document.getElementById("einv-total").textContent="EGP "+tot.toFixed(2);}
+async function saveEditInv(){
+  if(!_editInvId) return;
+  const items=_editInvItems.filter(i=>i&&i.description);const total=items.reduce((s,i)=>s+(i.total_price||0),0);const newStatus=document.getElementById("einv-status").value;
+  await sb.from("invoice_items").delete().eq("invoice_id",_editInvId);
+  if(items.length) await sb.from("invoice_items").insert(items.map(it=>({...it,invoice_id:_editInvId})));
+  if(newStatus==="unpaid") await sb.from("payments").delete().eq("invoice_id",_editInvId);
+  const invUpdate={total_amount:total,status:newStatus,notes:document.getElementById("einv-notes").value.trim()};
+  if(newStatus==="unpaid") invUpdate.paid_amount=0;
+  const {error}=await sb.from("invoices").update(invUpdate).eq("id",_editInvId);
+  if(!error){toast(newStatus==="unpaid"?"Invoice reset to unpaid ✓":"Invoice updated ✓");closeSheet("edit-inv");openInv(_editInvId);loadInvoices();}
+  else toast("Failed: "+error.message+" ✗");
+}
+async function deleteInv(){
+  if(!_editInvId) return;if(!confirm("Delete this invoice and its clinical records?")) return;
+  const {data:invItems}=await sb.from("invoice_items").select("description").eq("invoice_id",_editInvId);
+  const {data:invData}=await sb.from("invoices").select("patient_id,invoice_number").eq("id",_editInvId).single();
+  if(invData&&invItems?.length) await sb.from("treatments").delete().eq("patient_id",invData.patient_id).eq("diagnosis","Via Invoice "+(invData.invoice_number||_editInvId));
+  const {error}=await sb.from("invoices").delete().eq("id",_editInvId);
+  if(!error){toast("Invoice deleted ✓");closeSheet("edit-inv");closeSheet("inv");_editInvId=null;loadInvoices();}
+  else toast("Failed ✗");
+}
+
+// ── CLINIC EXPENSES ───────────────────────────────────────────────────────────
+let _editExpId=null;
+async function loadExpenses(){
+  const month=document.getElementById("exp-month").value;
+  document.getElementById("exp-month-sub").textContent=month||"";
+  const el=document.getElementById("exp-list");const sumEl=document.getElementById("exp-summary");
+  el.innerHTML='<div class="ldg"><div class="spin"></div></div>';
+  const startDate=month+"-01";const [y,m]=month.split("-").map(Number);const lastDay=new Date(y,m,0).getDate();const endDate=month+"-"+String(lastDay).padStart(2,"0");
+  const {data}=await sb.from("clinic_expenses").select("*").gte("expense_date",startDate).lte("expense_date",endDate).order("expense_date",{ascending:false});
+  if(!data){el.innerHTML='<div class="empty">Failed to load</div>';return}
+  const total=data.reduce((s,e)=>s+(+e.amount||0),0);const cats={};
+  data.forEach(e=>{cats[e.category]=(cats[e.category]||0)+(+e.amount||0);});
+  const catBars=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)"><div style="font-size:12px;color:var(--text)">${esc(cat)}</div><div style="font-size:12px;font-weight:700;color:var(--amber);font-family:var(--mono)">EGP ${(+amt).toFixed(2)}</div></div>`).join("");
+  sumEl.innerHTML=`<div style="background:#1A1400;border:1px solid #FBBF2430;border-radius:var(--r-md);padding:14px;margin-bottom:4px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:${Object.keys(cats).length?"10px":"0"}"><div style="font-size:12px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.6px">Total This Month</div><div style="font-size:22px;font-weight:900;color:var(--amber);font-family:var(--mono)">EGP ${total.toFixed(2)}</div></div>${catBars}</div>`;
+  if(!data.length){el.innerHTML='<div class="empty">No expenses this month</div>';return}
+  const byDate={};data.forEach(e=>{const d=e.expense_date||"";if(!byDate[d])byDate[d]=[];byDate[d].push(e);});
+  let html="";
+  for(const [date,items] of Object.entries(byDate)){
+    html+=`<div class="slbl" style="margin-top:10px;font-family:var(--mono)">${date}</div><div class="card">`;
+    html+=items.map(e=>`<div class="row-sep" style="display:flex;align-items:center;padding:12px 14px;gap:10px;cursor:pointer" onclick="openEditExpense(${e.id},'${esc(e.title)}',${e.amount},'${esc(e.category)}','${e.expense_date}','${esc(e.notes||'')}')"><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:var(--text)">${esc(e.title)}</div><div style="font-size:11px;color:var(--text-dim);margin-top:2px">${esc(e.category)}${e.notes?" · "+esc(e.notes):""}</div></div><div style="font-size:14px;font-weight:800;color:var(--amber);flex-shrink:0;font-family:var(--mono)">EGP ${(+e.amount).toFixed(2)}</div><div style="color:var(--text-muted);font-size:15px">›</div></div>`).join("");
+    html+="</div>";
+  }
+  el.innerHTML=html;
+}
+function expCatChange(sel){}
+function openAddExpense(){
+  _editExpId=null;document.getElementById("exp-edit-title").textContent="Add Expense";document.getElementById("exp-amount").value="";document.getElementById("exp-cat").value="Rent";document.getElementById("exp-date").value=today();document.getElementById("exp-notes").value="";document.getElementById("exp-delete-btn").style.display="none";openSheet("expense-edit");
+}
+function openEditExpense(id,title,amount,cat,date,notes){
+  _editExpId=id;document.getElementById("exp-edit-title").textContent="Edit Expense";document.getElementById("exp-cat").value=cat||title;document.getElementById("exp-amount").value=amount;document.getElementById("exp-date").value=date;document.getElementById("exp-notes").value=notes;document.getElementById("exp-delete-btn").style.display="block";openSheet("expense-edit");
+}
+async function saveExpense(){
+  const amount=parseFloat(document.getElementById("exp-amount").value)||0;if(!amount){toast("Enter amount ✗");return}
+  const cat=document.getElementById("exp-cat").value;
+  const data={title:cat,amount,category:cat,expense_date:document.getElementById("exp-date").value||today(),notes:document.getElementById("exp-notes").value.trim(),created_by:USER?.full_name||"",month:document.getElementById("exp-date").value?.slice(0,7)||today().slice(0,7)};
+  let error;
+  if(_editExpId){({error}=await sb.from("clinic_expenses").update(data).eq("id",_editExpId));}
+  else{({error}=await sb.from("clinic_expenses").insert(data));}
+  if(!error){toast(_editExpId?"Expense updated ✓":"Expense added ✓");closeSheet("expense-edit");loadExpenses();}
+  else toast("Failed: "+error.message+" ✗");
+}
+async function deleteExpense(){
+  if(!_editExpId) return;if(!confirm("Delete this expense?")) return;
+  const {error}=await sb.from("clinic_expenses").delete().eq("id",_editExpId);
+  if(!error){toast("Expense deleted ✓");closeSheet("expense-edit");loadExpenses();}else toast("Failed ✗");
+}
+
+async function loadProcs(){
+  const {data}=await sb.from("procedures_catalog").select("*").order("name");
+  if(data) _procs=data;
+}
+</script>
+</body>
+</html>
