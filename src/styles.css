@@ -108,6 +108,57 @@
   font-feature-settings: "tnum" 1, "lnum" 1, "zero" 0;
 }
 
+/* RTL & LTR Core Alignment Styles */
+body.rtl-mode {
+  direction: rtl;
+  text-align: right;
+}
+
+body.rtl-mode #desktop-sidebar {
+  border-right: none;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body.rtl-mode .sidebar-item {
+  text-align: right;
+}
+
+body.rtl-mode .sidebar-item.on {
+  border-left: none;
+  border-right: 3px solid var(--teal);
+  background: linear-gradient(270deg, rgba(14, 165, 164, 0.22), rgba(14, 165, 164, 0.08));
+}
+
+body.rtl-mode .more-btn {
+  text-align: right;
+}
+
+body.rtl-mode .more-btn > div:last-child {
+  text-align: right;
+}
+
+body.rtl-mode .srch input {
+  text-align: right;
+}
+
+body.rtl-mode .ff input,
+body.rtl-mode .ff select,
+body.rtl-mode .ff textarea {
+  text-align: right;
+}
+
+body.rtl-mode .ar-name,
+body.rtl-mode .ar-type,
+body.rtl-mode .inv-name,
+body.rtl-mode .inv-num,
+body.rtl-mode .inv-date {
+  text-align: right;
+}
+
+body.rtl-mode .inv-amt {
+  text-align: left;
+}
+
 /* Reset & Base Setup */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -698,7 +749,24 @@ a {
 .errmsg {
   color: var(--error);
   font-size: 12px;
-  text-align: cent.greeting-title {
+  text-align: center;
+  margin-top: 12px;
+  font-weight: 600;
+  display: none;
+}
+
+.errmsg:not(:empty) {
+  display: block;
+}
+
+/* ══════════════════════════════════════════════
+   PAGE HEADERS & GREETINGS
+══════════════════════════════════════════════ */
+.pg-header {
+  margin-bottom: 20px;
+}
+
+.greeting-title {
   font-size: var(--text-page-title);
   font-weight: 700;
   color: var(--navy);
@@ -1279,8 +1347,15 @@ a {
   gap: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
-  text-align: left;
+  text-align: start;
   box-shadow: var(--shadow-md);
+  width: 100%;
+}
+
+.more-btn > div:last-child {
+  flex: 1;
+  min-width: 0;
+  text-align: start;
 }
 
 .more-btn:hover {
@@ -1527,7 +1602,7 @@ a {
 
 .sh-danger-btn:hover {
   background: var(--error-bg);
-}��═════ */
+}��═════ */
 .sheet {
   position: fixed;
   inset: 0;
