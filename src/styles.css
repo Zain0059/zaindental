@@ -1746,3 +1746,159 @@ a {
   outline: 2px solid var(--navy);
   outline-offset: 2px;
 }
+
+/* ==================================================
+   ARABIC TYPOGRAPHY & RTL LOCALIZATION SYSTEM
+================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap');
+
+[dir="rtl"],
+body.rtl-mode {
+  font-family: 'Cairo', 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  letter-spacing: normal !important;
+}
+
+[dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3, [dir="rtl"] h4,
+[dir="rtl"] .pg-title, [dir="rtl"] .sh-title, [dir="rtl"] .hero-stat-lbl,
+[dir="rtl"] .slbl, [dir="rtl"] .slbl-action, [dir="rtl"] .sc-lbl,
+[dir="rtl"] .sidebar-link, [dir="rtl"] .sidebar-sec-title,
+[dir="rtl"] .btn-primary, [dir="rtl"] .btn-secondary, [dir="rtl"] .btn-danger,
+[dir="rtl"] .sh-action-btn, [dir="rtl"] .small-btn, [dir="rtl"] .more-lbl, [dir="rtl"] .more-sub {
+  font-family: 'Cairo', 'Tajawal', sans-serif;
+  letter-spacing: 0 !important;
+}
+
+/* RTL Directional Adjustments */
+[dir="rtl"] .srch {
+  position: relative;
+}
+
+[dir="rtl"] .srch-ico {
+  left: auto;
+  right: 12px;
+}
+
+[dir="rtl"] .srch input {
+  padding-left: 14px;
+  padding-right: 38px;
+  text-align: right;
+}
+
+[dir="rtl"] .back svg,
+[dir="rtl"] .sh-hdr .back svg {
+  transform: rotate(180deg);
+}
+
+[dir="rtl"] #sidebar-user {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+[dir="rtl"] .sidebar-link {
+  text-align: right;
+}
+
+[dir="rtl"] .sidebar-link svg {
+  margin-right: 0;
+  margin-left: 12px;
+}
+
+[dir="rtl"] .nb span {
+  font-family: 'Cairo', sans-serif;
+}
+
+[dir="rtl"] .ii-lbl {
+  text-align: right;
+  letter-spacing: 0;
+}
+
+[dir="rtl"] .ii-val {
+  text-align: right;
+}
+
+[dir="rtl"] .ff label {
+  text-align: right;
+  letter-spacing: 0;
+}
+
+[dir="rtl"] .ff input,
+[dir="rtl"] .ff select,
+[dir="rtl"] .ff textarea {
+  text-align: right;
+}
+
+[dir="rtl"] .ff input[type="tel"],
+[dir="rtl"] .ff input[type="date"],
+[dir="rtl"] .ff input[type="time"],
+[dir="rtl"] .ff input[type="month"],
+[dir="rtl"] .ff input[type="number"],
+[dir="rtl"] .ff input[type="password"] {
+  text-align: left;
+  direction: ltr;
+}
+
+[dir="rtl"] .ar-name {
+  text-align: right;
+}
+
+[dir="rtl"] .ar-type {
+  text-align: right;
+}
+
+[dir="rtl"] .slbl {
+  text-align: right;
+}
+
+/* Language Toggle Buttons */
+.lang-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-full);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--navy);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  box-shadow: var(--shadow-sm);
+  user-select: none;
+  font-family: 'Cairo', 'DM Sans', sans-serif;
+}
+
+.lang-toggle-btn:hover {
+  background: var(--teal-dim);
+  border-color: var(--teal-light);
+  color: var(--teal-dark);
+}
+
+.lang-toggle-btn:active {
+  transform: scale(0.96);
+}
+
+.lang-toggle-btn svg {
+  width: 14px;
+  height: 14px;
+  color: var(--teal);
+}
+
+/* Header & Sidebar Language Placement */
+.hdr-lang-wrap {
+  display: flex;
+  align-items: center;
+}
+
+.login-lang-wrap {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+}
+
+[dir="rtl"] .login-lang-wrap {
+  right: auto;
+  left: 16px;
+}
+

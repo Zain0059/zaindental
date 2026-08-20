@@ -1,9 +1,10 @@
 import {
   sb, SC, SL, MONTHS, USER, toothOpts, toast, esc, age, fmt, today, toEG,
-  getEditInvId, setEditInvId
+  getEditInvId, setEditInvId, sha256
 } from './app.js';
 import { openInv, loadInvoices, loadProcs, _procs } from './app-features.js';
 import { openSheet, closeSheet, sw } from './app-handlers.js';
+import { t, isAr } from './i18n.js';
 
 let _clPatId = null;
 let _editTxId = null;
@@ -11,6 +12,9 @@ let _editInvId = null;
 let _editStfId = null;
 let _editSvcId = null;
 let _editExpId = null;
+
+let _editInvItems = [];
+let _editInvOrigItems = [];
 
 let _scanImgB64 = null, _scanImgMime = null, _scanImg2B64 = null, _scanImg2Mime = null;
 let _clTmr = null;
@@ -24,17 +28,17 @@ export async function loadRecentClinical() {
   el.innerHTML = '<div class="ldg"><div class="spin"></div></div>';
 
   const { data } = await sb.from("treatments").select("*,patients(first_name,last_name)").order("date_performed", { ascending: false }).limit(25);
-  if (!data?.length) { el.innerHTML = '<div class="empty">No dental clinical records found</div>'; return; }
+  if (!data?.length) { el.innerHTML = `<div class="empty">${isAr() ? "لا توجد سجلات علاجية أسنان سابقة" : "No dental clinical records found"}</div>`; return; }
 
-  el.innerHTML = '<div class="slbl" style="padding:0 2px 8px">Recent Clinical Treatments</div><div class="card">' + data.map(t => {
-    const pname = t.patients ? t.patients.first_name + ' ' + t.patients.last_name : 'Unknown Patient';
+  el.innerHTML = `<div class="slbl" style="padding:0 2px 8px">${isAr() ? "أحدث العلاجات والإجراءات السريرية" : "Recent Clinical Treatments"}</div><div class="card">` + data.map(t => {
+    const pname = t.patients ? t.patients.first_name + ' ' + t.patients.last_name : (isAr() ? 'مريض غير محدد' : 'Unknown Patient');
     return `<div class="row-sep" style="padding:14px 18px;cursor:pointer" onclick="window.loadCLPat(${t.patient_id},'${esc(pname)}')">
       <div style="display:flex;justify-content:space-between;align-items:flex-start">
         <div>
           <div style="font-size:14px;font-weight:600;color:var(--navy)">${esc(pname)}</div>
-          <div style="font-size:12px;color:var(--text-muted);margin-top:2px">🦷 ${esc(t.procedure_name)} · 📅 ${t.date_performed || ''}${t.tooth_number ? ' · Tooth #' + t.tooth_number : ''}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:2px">🦷 ${esc(t.procedure_name)} · 📅 ${t.date_performed || ''}${t.tooth_number ? ` · ${isAr() ? 'سن #' : 'Tooth #'}` + t.tooth_number : ''}</div>
         </div>
-        <div style="font-size:14px;font-weight:800;color:var(--teal);font-family:var(--font-mono)">EGP ${t.cost || 0}</div>
+        <div style="font-size:14px;font-weight:800;color:var(--teal);font-family:var(--font-mono)">${fmt(t.cost || 0)}</div>
       </div>
     </div>`;
   }).join('') + '</div>';
@@ -91,7 +95,7 @@ export async function loadCLPat(pid, name) {
 
   const renderTooth = (num) => {
     const isTreated = treatedTeeth.has(num);
-    return `<div onclick="window.selectToothFromChart(${num})" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;padding:4px 2px" title="Tooth #${num}">
+    return `<div onclick="window.selectToothFromChart(${num})" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;padding:4px 2px" title="${isAr() ? 'سن #' : 'Tooth #'}${num}">
       <div style="width:24px;height:28px;border-radius:4px;border:1.5px solid ${isTreated ? 'var(--teal)' : '#CBD5E1'};background:${isTreated ? 'var(--teal)' : '#FFFFFF'};color:${isTreated ? '#FFFFFF' : '#64748B'};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;box-shadow:var(--shadow-sm);transition:transform 0.15s">
         ${num}
       </div>
@@ -103,62 +107,62 @@ export async function loadCLPat(pid, name) {
       <div style="display:flex;justify-content:space-between;align-items:flex-start">
         <div style="flex:1;min-width:0;cursor:pointer" onclick="window.openEditTx(${t.id},'${esc(t.procedure_name)}',${t.cost || 0},'${t.date_performed || today()}',${t.tooth_number || 0},'${esc(t.diagnosis || '')}')">
           <div style="font-size:14px;font-weight:600;color:var(--navy)">${esc(t.procedure_name)}</div>
-          <div style="font-size:12px;color:var(--text-muted);margin-top:2px">📅 ${t.date_performed || ""}${t.tooth_number ? " · 🦷 Tooth #" + t.tooth_number : ""}${t.dentist_name ? " · 👨‍⚕️ " + esc(t.dentist_name) : ""}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:2px">📅 ${t.date_performed || ""}${t.tooth_number ? ` · 🦷 ${isAr() ? 'سن #' : 'Tooth #'}` + t.tooth_number : ""}${t.dentist_name ? " · 👨‍⚕️ " + esc(t.dentist_name) : ""}</div>
           ${t.diagnosis ? `<div style="font-size:12px;color:var(--text-dim);margin-top:4px;background:var(--bg);padding:4px 8px;border-radius:var(--r-xs)">${esc(t.diagnosis)}</div>` : ""}
         </div>
-        <div style="display:flex;align-items:center;gap:10px;padding-left:12px;flex-shrink:0">
-          <div style="font-size:14px;font-weight:800;color:var(--teal);font-family:var(--font-mono)">EGP ${t.cost || 0}</div>
-          <button class="small-btn" onclick="window.openEditTx(${t.id},'${esc(t.procedure_name)}',${t.cost || 0},'${t.date_performed || today()}',${t.tooth_number || 0},'${esc(t.diagnosis || '')}')">Edit</button>
+        <div style="display:flex;align-items:center;gap:10px;padding-inline-start:12px;flex-shrink:0">
+          <div style="font-size:14px;font-weight:800;color:var(--teal);font-family:var(--font-mono)">${fmt(t.cost || 0)}</div>
+          <button class="small-btn" onclick="window.openEditTx(${t.id},'${esc(t.procedure_name)}',${t.cost || 0},'${t.date_performed || today()}',${t.tooth_number || 0},'${esc(t.diagnosis || '')}')">${isAr() ? "تعديل" : "Edit"}</button>
         </div>
       </div>
-    </div>`).join("") : '<div class="empty">No dental procedures recorded for this patient</div>';
+    </div>`).join("") : `<div class="empty">${isAr() ? "لم يتم تسجيل أي إجراءات علاجية لهذا المريض" : "No dental procedures recorded for this patient"}</div>`;
 
   el.innerHTML = `
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;margin-bottom:16px;box-shadow:var(--shadow-sm)">
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div>
           <div style="font-size:16px;font-weight:700;color:var(--navy)">${esc(pat?.first_name || "")} ${esc(pat?.last_name || "")}</div>
-          <div style="font-size:12px;color:var(--text-muted);margin-top:2px">ID: ${esc(pat?.patient_number || "P-" + pid)} · 📞 ${esc(pat?.phone || "No phone")}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:2px">${isAr() ? "رقم المريض:" : "ID:"} ${esc(pat?.patient_number || "P-" + pid)} · 📞 <span dir="ltr">${esc(pat?.phone || (isAr() ? "لا يوجد هاتف" : "No phone"))}</span></div>
         </div>
-        <button class="small-btn primary" onclick="window.openAddTx()">+ Add Treatment</button>
+        <button class="small-btn primary" onclick="window.openAddTx()">${isAr() ? "+ إضافة إجراء علاجي" : "+ Add Treatment"}</button>
       </div>
-      ${pat?.allergies ? `<div style="font-size:12px;color:var(--error);margin-top:8px;font-weight:600;background:var(--error-bg);padding:6px 10px;border-radius:var(--r-sm);border:1px solid var(--error-border)">⚠ Medical Alert: ${esc(pat.allergies)}</div>` : ""}
+      ${pat?.allergies ? `<div style="font-size:12px;color:var(--error);margin-top:8px;font-weight:600;background:var(--error-bg);padding:6px 10px;border-radius:var(--r-sm);border:1px solid var(--error-border)">⚠ ${isAr() ? "تنبيه حساسيات طبية:" : "Medical Alert:"} ${esc(pat.allergies)}</div>` : ""}
     </div>
 
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;margin-bottom:18px;box-shadow:var(--shadow-sm)">
-      <div class="slbl" style="margin-bottom:8px">Interactive Adult Dental Chart (FDI System)</div>
-      <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px">Upper Arch (Maxillary)</div>
+      <div class="slbl" style="margin-bottom:8px">${isAr() ? "مخطط الأسنان التفاعلي للبالغين (نظام FDI)" : "Interactive Adult Dental Chart (FDI System)"}</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px">${isAr() ? "الفك العلوي (Maxillary)" : "Upper Arch (Maxillary)"}</div>
       <div style="display:flex;justify-content:center;gap:4px;overflow-x:auto;padding-bottom:8px">
         ${upperTeeth.map(renderTooth).join("")}
       </div>
       <div style="border-top:1px dashed var(--border);margin:8px 0"></div>
-      <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px">Lower Arch (Mandibular)</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px">${isAr() ? "الفك السفلي (Mandibular)" : "Lower Arch (Mandibular)"}</div>
       <div style="display:flex;justify-content:center;gap:4px;overflow-x:auto">
         ${lowerTeeth.map(renderTooth).join("")}
       </div>
     </div>
 
     <div class="sec-hdr">
-      <div class="slbl" style="margin:0">Clinical History</div>
+      <div class="slbl" style="margin:0">${isAr() ? "سجل الإجراءات السريرية" : "Clinical History"}</div>
     </div>
     <div class="card" style="margin-bottom:16px">${txHtml}</div>
 
     <div id="cl-add-form" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px;box-shadow:var(--shadow-md)">
-      <div class="slbl">Record New Dental Treatment</div>
-      <div class="ff"><label>Procedure / Treatment</label>
+      <div class="slbl">${isAr() ? "تسجيل إجراء علاجي جديد" : "Record New Dental Treatment"}</div>
+      <div class="ff"><label>${isAr() ? "الخدمة / الإجراء العلاجي" : "Procedure / Treatment"}</label>
         <select id="cl-proc" onchange="window.clProcSel(this)" style="width:100%;margin-bottom:6px">
-          <option value="">— Select from catalog —</option>
-          ${_procs.map(p => `<option value="${p.id}" data-name="${esc(p.name)}" data-cost="${p.default_cost}">${esc(p.name)} (EGP ${p.default_cost})</option>`).join("")}
-          <option value="custom">Custom Procedure…</option>
+          <option value="">${isAr() ? "— اختر من قائمة الخدمات —" : "— Select from catalog —"}</option>
+          ${_procs.map(p => `<option value="${p.id}" data-name="${esc(p.name)}" data-cost="${p.default_cost}">${esc(p.name)} (${fmt(p.default_cost)})</option>`).join("")}
+          <option value="custom">${isAr() ? "إجراء مخصص…" : "Custom Procedure…"}</option>
         </select>
-        <input id="cl-proc-name" type="text" placeholder="Or enter custom procedure name…" style="display:none">
+        <input id="cl-proc-name" type="text" placeholder="${isAr() ? 'أو أدخل اسم الإجراء يدويًا…' : 'Or enter custom procedure name…'}" style="display:none">
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-        <div class="ff" style="margin:0"><label>Tooth # (FDI)</label><select id="cl-tooth">${toothOpts()}</select></div>
-        <div class="ff" style="margin:0"><label>Cost (EGP)</label><input id="cl-cost" type="number" inputmode="decimal" step="0.01" min="0" value="0"></div>
+        <div class="ff" style="margin:0"><label>${isAr() ? "رقم السن (FDI)" : "Tooth # (FDI)"}</label><select id="cl-tooth">${toothOpts()}</select></div>
+        <div class="ff" style="margin:0"><label>${isAr() ? "التكلفة (جنيه)" : "Cost (EGP)"}</label><input id="cl-cost" type="number" inputmode="decimal" step="0.01" min="0" value="0"></div>
       </div>
-      <div class="ff"><label>Clinical Diagnosis &amp; Notes</label><textarea id="cl-notes" placeholder="Observations, materials used, patient feedback…"></textarea></div>
-      <button class="btn-primary" style="border-radius:var(--r-md);padding:13px" onclick="window.submitTx()">Save Treatment &amp; Create Invoice</button>
+      <div class="ff"><label>${isAr() ? "التشخيص والملاحظات السريرية" : "Clinical Diagnosis & Notes"}</label><textarea id="cl-notes" placeholder="${isAr() ? 'الملاحظات السريرية والمواد المستخدمة…' : 'Observations, materials used, patient feedback…'}"></textarea></div>
+      <button class="btn-primary" style="border-radius:var(--r-md);padding:13px" onclick="window.submitTx()">${isAr() ? "حفظ العلاج وإنشاء فاتورة" : "Save Treatment & Create Invoice"}</button>
     </div>`;
 }
 
@@ -167,7 +171,7 @@ export function selectToothFromChart(num) {
   const toothSelect = document.getElementById("cl-tooth");
   if (toothSelect) {
     toothSelect.value = num;
-    toast(`Tooth #${num} selected for treatment`);
+    toast(isAr() ? `تم تحديد السن رقم #${num} للعلاج` : `Tooth #${num} selected for treatment`);
   }
 }
 
@@ -188,11 +192,11 @@ export function clProcSel(sel) {
 }
 
 export async function submitTx() {
-  if (!_clPatId) { toast("No patient selected ✗"); return; }
+  if (!_clPatId) { toast(isAr() ? "لم يتم تحديد مريض ✗" : "No patient selected ✗"); return; }
   const sel = document.getElementById("cl-proc");
   const opt = sel.options[sel.selectedIndex];
   const name = (opt && opt.value && opt.value !== "custom") ? (opt.dataset.name || opt.text) : document.getElementById("cl-proc-name").value.trim();
-  if (!name) { toast("Select or enter a procedure ✗"); return; }
+  if (!name) { toast(isAr() ? "يرجى تحديد أو إدخال الإجراء العلاجي ✗" : "Select or enter a procedure ✗"); return; }
   const cost = parseFloat(document.getElementById("cl-cost").value) || 0;
   const clNotes = document.getElementById("cl-notes").value;
 
@@ -203,11 +207,11 @@ export async function submitTx() {
     cost,
     diagnosis: clNotes,
     date_performed: today(),
-    dentist_name: USER?.full_name || "Dr. Abdullah Zain"
+    dentist_name: USER?.full_name || (isAr() ? "د. عبدالله زين" : "Dr. Abdullah Zain")
   }).select().single();
 
   if (!error) {
-    toast("Treatment saved — generating invoice…");
+    toast(isAr() ? "تم حفظ العلاج — جاري إنشاء الفاتورة…" : "Treatment saved — generating invoice…");
     const { data: pat } = await sb.from("patients").select("first_name,last_name").eq("id", _clPatId).single();
     const pname = pat ? `${pat.first_name} ${pat.last_name}` : "";
 
@@ -223,12 +227,12 @@ export async function submitTx() {
     if (inv) {
       await sb.from("invoice_items").insert({
         invoice_id: inv.id,
-        description: name + (document.getElementById("cl-tooth").value ? " (Tooth #" + document.getElementById("cl-tooth").value + ")" : ""),
+        description: name + (document.getElementById("cl-tooth").value ? ` (${isAr() ? 'سن #' : 'Tooth #'}` + document.getElementById("cl-tooth").value + ")" : ""),
         quantity: 1,
         unit_price: cost,
         total_price: cost
       });
-      const invRef = (clNotes ? clNotes + "\n" : "") + "Via Invoice " + inv.invoice_number;
+      const invRef = (clNotes ? clNotes + "\n" : "") + (isAr() ? "عبر فاتورة " : "Via Invoice ") + inv.invoice_number;
       await sb.from("treatments").update({ diagnosis: invRef }).eq("id", tx.id);
       loadInvoices();
       loadCLPat(_clPatId, document.getElementById("cl-q").value);
@@ -237,7 +241,7 @@ export async function submitTx() {
       loadCLPat(_clPatId, document.getElementById("cl-q").value);
     }
   } else {
-    toast("Failed to save treatment ✗");
+    toast(isAr() ? "فشل حفظ العلاج ✗" : "Failed to save treatment ✗");
   }
 }
 
@@ -265,11 +269,11 @@ export async function loadReports() {
     if (m >= 0 && m < 12) rev[m] += (+i.total_amount || 0);
   });
   const maxR = Math.max(...rev, 1);
-  const revBars = rev.map((v, i) => `<div class="bar-row"><div class="bar-label">${MONTHS[i]}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v / maxR * 100)}%;background:linear-gradient(90deg, #0EA5A4, #14B8B6)">${v > 0 ? `<span class="bar-val">EGP ${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>` : ""}</div></div></div>`).join("");
+  const revBars = rev.map((v, i) => `<div class="bar-row"><div class="bar-label">${MONTHS[i]}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v / maxR * 100)}%;background:linear-gradient(90deg, #0EA5A4, #14B8B6)">${v > 0 ? `<span class="bar-val">${fmt(v)}</span>` : ""}</div></div></div>`).join("");
 
   const byStatus = {};
   (appts || []).forEach(a => { byStatus[a.status] = (byStatus[a.status] || 0) + 1; });
-  const apptBars = Object.entries(byStatus).map(([s, c]) => `<div class="bar-row"><div class="bar-label" style="width:70px;text-align:right;font-size:10px;color:${SC[s] || "#64748B"}">${SL[s] || s}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(c / Math.max(...Object.values(byStatus), 1) * 100)}%;background:${SC[s] || "#64748B"}"><span class="bar-val">${c}</span></div></div></div>`).join("");
+  const apptBars = Object.entries(byStatus).map(([s, c]) => `<div class="bar-row"><div class="bar-label" style="width:80px;text-align:right;font-size:10px;color:${SC[s] || "#64748B"}">${SL[s] || s}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(c / Math.max(...Object.values(byStatus), 1) * 100)}%;background:${SC[s] || "#64748B"}"><span class="bar-val">${c}</span></div></div></div>`).join("");
 
   const procMap = {};
   (txs || []).forEach(t => {
@@ -279,7 +283,7 @@ export async function loadReports() {
   });
   const topProcs = Object.entries(procMap).sort((a, b) => b[1].cnt - a[1].cnt).slice(0, 8);
   const maxP = Math.max(...topProcs.map(([, v]) => v.cnt), 1);
-  const procBars = topProcs.map(([name, v]) => `<div class="bar-row"><div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);margin-bottom:3px"><span>${esc(name)}</span><span style="color:var(--teal);font-weight:700">${v.cnt}× · EGP ${v.rev.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span></div><div class="bar-track" style="height:14px"><div class="bar-fill" style="width:${Math.round(v.cnt / maxP * 100)}%;background:linear-gradient(90deg, var(--teal), var(--teal-light))"></div></div></div></div>`).join("");
+  const procBars = topProcs.map(([name, v]) => `<div class="bar-row"><div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);margin-bottom:3px"><span>${esc(name)}</span><span style="color:var(--teal);font-weight:700">${v.cnt}× · ${fmt(v.rev)}</span></div><div class="bar-track" style="height:14px"><div class="bar-fill" style="width:${Math.round(v.cnt / maxP * 100)}%;background:linear-gradient(90deg, var(--teal), var(--teal-light))"></div></div></div></div>`).join("");
 
   const totalYear = rev.reduce((a, b) => a + b, 0);
   const outstanding = (invs || []).filter(i => i.status !== "paid").reduce((s, i) => s + Math.max(0, (+i.total_amount || 0) - (+i.paid_amount || 0)), 0);
@@ -292,52 +296,50 @@ export async function loadReports() {
     if (m >= 0 && m < 12) expRev[m] += (+e.amount || 0);
   });
   const maxE = Math.max(...expRev, 1);
-  const expBars = expRev.map((v, i) => `<div class="bar-row"><div class="bar-label">${MONTHS[i]}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v / maxE * 100)}%;background:linear-gradient(90deg, #EF4444, #F87171)">${v > 0 ? `<span class="bar-val">EGP ${v.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>` : ""}</div></div></div>`).join("");
+  const expBars = expRev.map((v, i) => `<div class="bar-row"><div class="bar-label">${MONTHS[i]}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v / maxE * 100)}%;background:linear-gradient(90deg, #EF4444, #F87171)">${v > 0 ? `<span class="bar-val">${fmt(v)}</span>` : ""}</div></div></div>`).join("");
 
   const expCats = {};
   (exps || []).forEach(e => { expCats[e.category] = (expCats[e.category] || 0) + (+e.amount || 0); });
-  const expCatHtml = Object.entries(expCats).sort((a, b) => b[1] - a[1]).map(([c, a]) => `<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><span style="font-size:13px;color:var(--text)">${esc(c)}</span><span style="font-size:13px;font-weight:700;color:var(--error);font-family:var(--font-mono)">EGP ${a.toFixed(0)}</span></div>`).join("");
-
-  const { count: newPats } = await sb.from("patients").select("*", { count: "exact", head: true }).gte("created_at", startMonth);
+  const expCatHtml = Object.entries(expCats).sort((a, b) => b[1] - a[1]).map(([c, a]) => `<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><span style="font-size:13px;color:var(--text)">${esc(c)}</span><span style="font-size:13px;font-weight:700;color:var(--error);font-family:var(--font-mono)">${fmt(a)}</span></div>`).join("");
 
   el.innerHTML = `
     <div class="sg">
       <div class="sc sc-featured" style="--ac:var(--teal)">
         <div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-        <div class="sc-val">EGP ${(totalYear || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-        <div class="sc-lbl">${td.slice(0, 4)} Gross Revenue</div>
+        <div class="sc-val">${fmt(totalYear || 0)}</div>
+        <div class="sc-lbl">${td.slice(0, 4)} ${isAr() ? "إجمالي الإيرادات" : "Gross Revenue"}</div>
       </div>
       <div class="sc" style="--ac:var(--error)">
         <div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-        <div class="sc-val">EGP ${(totalExpenses || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-        <div class="sc-lbl">${td.slice(0, 4)} Clinic Expenses</div>
+        <div class="sc-val">${fmt(totalExpenses || 0)}</div>
+        <div class="sc-lbl">${td.slice(0, 4)} ${isAr() ? "إجمالي المصروفات" : "Clinic Expenses"}</div>
       </div>
       <div class="sc" style="--ac:${netProfit >= 0 ? "var(--success)" : "var(--error)"}">
         <div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg></div>
-        <div class="sc-val">EGP ${Math.abs(netProfit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-        <div class="sc-lbl">Net ${netProfit >= 0 ? "Operating Profit" : "Loss"}</div>
+        <div class="sc-val">${fmt(Math.abs(netProfit || 0))}</div>
+        <div class="sc-lbl">${isAr() ? (netProfit >= 0 ? "صافي الأرباح التشغيلية" : "صافي الخسائر") : ("Net " + (netProfit >= 0 ? "Operating Profit" : "Loss"))}</div>
       </div>
       <div class="sc" style="--ac:var(--warning)">
         <div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div>
-        <div class="sc-val">EGP ${(outstanding || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-        <div class="sc-lbl">Outstanding Balance</div>
+        <div class="sc-val">${fmt(outstanding || 0)}</div>
+        <div class="sc-lbl">${isAr() ? "المستحقات غير المحصلة" : "Outstanding Balance"}</div>
       </div>
     </div>
 
-    <div class="slbl">Annual Revenue Trajectory (${td.slice(0, 4)})</div>
+    <div class="slbl">${isAr() ? "حركة الإيرادات السنوية" : "Annual Revenue Trajectory"} (${td.slice(0, 4)})</div>
     <div class="card" style="padding:16px"><div class="bar-wrap">${revBars}</div></div>
 
-    <div class="slbl">Monthly Clinic Expenses (${td.slice(0, 4)})</div>
+    <div class="slbl">${isAr() ? "المصروفات الشهرية للعيادة" : "Monthly Clinic Expenses"} (${td.slice(0, 4)})</div>
     <div class="card" style="padding:16px"><div class="bar-wrap">${expBars}</div></div>
 
-    <div class="slbl">Expenses by Category</div>
-    <div class="card" style="padding:16px">${expCatHtml || '<div class="empty">No expenses recorded</div>'}</div>
+    <div class="slbl">${isAr() ? "المصروفات حسب البند / التصنيف" : "Expenses by Category"}</div>
+    <div class="card" style="padding:16px">${expCatHtml || `<div class="empty">${isAr() ? "لا توجد مصروفات مسجلة" : "No expenses recorded"}</div>`}</div>
 
-    <div class="slbl">Appointments Breakdown</div>
-    <div class="card" style="padding:16px"><div class="bar-wrap">${apptBars || '<div class="empty">No data</div>'}</div></div>
+    <div class="slbl">${isAr() ? "توزيع حالات المواعيد" : "Appointments Breakdown"}</div>
+    <div class="card" style="padding:16px"><div class="bar-wrap">${apptBars || `<div class="empty">${isAr() ? "لا توجد بيانات" : "No data"}</div>`}</div></div>
 
-    <div class="slbl">Top Performed Procedures</div>
-    <div class="card" style="padding:16px"><div class="bar-wrap">${procBars || '<div class="empty">No data</div>'}</div></div>`;
+    <div class="slbl">${isAr() ? "أكثر الإجراءات الطبية طلباً" : "Top Performed Procedures"}</div>
+    <div class="card" style="padding:16px"><div class="bar-wrap">${procBars || `<div class="empty">${isAr() ? "لا توجد بيانات" : "No data"}</div>`}</div></div>`;
 }
 
 // Staff Management
@@ -346,30 +348,34 @@ export async function loadStaffMgmt() {
   if (!el) return;
   el.innerHTML = '<div class="ldg"><div class="spin"></div></div>';
   const { data } = await sb.from("staff").select("id,username,full_name,role,phone,is_active").order("full_name");
-  if (!data) { el.innerHTML = '<div class="empty">Failed to load staff</div>'; return; }
+  if (!data) { el.innerHTML = `<div class="empty">${isAr() ? "فشل تحميل قائمة الكادر الطبي" : "Failed to load staff"}</div>`; return; }
 
   el.innerHTML = `<div class="card">
-    ${data.map(s => `
+    ${data.map(s => {
+      const roleName = s.role === 'admin' ? (isAr() ? 'مدير النظام' : 'ADMIN') : s.role === 'dentist' ? (isAr() ? 'طبيب أسنان' : 'DENTIST') : (isAr() ? 'مساعد / تمريض' : 'ASSISTANT');
+      const activeText = s.is_active ? (isAr() ? '● نشط' : '● Active') : (isAr() ? '○ غير نشط' : '○ Inactive');
+      return `
     <div class="row-sep" style="display:flex;align-items:center;padding:14px 18px;gap:14px;cursor:pointer" onclick="window.editStaff(${s.id},'${esc(s.full_name)}','${esc(s.username)}','${s.role}','${esc(s.phone || '')}',${s.is_active})">
       <div class="av">
         ${(s.full_name || "?")[0].toUpperCase()}
       </div>
       <div style="flex:1;min-width:0">
         <div style="font-size:14px;font-weight:700;color:var(--navy)">${esc(s.full_name)}</div>
-        <div style="font-size:12px;color:var(--text-muted);margin-top:2px">Role: ${s.role?.toUpperCase()} · @${esc(s.username)}</div>
-        ${s.phone ? `<div style="font-size:11px;color:var(--text-light)">📞 ${esc(s.phone)}</div>` : ""}
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px">${isAr() ? "الدور:" : "Role:"} ${roleName} · @${esc(s.username)}</div>
+        ${s.phone ? `<div style="font-size:11px;color:var(--text-light)" dir="ltr">📞 ${esc(s.phone)}</div>` : ""}
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-        <span class="role-badge ${s.role === 'admin' ? 'r-admin' : s.role === 'dentist' ? 'r-dentist' : 'r-assistant'}">${s.role?.toUpperCase()}</span>
-        <span style="font-size:11px;font-weight:700;color:${s.is_active ? "var(--success)" : "var(--error)"}">${s.is_active ? "● Active" : "○ Inactive"}</span>
+        <span class="role-badge ${s.role === 'admin' ? 'r-admin' : s.role === 'dentist' ? 'r-dentist' : 'r-assistant'}">${roleName}</span>
+        <span style="font-size:11px;font-weight:700;color:${s.is_active ? "var(--success)" : "var(--error)"}">${activeText}</span>
       </div>
-    </div>`).join("")}
+    </div>`;
+    }).join("")}
   </div>`;
 }
 
 export function openAddStaff() {
   _editStfId = null;
-  document.getElementById("staff-edit-title").textContent = "New Staff Member";
+  document.getElementById("staff-edit-title").textContent = isAr() ? "إضافة فرد جديد للفريق" : "New Staff Member";
   ["stf-name", "stf-user", "stf-phone", "stf-pass", "stf-pass2"].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = "";
@@ -382,7 +388,7 @@ export function openAddStaff() {
 
 export function editStaff(id, name, username, role, phone, isActive) {
   _editStfId = id;
-  document.getElementById("staff-edit-title").textContent = "Edit Staff Profile";
+  document.getElementById("staff-edit-title").textContent = isAr() ? "تعديل ملف الموظف" : "Edit Staff Profile";
   document.getElementById("stf-name").value = name;
   document.getElementById("stf-user").value = username;
   document.getElementById("stf-role").value = role;
@@ -404,11 +410,11 @@ export async function saveStaff() {
   const pass2 = document.getElementById("stf-pass2").value;
   const isActive = document.getElementById("stf-active").checked;
 
-  if (!name) { toast("Full name is required ✗"); return; }
-  if (!username) { toast("Username is required ✗"); return; }
-  if (!_editStfId && !pass) { toast("Password is required ✗"); return; }
-  if (pass && pass !== pass2) { toast("Passwords do not match ✗"); return; }
-  if (pass && pass.length < 6) { toast("Password must be at least 6 characters ✗"); return; }
+  if (!name) { toast(isAr() ? "الاسم الكامل مطلوب ✗" : "Full name is required ✗"); return; }
+  if (!username) { toast(isAr() ? "اسم المستخدم مطلوب ✗" : "Username is required ✗"); return; }
+  if (!_editStfId && !pass) { toast(isAr() ? "كلمة المرور مطلوبة ✗" : "Password is required ✗"); return; }
+  if (pass && pass !== pass2) { toast(isAr() ? "كلمتا المرور غير متطابقتين ✗" : "Passwords do not match ✗"); return; }
+  if (pass && pass.length < 6) { toast(isAr() ? "يجب ألا تقل كلمة المرور عن 6 أحرف ✗" : "Password must be at least 6 characters ✗"); return; }
 
   let updateData = { full_name: name, username, role, phone, is_active: _editStfId ? isActive : true };
   if (pass) updateData.password_hash = await sha256(pass);
@@ -418,12 +424,12 @@ export async function saveStaff() {
   else { ({ error } = await sb.from("staff").insert(updateData)); }
 
   if (!error) {
-    toast(_editStfId ? "Staff member updated ✓" : "Staff member added ✓");
+    toast(_editStfId ? (isAr() ? "تم تحديث بيانات الموظف ✓" : "Staff member updated ✓") : (isAr() ? "تمت إضافة الموظف بنجاح ✓" : "Staff member added ✓"));
     closeSheet("staff-edit");
     loadStaffMgmt();
   } else {
-    if (error.message.includes("unique")) toast("Username already exists ✗");
-    else toast("Failed: " + error.message + " ✗");
+    if (error.message.includes("unique")) toast(isAr() ? "اسم المستخدم مسجل مسبقاً ✗" : "Username already exists ✗");
+    else toast(isAr() ? "فشل الحفظ: " + error.message + " ✗" : "Failed: " + error.message + " ✗");
   }
 }
 
@@ -432,16 +438,16 @@ let _delStaffTimer = null;
 
 export async function deleteStaff() {
   if (!_editStfId) return;
-  if (USER?.id === _editStfId) { toast("Cannot delete your currently active account ✗"); return; }
+  if (USER?.id === _editStfId) { toast(isAr() ? "لا يمكن حذف الحساب المسجل به حالياً ✗" : "Cannot delete your currently active account ✗"); return; }
   const delBtn = document.querySelector("#sh-staff-edit .sh-danger-btn");
   if (!_delStaffPending) {
     _delStaffPending = true;
-    if (delBtn) { delBtn.textContent = "Confirm Remove?"; delBtn.style.background = "var(--error)"; delBtn.style.color = "#fff"; }
-    toast("Click again to confirm staff removal");
+    if (delBtn) { delBtn.textContent = isAr() ? "تأكيد الحذف النهائي؟" : "Confirm Remove?"; delBtn.style.background = "var(--error)"; delBtn.style.color = "#fff"; }
+    toast(isAr() ? "انقر مرة أخرى لتأكيد حذف هذا الموظف" : "Click again to confirm staff removal");
     clearTimeout(_delStaffTimer);
     _delStaffTimer = setTimeout(() => {
       _delStaffPending = false;
-      if (delBtn) { delBtn.textContent = "Delete Staff"; delBtn.style.background = ""; delBtn.style.color = ""; }
+      if (delBtn) { delBtn.textContent = isAr() ? "حذف الموظف" : "Delete Staff"; delBtn.style.background = ""; delBtn.style.color = ""; }
     }, 4000);
     return;
   }
@@ -449,10 +455,10 @@ export async function deleteStaff() {
   clearTimeout(_delStaffTimer);
   const { error } = await sb.from("staff").delete().eq("id", _editStfId);
   if (!error) {
-    toast("Staff member removed ✓");
+    toast(isAr() ? "تم حذف الموظف ✓" : "Staff member removed ✓");
     closeSheet("staff-edit");
     loadStaffMgmt();
-  } else toast("Failed: " + error.message + " ✗");
+  } else toast(isAr() ? "فشل: " + error.message + " ✗" : "Failed: " + error.message + " ✗");
 }
 
 // Services catalog
@@ -461,28 +467,28 @@ export async function loadServices() {
   if (!el) return;
   el.innerHTML = '<div class="ldg"><div class="spin"></div></div>';
   const { data } = await sb.from("procedures_catalog").select("*").order("category,name");
-  if (!data) { el.innerHTML = '<div class="empty">Failed to load services</div>'; return; }
+  if (!data) { el.innerHTML = `<div class="empty">${isAr() ? "فشل تحميل لائحة الخدمات" : "Failed to load services"}</div>`; return; }
 
   const cats = {};
-  data.forEach(s => { const c = s.category || "Other"; if (!cats[c]) cats[c] = []; cats[c].push(s); });
+  data.forEach(s => { const c = s.category || (isAr() ? "أخرى" : "Other"); if (!cats[c]) cats[c] = []; cats[c].push(s); });
 
   let html = "";
   for (const [cat, svcs] of Object.entries(cats)) {
     html += `<div class="slbl" style="margin-top:14px">${esc(cat)}</div><div class="card">`;
     html += svcs.map(s => `
-      <div class="row-sep" style="display:flex;align-items:center;padding:14px 18px;gap:12px;cursor:pointer" onclick="window.editService(${s.id},'${esc(s.name)}',${s.default_cost},'${esc(s.category || 'Other')}')">
+      <div class="row-sep" style="display:flex;align-items:center;padding:14px 18px;gap:12px;cursor:pointer" onclick="window.editService(${s.id},'${esc(s.name)}',${s.default_cost},'${esc(s.category || (isAr() ? 'عام' : 'Other'))}')">
         <div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--navy)">${esc(s.name)}</div></div>
-        <div style="font-size:15px;font-weight:800;color:var(--teal);font-family:var(--font-mono)">EGP ${(+s.default_cost || 0).toFixed(2)}</div>
+        <div style="font-size:15px;font-weight:800;color:var(--teal);font-family:var(--font-mono)">${fmt(+s.default_cost || 0)}</div>
         <div style="color:var(--text-light);font-size:16px">›</div>
       </div>`).join("");
     html += "</div>";
   }
-  el.innerHTML = html || '<div class="empty">No services in price list</div>';
+  el.innerHTML = html || `<div class="empty">${isAr() ? "لا توجد خدمات في لائحة الأسعار" : "No services in price list"}</div>`;
 }
 
 export function openAddService() {
   _editSvcId = null;
-  document.getElementById("service-edit-title").textContent = "New Dental Service";
+  document.getElementById("service-edit-title").textContent = isAr() ? "إضافة خدمة علاجية جديدة" : "New Dental Service";
   document.getElementById("svc-name").value = "";
   document.getElementById("svc-price").value = "";
   document.getElementById("svc-cat").value = "General";
@@ -492,7 +498,7 @@ export function openAddService() {
 
 export function editService(id, name, price, cat) {
   _editSvcId = id;
-  document.getElementById("service-edit-title").textContent = "Edit Dental Service";
+  document.getElementById("service-edit-title").textContent = isAr() ? "تعديل الخدمة العلاجية" : "Edit Dental Service";
   document.getElementById("svc-name").value = name;
   document.getElementById("svc-price").value = price;
   document.getElementById("svc-cat").value = cat;
@@ -504,16 +510,16 @@ export async function saveService() {
   const name = document.getElementById("svc-name").value.trim();
   const price = parseFloat(document.getElementById("svc-price").value) || 0;
   const cat = document.getElementById("svc-cat").value;
-  if (!name) { toast("Enter service name ✗"); return; }
+  if (!name) { toast(isAr() ? "يرجى إدخال اسم الخدمة ✗" : "Enter service name ✗"); return; }
   let error;
   if (_editSvcId) { ({ error } = await sb.from("procedures_catalog").update({ name, default_cost: price, category: cat }).eq("id", _editSvcId)); }
   else { ({ error } = await sb.from("procedures_catalog").insert({ name, default_cost: price, category: cat })); }
   if (!error) {
-    toast(_editSvcId ? "Service updated ✓" : "Service added ✓");
+    toast(_editSvcId ? (isAr() ? "تم تحديث الخدمة ✓" : "Service updated ✓") : (isAr() ? "تمت إضافة الخدمة بنجاح ✓" : "Service added ✓"));
     closeSheet("service-edit");
     loadServices();
     loadProcs();
-  } else toast("Failed: " + error.message + " ✗");
+  } else toast(isAr() ? "فشل: " + error.message + " ✗" : "Failed: " + error.message + " ✗");
 }
 
 let _delSvcPending = false;
@@ -524,12 +530,12 @@ export async function deleteService() {
   const delBtn = document.getElementById("svc-delete-btn");
   if (!_delSvcPending) {
     _delSvcPending = true;
-    if (delBtn) { delBtn.textContent = "Confirm Delete?"; delBtn.style.background = "var(--error)"; delBtn.style.color = "#fff"; }
-    toast("Click again to confirm deleting this service");
+    if (delBtn) { delBtn.textContent = isAr() ? "تأكيد الحذف؟" : "Confirm Delete?"; delBtn.style.background = "var(--error)"; delBtn.style.color = "#fff"; }
+    toast(isAr() ? "انقر مرة أخرى لتأكيد حذف هذه الخدمة" : "Click again to confirm deleting this service");
     clearTimeout(_delSvcTimer);
     _delSvcTimer = setTimeout(() => {
       _delSvcPending = false;
-      if (delBtn) { delBtn.textContent = "Delete Service"; delBtn.style.background = ""; delBtn.style.color = ""; }
+      if (delBtn) { delBtn.textContent = isAr() ? "حذف الخدمة" : "Delete Service"; delBtn.style.background = ""; delBtn.style.color = ""; }
     }, 4000);
     return;
   }
@@ -537,11 +543,11 @@ export async function deleteService() {
   clearTimeout(_delSvcTimer);
   const { error } = await sb.from("procedures_catalog").delete().eq("id", _editSvcId);
   if (!error) {
-    toast("Service deleted ✓");
+    toast(isAr() ? "تم حذف الخدمة بنجاح ✓" : "Service deleted ✓");
     closeSheet("service-edit");
     loadServices();
     loadProcs();
-  } else toast("Failed: " + error.message + " ✗");
+  } else toast(isAr() ? "فشل: " + error.message + " ✗" : "Failed: " + error.message + " ✗");
 }
 
 // Edit treatment & Invoice
@@ -557,7 +563,7 @@ export function openEditTx(id, name, cost, date, tooth, diagnosis) {
 
 export async function saveEditTx() {
   const name = document.getElementById("etx-name").value.trim();
-  if (!name) { toast("Procedure name is required ✗"); return; }
+  if (!name) { toast(isAr() ? "اسم الإجراء العلاجي مطلوب ✗" : "Procedure name is required ✗"); return; }
   const { error } = await sb.from("treatments").update({
     procedure_name: name,
     cost: parseFloat(document.getElementById("etx-cost").value) || 0,
@@ -566,10 +572,10 @@ export async function saveEditTx() {
     diagnosis: document.getElementById("etx-notes").value.trim()
   }).eq("id", _editTxId);
   if (!error) {
-    toast("Treatment updated ✓");
+    toast(isAr() ? "تم تحديث الإجراء العلاجي ✓" : "Treatment updated ✓");
     closeSheet("edit-tx");
     if (_clPatId) loadCLPat(_clPatId, document.getElementById("cl-q").value);
-  } else toast("Failed: " + error.message + " ✗");
+  } else toast(isAr() ? "فشل: " + error.message + " ✗" : "Failed: " + error.message + " ✗");
 }
 
 let _delTxPending = false;
@@ -580,12 +586,12 @@ export async function deleteTx() {
   const delBtn = document.querySelector("#sh-edit-tx .sh-danger-btn");
   if (!_delTxPending) {
     _delTxPending = true;
-    if (delBtn) { delBtn.textContent = "Confirm Delete?"; delBtn.style.background = "var(--error)"; delBtn.style.color = "#fff"; }
-    toast("Click again to confirm deleting treatment");
+    if (delBtn) { delBtn.textContent = isAr() ? "تأكيد الحذف؟" : "Confirm Delete?"; delBtn.style.background = "var(--error)"; delBtn.style.color = "#fff"; }
+    toast(isAr() ? "انقر مرة أخرى لتأكيد حذف هذا العلاج" : "Click again to confirm deleting treatment");
     clearTimeout(_delTxTimer);
     _delTxTimer = setTimeout(() => {
       _delTxPending = false;
-      if (delBtn) { delBtn.textContent = "Delete"; delBtn.style.background = ""; delBtn.style.color = ""; }
+      if (delBtn) { delBtn.textContent = isAr() ? "حذف" : "Delete"; delBtn.style.background = ""; delBtn.style.color = ""; }
     }, 4000);
     return;
   }
@@ -593,17 +599,17 @@ export async function deleteTx() {
   clearTimeout(_delTxTimer);
   const { error } = await sb.from("treatments").delete().eq("id", _editTxId);
   if (!error) {
-    toast("Treatment deleted ✓");
+    toast(isAr() ? "تم حذف العلاج بنجاح ✓" : "Treatment deleted ✓");
     closeSheet("edit-tx");
     if (_clPatId) loadCLPat(_clPatId, document.getElementById("cl-q").value);
-  } else toast("Failed: " + error.message + " ✗");
+  } else toast(isAr() ? "فشل: " + error.message + " ✗" : "Failed: " + error.message + " ✗");
 }
 
 // Edit Invoice
 export async function openEditInv(optId) {
   const invId = optId || _editInvId || getEditInvId();
   if (!invId) {
-    toast("Please select an invoice first ✗");
+    toast(isAr() ? "يرجى تحديد الفاتورة أولاً ✗" : "Please select an invoice first ✗");
     return;
   }
   _editInvId = invId;
@@ -631,13 +637,13 @@ export function renderEditInvItem(it, i) {
   div.id = "einv-item-" + i;
   div.style.cssText = "background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:14px;margin-bottom:10px";
   div.innerHTML = `<div style="display:flex;justify-content:space-between;margin-bottom:8px">
-    <div style="font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:0.6px">Item ${i + 1}</div>
+    <div style="font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:0.6px">${isAr() ? "البند" : "Item"} ${i + 1}</div>
     <button onclick="window.removeEditInvItem(${i})" style="background:none;border:none;color:var(--error);font-size:18px;cursor:pointer;line-height:1">×</button>
   </div>
-  <div class="ff" style="margin-bottom:8px"><label>Description</label><input id="einv-desc-${i}" type="text" value="${esc(it.description || "")}" oninput="window.editInvCalc(${i})"></div>
+  <div class="ff" style="margin-bottom:8px"><label>${isAr() ? "بيان الخدمة / العلاج" : "Description"}</label><input id="einv-desc-${i}" type="text" value="${esc(it.description || "")}" oninput="window.editInvCalc(${i})"></div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-    <div class="ff" style="margin:0"><label>Quantity</label><input id="einv-qty-${i}" type="number" value="${it.quantity || 1}" min="1" oninput="window.editInvCalc(${i})"></div>
-    <div class="ff" style="margin:0"><label>Price (EGP)</label><input id="einv-price-${i}" type="number" inputmode="decimal" value="${it.unit_price || 0}" step="0.01" oninput="window.editInvCalc(${i})"></div>
+    <div class="ff" style="margin:0"><label>${isAr() ? "الكمية" : "Quantity"}</label><input id="einv-qty-${i}" type="number" value="${it.quantity || 1}" min="1" oninput="window.editInvCalc(${i})"></div>
+    <div class="ff" style="margin:0"><label>${isAr() ? "السعر (جنيه)" : "Price (EGP)"}</label><input id="einv-price-${i}" type="number" inputmode="decimal" value="${it.unit_price || 0}" step="0.01" oninput="window.editInvCalc(${i})"></div>
   </div>`;
   rows.appendChild(div);
 }
@@ -663,12 +669,12 @@ export function editInvCalc(i) {
 
 export function calcEditInvTotal() {
   const tot = _editInvItems.filter(Boolean).reduce((s, i) => s + (i.total_price || 0), 0);
-  document.getElementById("einv-total").textContent = "EGP " + tot.toFixed(2);
+  document.getElementById("einv-total").textContent = fmt(tot);
 }
 
 export async function saveEditInv() {
   const invId = _editInvId || getEditInvId();
-  if (!invId) { toast("No invoice selected ✗"); return; }
+  if (!invId) { toast(isAr() ? "لم يتم تحديد فاتورة ✗" : "No invoice selected ✗"); return; }
   const validItems = _editInvItems.filter(i => i && i.description && i.description.trim());
   const sanitizedItems = validItems.map(it => ({
     invoice_id: invId,
@@ -686,7 +692,7 @@ export async function saveEditInv() {
   if (sanitizedItems.length) {
     const { error: itemErr } = await sb.from("invoice_items").insert(sanitizedItems);
     if (itemErr) {
-      toast("Error saving items: " + itemErr.message + " ✗");
+      toast((isAr() ? "خطأ في حفظ البنود: " : "Error saving items: ") + itemErr.message + " ✗");
       return;
     }
   }
@@ -699,12 +705,12 @@ export async function saveEditInv() {
 
   const { error } = await sb.from("invoices").update(invUpdate).eq("id", invId);
   if (!error) {
-    toast(newStatus === "unpaid" ? "Invoice reset to unpaid ✓" : "Invoice updated ✓");
+    toast(newStatus === "unpaid" ? (isAr() ? "تم إعادة تعيين الفاتورة إلى غير مدفوعة ✓" : "Invoice reset to unpaid ✓") : (isAr() ? "تم تحديث الفاتورة ✓" : "Invoice updated ✓"));
     closeSheet("edit-inv");
     openInv(invId);
     loadInvoices();
   } else {
-    toast("Failed to update invoice: " + error.message + " ✗");
+    toast((isAr() ? "فشل تحديث الفاتورة: " : "Failed to update invoice: ") + error.message + " ✗");
   }
 }
 
@@ -713,22 +719,22 @@ let _delInvTimer = null;
 
 export async function deleteInv() {
   const invId = _editInvId || getEditInvId();
-  if (!invId) { toast("No invoice selected ✗"); return; }
+  if (!invId) { toast(isAr() ? "لم يتم تحديد فاتورة ✗" : "No invoice selected ✗"); return; }
 
   const delBtn = document.querySelector("#sh-edit-inv .sh-danger-btn");
   if (!_delInvPending) {
     _delInvPending = true;
     if (delBtn) {
-      delBtn.textContent = "Confirm Delete?";
+      delBtn.textContent = isAr() ? "تأكيد الحذف النهائي؟" : "Confirm Delete?";
       delBtn.style.background = "var(--error)";
       delBtn.style.color = "#fff";
     }
-    toast("Click 'Confirm Delete?' to permanently remove this invoice");
+    toast(isAr() ? "انقر مرة أخرى لتأكيد حذف هذه الفاتورة نهائياً" : "Click 'Confirm Delete?' to permanently remove this invoice");
     clearTimeout(_delInvTimer);
     _delInvTimer = setTimeout(() => {
       _delInvPending = false;
       if (delBtn) {
-        delBtn.textContent = "Delete";
+        delBtn.textContent = isAr() ? "حذف" : "Delete";
         delBtn.style.background = "";
         delBtn.style.color = "";
       }
@@ -740,7 +746,7 @@ export async function deleteInv() {
   _delInvPending = false;
   clearTimeout(_delInvTimer);
   if (delBtn) {
-    delBtn.textContent = "Deleting…";
+    delBtn.textContent = isAr() ? "جاري الحذف…" : "Deleting…";
     delBtn.disabled = true;
   }
 
@@ -755,20 +761,20 @@ export async function deleteInv() {
 
   if (delBtn) {
     delBtn.disabled = false;
-    delBtn.textContent = "Delete";
+    delBtn.textContent = isAr() ? "حذف" : "Delete";
     delBtn.style.background = "";
     delBtn.style.color = "";
   }
 
   if (!error) {
-    toast("Invoice deleted ✓");
+    toast(isAr() ? "تم حذف الفاتورة ✓" : "Invoice deleted ✓");
     closeSheet("edit-inv");
     closeSheet("inv");
     _editInvId = null;
     setEditInvId(null);
     loadInvoices();
   } else {
-    toast("Failed: " + error.message + " ✗");
+    toast(isAr() ? "فشل: " + error.message + " ✗" : "Failed: " + error.message + " ✗");
   }
 }
 
@@ -787,17 +793,17 @@ export async function loadExpenses() {
   const endDate = month + "-" + String(lastDay).padStart(2, "0");
 
   const { data } = await sb.from("clinic_expenses").select("*").gte("expense_date", startDate).lte("expense_date", endDate).order("expense_date", { ascending: false });
-  if (!data) { el.innerHTML = '<div class="empty">Failed to load expenses</div>'; return; }
+  if (!data) { el.innerHTML = `<div class="empty">${isAr() ? "فشل تحميل المصروفات" : "Failed to load expenses"}</div>`; return; }
 
   const total = data.reduce((s, e) => s + (+e.amount || 0), 0);
   const cats = {};
   data.forEach(e => { cats[e.category] = (cats[e.category] || 0) + (+e.amount || 0); });
 
-  const catBars = Object.entries(cats).sort((a, b) => b[1] - a[1]).map(([cat, amt]) => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)"><div style="font-size:13px;color:var(--text)">${esc(cat)}</div><div style="font-size:13px;font-weight:700;color:var(--error);font-family:var(--font-mono)">EGP ${(+amt).toFixed(2)}</div></div>`).join("");
+  const catBars = Object.entries(cats).sort((a, b) => b[1] - a[1]).map(([cat, amt]) => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)"><div style="font-size:13px;color:var(--text)">${esc(cat)}</div><div style="font-size:13px;font-weight:700;color:var(--error);font-family:var(--font-mono)">${fmt(+amt)}</div></div>`).join("");
 
-  sumEl.innerHTML = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px;margin-bottom:16px;box-shadow:var(--shadow-sm)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:${Object.keys(cats).length ? "12px" : "0"}"><div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px">Monthly Total Expenses</div><div style="font-size:24px;font-weight:800;color:var(--error);font-family:var(--font-mono)">EGP ${total.toFixed(2)}</div></div>${catBars}</div>`;
+  sumEl.innerHTML = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px;margin-bottom:16px;box-shadow:var(--shadow-sm)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:${Object.keys(cats).length ? "12px" : "0"}"><div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px">${isAr() ? "إجمالي مصروفات الشهر" : "Monthly Total Expenses"}</div><div style="font-size:22px;font-weight:800;color:var(--error);font-family:var(--font-mono)">${fmt(total)}</div></div>${catBars}</div>`;
 
-  if (!data.length) { el.innerHTML = '<div class="empty">No expenses recorded for this month</div>'; return; }
+  if (!data.length) { el.innerHTML = `<div class="empty">${isAr() ? "لا توجد مصروفات مسجلة لهذا الشهر" : "No expenses recorded for this month"}</div>`; return; }
 
   const byDate = {};
   data.forEach(e => { const d = e.expense_date || ""; if (!byDate[d]) byDate[d] = []; byDate[d].push(e); });
@@ -805,7 +811,7 @@ export async function loadExpenses() {
   let html = "";
   for (const [date, items] of Object.entries(byDate)) {
     html += `<div class="slbl" style="margin-top:14px;font-family:var(--font-mono)">📅 ${date}</div><div class="card">`;
-    html += items.map(e => `<div class="row-sep" style="display:flex;align-items:center;padding:14px 18px;gap:12px;cursor:pointer" onclick="window.openEditExpense(${e.id},'${esc(e.title)}',${e.amount},'${esc(e.category)}','${e.expense_date}','${esc(e.notes || '')}')"><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:var(--navy)">${esc(e.title)}</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px">${esc(e.category)}${e.notes ? " · " + esc(e.notes) : ""}</div></div><div style="font-size:14px;font-weight:800;color:var(--error);flex-shrink:0;font-family:var(--font-mono)">EGP ${(+e.amount).toFixed(2)}</div><div style="color:var(--text-light);font-size:16px">›</div></div>`).join("");
+    html += items.map(e => `<div class="row-sep" style="display:flex;align-items:center;padding:14px 18px;gap:12px;cursor:pointer" onclick="window.openEditExpense(${e.id},'${esc(e.title)}',${e.amount},'${esc(e.category)}','${e.expense_date}','${esc(e.notes || '')}')"><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:var(--navy)">${esc(e.title)}</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px">${esc(e.category)}${e.notes ? " · " + esc(e.notes) : ""}</div></div><div style="font-size:14px;font-weight:800;color:var(--error);flex-shrink:0;font-family:var(--font-mono)">${fmt(+e.amount)}</div><div style="color:var(--text-light);font-size:16px">›</div></div>`).join("");
     html += "</div>";
   }
   el.innerHTML = html;
@@ -813,7 +819,7 @@ export async function loadExpenses() {
 
 export function openAddExpense() {
   _editExpId = null;
-  document.getElementById("exp-edit-title").textContent = "Record New Expense";
+  document.getElementById("exp-edit-title").textContent = isAr() ? "تسجيل بند مصروف جديد" : "Record New Expense";
   document.getElementById("exp-amount").value = "";
   document.getElementById("exp-cat").value = "Rent";
   document.getElementById("exp-date").value = today();
@@ -824,7 +830,7 @@ export function openAddExpense() {
 
 export function openEditExpense(id, title, amount, cat, date, notes) {
   _editExpId = id;
-  document.getElementById("exp-edit-title").textContent = "Edit Expense";
+  document.getElementById("exp-edit-title").textContent = isAr() ? "تعديل بيانات المصروف" : "Edit Expense";
   document.getElementById("exp-cat").value = cat || title;
   document.getElementById("exp-amount").value = amount;
   document.getElementById("exp-date").value = date;
@@ -835,7 +841,7 @@ export function openEditExpense(id, title, amount, cat, date, notes) {
 
 export async function saveExpense() {
   const amount = parseFloat(document.getElementById("exp-amount").value) || 0;
-  if (!amount) { toast("Enter expense amount ✗"); return; }
+  if (!amount) { toast(isAr() ? "يرجى إدخال مبلغ المصروف ✗" : "Enter expense amount ✗"); return; }
   const cat = document.getElementById("exp-cat").value;
   const data = {
     title: cat,
@@ -850,10 +856,10 @@ export async function saveExpense() {
   if (_editExpId) { ({ error } = await sb.from("clinic_expenses").update(data).eq("id", _editExpId)); }
   else { ({ error } = await sb.from("clinic_expenses").insert(data)); }
   if (!error) {
-    toast(_editExpId ? "Expense updated ✓" : "Expense recorded ✓");
+    toast(_editExpId ? (isAr() ? "تم تحديث المصروف ✓" : "Expense updated ✓") : (isAr() ? "تم تسجيل المصروف بنجاح ✓" : "Expense recorded ✓"));
     closeSheet("expense-edit");
     loadExpenses();
-  } else toast("Failed: " + error.message + " ✗");
+  } else toast(isAr() ? "فشل: " + error.message + " ✗" : "Failed: " + error.message + " ✗");
 }
 
 let _delExpPending = false;
@@ -864,12 +870,12 @@ export async function deleteExpense() {
   const delBtn = document.getElementById("exp-delete-btn");
   if (!_delExpPending) {
     _delExpPending = true;
-    if (delBtn) { delBtn.textContent = "Confirm Delete?"; delBtn.style.background = "var(--error)"; delBtn.style.color = "#fff"; }
-    toast("Click again to confirm deleting this expense");
+    if (delBtn) { delBtn.textContent = isAr() ? "تأكيد الحذف؟" : "Confirm Delete?"; delBtn.style.background = "var(--error)"; delBtn.style.color = "#fff"; }
+    toast(isAr() ? "انقر مرة أخرى لتأكيد حذف هذا المصروف" : "Click again to confirm deleting this expense");
     clearTimeout(_delExpTimer);
     _delExpTimer = setTimeout(() => {
       _delExpPending = false;
-      if (delBtn) { delBtn.textContent = "Delete Expense"; delBtn.style.background = ""; delBtn.style.color = ""; }
+      if (delBtn) { delBtn.textContent = isAr() ? "حذف المصروف" : "Delete Expense"; delBtn.style.background = ""; delBtn.style.color = ""; }
     }, 4000);
     return;
   }
@@ -877,10 +883,10 @@ export async function deleteExpense() {
   clearTimeout(_delExpTimer);
   const { error } = await sb.from("clinic_expenses").delete().eq("id", _editExpId);
   if (!error) {
-    toast("Expense deleted ✓");
+    toast(isAr() ? "تم حذف المصروف ✓" : "Expense deleted ✓");
     closeSheet("expense-edit");
     loadExpenses();
-  } else toast("Failed: " + error.message + " ✗");
+  } else toast(isAr() ? "فشل: " + error.message + " ✗" : "Failed: " + error.message + " ✗");
 }
 
 // AI File Scanner
@@ -935,10 +941,10 @@ export function removeScanPage2() {
 }
 
 export async function analyzeScanFile() {
-  if (!_scanImgB64) { toast("Please capture or choose a photo first ✗"); return; }
+  if (!_scanImgB64) { toast(isAr() ? "يرجى التقاط صورة أو رفع ملف أولاً ✗" : "Please capture or choose a photo first ✗"); return; }
   const statusEl = document.getElementById("scan-status");
   statusEl.style.display = "block";
-  statusEl.textContent = _scanImg2B64 ? "Analyzing multi-page patient file with AI…" : "Transcribing handwriting with AI vision…";
+  statusEl.textContent = _scanImg2B64 ? (isAr() ? "جاري تحليل الملف متعدد الصفحات بالذكاء الاصطناعي…" : "Analyzing multi-page patient file with AI…") : (isAr() ? "جاري قراءة وتحليل الخط اليدوي بالذكاء الاصطناعي…" : "Transcribing handwriting with AI vision…");
   document.getElementById("scan-analyze-btn").disabled = true;
 
   try {
@@ -967,10 +973,10 @@ export async function analyzeScanFile() {
     document.getElementById("scan-diagnosis").value = ex.diagnosis || "";
     document.getElementById("scan-procedure").value = ex.procedure || "";
     document.getElementById("scan-result-wrap").style.display = "block";
-    statusEl.textContent = "Extraction complete — please verify fields before saving.";
+    statusEl.textContent = isAr() ? "اكتمل الاستخراج بنجاح — يرجى مراجعة الحقول قبل الحفظ." : "Extraction complete — please verify fields before saving.";
   } catch (err) {
-    statusEl.textContent = "Scan error: " + err.message;
-    toast("Analysis failed ✗");
+    statusEl.textContent = (isAr() ? "خطأ في الفحص: " : "Scan error: ") + err.message;
+    toast(isAr() ? "فشل التحليل ✗" : "Analysis failed ✗");
   } finally {
     document.getElementById("scan-analyze-btn").disabled = false;
   }
@@ -978,7 +984,7 @@ export async function analyzeScanFile() {
 
 export async function createPatientFromScan() {
   const fn = document.getElementById("scan-fname").value.trim();
-  if (!fn) { toast("First name is required ✗"); return; }
+  if (!fn) { toast(isAr() ? "الاسم الأول مطلوب ✗" : "First name is required ✗"); return; }
   const { data: pat, error } = await sb.from("patients").insert({
     first_name: fn,
     last_name: document.getElementById("scan-lname").value.trim(),
@@ -990,21 +996,21 @@ export async function createPatientFromScan() {
     notes: document.getElementById("scan-notes").value.trim(),
   }).select().single();
 
-  if (error) { toast("Failed to create patient: " + error.message + " ✗"); return; }
+  if (error) { toast((isAr() ? "فشل إنشاء ملف المريض: " : "Failed to create patient: ") + error.message + " ✗"); return; }
 
   const diagnosis = document.getElementById("scan-diagnosis").value.trim();
   const procedure = document.getElementById("scan-procedure").value.trim();
   if (diagnosis || procedure) {
     await sb.from("treatments").insert({
       patient_id: pat.id,
-      procedure_name: procedure || "Scanned File — Initial Record",
-      diagnosis: diagnosis || "(Extracted from handwritten file)",
+      procedure_name: procedure || (isAr() ? "ملف ممسوح ضوئياً — السجل المبدئي" : "Scanned File — Initial Record"),
+      diagnosis: diagnosis || (isAr() ? "(مستخرج من ملف مكتوب بخط اليد)" : "(Extracted from handwritten file)"),
       date_performed: today(),
-      dentist_name: USER?.full_name || "Dr. Abdullah Zain",
+      dentist_name: USER?.full_name || (isAr() ? "د. عبدالله زين" : "Dr. Abdullah Zain"),
     });
   }
 
-  toast("Patient profile created from scanned file ✓");
+  toast(isAr() ? "تم إنشاء ملف المريض من السجل الممسوح بنجاح ✓" : "Patient profile created from scanned file ✓");
   closeScanSheet();
   sw("clinical");
   loadCLPat(pat.id, fn + " " + (document.getElementById("scan-lname")?.value || ""));

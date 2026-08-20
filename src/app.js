@@ -37,6 +37,8 @@ export const sb = new Proxy({}, {
   }
 });
 
+import { t, isAr, getLang } from './i18n.js';
+
 export const SC = {
   scheduled: "#3B82F6",
   confirmed: "#0EA5A4",
@@ -45,15 +47,28 @@ export const SC = {
   "no-show": "#64748B"
 };
 
-export const SL = {
-  scheduled: "Scheduled",
-  confirmed: "Confirmed",
-  completed: "Done",
-  cancelled: "Cancelled",
-  "no-show": "No-show"
-};
+export const SL = new Proxy({}, {
+  get(target, prop) {
+    const keyMap = {
+      scheduled: "st_scheduled",
+      confirmed: "st_confirmed",
+      completed: "st_completed",
+      done: "st_done",
+      cancelled: "st_cancelled",
+      "no-show": "st_noshow",
+      unpaid: "st_unpaid",
+      partial: "st_partial",
+      paid: "st_paid"
+    };
+    if (keyMap[prop]) {
+      return t(keyMap[prop]);
+    }
+    return prop;
+  }
+});
 
 export const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+export const MONTHS_AR = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
 
 export let USER = null;
 try {
@@ -142,19 +157,32 @@ export async function sha256(msg) {
 }
 
 export function toothOpts() {
-  const T = {
+  const isArabic = isAr();
+  const T_EN = {
     18: "18 — Wisdom", 17: "17 — Molar", 16: "16 — Molar", 15: "15 — Premolar", 14: "14 — Premolar", 13: "13 — Canine", 12: "12 — Lateral Incisor", 11: "11 — Central Incisor",
     21: "21 — Central Incisor", 22: "22 — Lateral Incisor", 23: "23 — Canine", 24: "24 — Premolar", 25: "25 — Premolar", 26: "26 — Molar", 27: "27 — Molar", 28: "28 — Wisdom",
     38: "38 — Wisdom", 37: "37 — Molar", 36: "36 — Molar", 35: "35 — Premolar", 34: "34 — Premolar", 33: "33 — Canine", 32: "32 — Lateral Incisor", 31: "31 — Central Incisor",
     41: "41 — Central Incisor", 42: "42 — Lateral Incisor", 43: "43 — Canine", 44: "44 — Premolar", 45: "45 — Premolar", 46: "46 — Molar", 47: "47 — Molar", 48: "48 — Wisdom"
   };
-  const Q = [
+  const T_AR = {
+    18: "18 — ضرس العقل", 17: "17 — ضرس ثان", 16: "16 — ضرس أول", 15: "15 — ضاحك ثان", 14: "14 — ضاحك أول", 13: "13 — ناب", 12: "12 — قاطع جانبي", 11: "11 — قاطع مركزي",
+    21: "21 — قاطع مركزي", 22: "22 — قاطع جانبي", 23: "23 — ناب", 24: "24 — ضاحك أول", 25: "25 — ضاحك ثان", 26: "26 — ضرس أول", 27: "27 — ضرس ثان", 28: "28 — ضرس العقل",
+    38: "38 — ضرس العقل", 37: "37 — ضرس ثان", 36: "36 — ضرس أول", 35: "35 — ضاحك ثان", 34: "34 — ضاحك أول", 33: "33 — ناب", 32: "32 — قاطع جانبي", 31: "31 — قاطع مركزي",
+    41: "41 — قاطع مركزي", 42: "42 — قاطع جانبي", 43: "43 — ناب", 44: "44 — ضاحك أول", 45: "45 — ضاحك ثان", 46: "46 — ضرس أول", 47: "47 — ضرس ثان", 48: "48 — ضرس العقل"
+  };
+  const T = isArabic ? T_AR : T_EN;
+  const Q = isArabic ? [
+    [t("upper_right_q"), [18, 17, 16, 15, 14, 13, 12, 11]],
+    [t("upper_left_q"), [21, 22, 23, 24, 25, 26, 27, 28]],
+    [t("lower_left_q"), [31, 32, 33, 34, 35, 36, 37, 38]],
+    [t("lower_right_q"), [41, 42, 43, 44, 45, 46, 47, 48]]
+  ] : [
     ["Upper Right (Q1)", [18, 17, 16, 15, 14, 13, 12, 11]],
     ["Upper Left (Q2)", [21, 22, 23, 24, 25, 26, 27, 28]],
     ["Lower Left (Q3)", [31, 32, 33, 34, 35, 36, 37, 38]],
     ["Lower Right (Q4)", [41, 42, 43, 44, 45, 46, 47, 48]]
   ];
-  return '<option value="">— Select Tooth —</option>' + Q.map(([lbl, teeth]) => `<optgroup label="${lbl}">${teeth.map(n => `<option value="${n}">${T[n]}</option>`).join("")}</optgroup>`).join("");
+  return `<option value="">${t("tooth_select_ph")}</option>` + Q.map(([lbl, teeth]) => `<optgroup label="${lbl}">${teeth.map(n => `<option value="${n}">${T[n]}</option>`).join("")}</optgroup>`).join("");
 }
 
 export function toast(m, ms = 2400) {
@@ -176,8 +204,11 @@ export function age(dob) {
   return a;
 }
 
-export function fmt(n, sym = "EGP") {
-  return sym + " " + (+n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export function fmt(n, sym = null) {
+  const defaultSym = isAr() ? "ج.م" : "EGP";
+  const currency = sym !== null ? sym : defaultSym;
+  const numStr = (+n || 0).toLocaleString(isAr() ? "ar-EG" : "en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return isAr() ? `${numStr} ${currency}` : `${currency} ${numStr}`;
 }
 
 export function today() {
