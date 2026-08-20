@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0B2545">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Zain Dental Clinic">
+  <title>Zain Dental Clinic — Modern Dental Practice Cloud Portal</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="./src/styles.css">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════════════ -->
+<div id="login">
+  <div class="login-box">
+    <div class="l-logo-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="34" height="34" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3C9.8 3 8 4.3 7.5 6C6.7 5.5 5.5 5.6 4.8 6.5C4 7.5 4.5 9 5.3 9.8C5.6 10.1 5.7 10.5 5.7 11C5.7 14 7.5 17 9.2 18.8L9.7 20.5C9.9 21.4 10.6 22 11.5 22H12.5C13.4 22 14.1 21.4 14.3 20.5L14.8 18.8C16.5 17 18.3 14 18.3 11C18.3 10.5 18.4 10.1 18.7 9.8C19.5 9 20 7.5 19.2 6.5C18.5 5.6 17.3 5.5 16.5 6C16 4.3 14.2 3 12 3Z"/>
+        <path d="M10 10.5L11.5 12L15 8.5" stroke-width="1.8"/>
+      </svg>
+    </div>
+    <div class="l-title">Welcome back, Dr. Abdullah</div>
+    <div class="l-sub">Sign in to manage your dental practice</div>
+    
+    <div class="login-card">
+      <div class="fld">
+        <label for="lu">Username</label>
+        <input id="lu" type="text" autocapitalize="none" placeholder="Enter username (e.g. admin)">
+      </div>
+      <div class="fld" style="margin-bottom: 22px;">
+        <label for="lp">Password</label>
+        <input id="lp" type="password" placeholder="Enter password">
+        <span class="password-toggle" onclick="window.togglePassword()" title="Toggle password visibility">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </span>
+      </div>
+      <button class="btn-primary" id="lbtn" onclick="window.doLogin()">
+        <span>Sign In to Portal</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <div class="errmsg" id="lerr"></div>
+    </div>
+    
+    <div class="login-footer-tag">
+      Zain Dental Clinic · Secure Healthcare Cloud
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     APPLICATION SHELL
+══════════════════════════════════════════ -->
+<div id="app" style="display:none">
+  
+  <!-- DESKTOP SIDEBAR -->
+  <aside id="desktop-sidebar">
+    <div>
+      <div class="sidebar-brand">
+        <div class="sidebar-logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3C9.8 3 8 4.3 7.5 6C6.7 5.5 5.5 5.6 4.8 6.5C4 7.5 4.5 9 5.3 9.8C5.6 10.1 5.7 10.5 5.7 11C5.7 14 7.5 17 9.2 18.8L9.7 20.5C9.9 21.4 10.6 22 11.5 22H12.5C13.4 22 14.1 21.4 14.3 20.5L14.8 18.8C16.5 17 18.3 14 18.3 11C18.3 10.5 18.4 10.1 18.7 9.8C19.5 9 20 7.5 19.2 6.5C18.5 5.6 17.3 5.5 16.5 6C16 4.3 14.2 3 12 3Z"/>
+            <path d="M10 10.5L11.5 12L15 8.5" stroke-width="1.8"/>
+          </svg>
+        </div>
+        <div class="sidebar-brand-text">
+          <h1>Zain Dental</h1>
+          <p>Practice Manager</p>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="sidebar-item on" data-t="sched" onclick="window.sw('sched')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <span>Schedule</span>
+        </button>
+        <button class="sidebar-item" data-t="queue" onclick="window.sw('queue')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Live Queue</span>
+        </button>
+        <button class="sidebar-item" data-t="patients" onclick="window.sw('patients')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+          <span>Patients</span>
+        </button>
+        <button class="sidebar-item" data-t="billing" onclick="window.sw('billing')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+          <span>Billing &amp; Invoices</span>
+        </button>
+        <button class="sidebar-item" data-t="clinical" onclick="window.sw('clinical')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3C9.8 3 8 4.3 7.5 6C6.7 5.5 5.5 5.6 4.8 6.5C4 7.5 4.5 9 5.3 9.8C5.6 10.1 5.7 10.5 5.7 11C5.7 14 7.5 17 9.2 18.8L9.7 20.5C9.9 21.4 10.6 22 11.5 22H12.5C13.4 22 14.1 21.4 14.3 20.5L14.8 18.8C16.5 17 18.3 14 18.3 11C18.3 10.5 18.4 10.1 18.7 9.8C19.5 9 20 7.5 19.2 6.5C18.5 5.6 17.3 5.5 16.5 6C16 4.3 14.2 3 12 3Z"/><path d="M10 10.5L11.5 12L15 8.5"/></svg>
+          <span>Dental Chart</span>
+        </button>
+        <button class="sidebar-item" id="sb-item-reports" onclick="window.openSheet('reports')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+          <span>Analytics &amp; Reports</span>
+        </button>
+        <button class="sidebar-item" id="sb-item-staff" onclick="window.openSheet('staff-mgmt')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Staff Management</span>
+        </button>
+        <button class="sidebar-item" onclick="window.openSheet('services')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span>Price Catalog</span>
+        </button>
+        <button class="sidebar-item" id="sb-item-expenses" onclick="window.openSheet('expenses')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M6 12h12"/></svg>
+          <span>Expenses</span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user-info">
+        <div class="sidebar-avatar" id="sb-user-avatar">A</div>
+        <div class="sidebar-user-details">
+          <div class="sidebar-user-name" id="sb-user-name">Dr. Abdullah Zain</div>
+          <div class="sidebar-user-role" id="sb-user-role">Dentist &middot; Admin</div>
+        </div>
+      </div>
+      <button class="sidebar-logout-btn" onclick="window.doLogout()" title="Sign Out">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN WRAPPER -->
+  <div class="main-wrapper">
+    <!-- Top Header -->
+    <header id="hdr">
+      <div id="hdr-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3C9.8 3 8 4.3 7.5 6C6.7 5.5 5.5 5.6 4.8 6.5C4 7.5 4.5 9 5.3 9.8C5.6 10.1 5.7 10.5 5.7 11C5.7 14 7.5 17 9.2 18.8L9.7 20.5C9.9 21.4 10.6 22 11.5 22H12.5C13.4 22 14.1 21.4 14.3 20.5L14.8 18.8C16.5 17 18.3 14 18.3 11C18.3 10.5 18.4 10.1 18.7 9.8C19.5 9 20 7.5 19.2 6.5C18.5 5.6 17.3 5.5 16.5 6C16 4.3 14.2 3 12 3Z"/>
+          <path d="M10 10.5L11.5 12L15 8.5" stroke-width="1.8"/>
+        </svg>
+        <span id="hdr-title-text">Schedule &amp; Appointments</span>
+      </div>
+      <div id="hdr-right">
+        <span id="hdr-user">Dr. Abdullah Zain</span>
+        <button class="out-btn" onclick="window.doLogout()">Sign out</button>
+      </div>
+    </header>
+
+    <!-- Scrollable Content Area -->
+    <main id="content">
+      <div class="content-container">
+
+        <!-- SCHEDULE TAB -->
+        <section id="t-sched" class="pg">
+          <div class="pg-header">
+            <h2 class="greeting-title" id="sched-greeting">Good morning, Dr. Abdullah 👋</h2>
+            <p class="greeting-subtitle">Here is what is happening in your clinic today.</p>
+          </div>
+
+          <!-- Premium Today Overview Hero Banner -->
+          <div id="sched-overview-hero"></div>
+
+          <!-- Key Practice Metrics Grid -->
+          <div id="sched-metrics-grid"></div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+            <div class="slbl" style="margin:0">Clinic Appointments Timeline</div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <div style="display:flex;gap:4px;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:2px 4px">
+                <button class="ref-btn" style="border:none;padding:6px 8px" onclick="window.schedPrevDay()" title="Previous day">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <input type="date" class="dt-sel" id="sched-dt" style="border:none;padding:6px 8px;font-size:13px" onchange="window.loadSched()">
+                <button class="ref-btn" style="border:none;padding:6px 8px" onclick="window.schedNextDay()" title="Next day">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+              </div>
+              <button class="ref-btn" onclick="window.schedToday()" title="Jump to Today">Today</button>
+              <button class="ref-btn" onclick="window.loadSched()" title="Refresh appointments">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="15" height="15" stroke-width="2.2"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+              </button>
+              <button class="small-btn primary" onclick="window.openSheet('new-appt')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                <span>Book Appointment</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="sched-list"><div class="ldg"><div class="spin"></div></div></div>
+        </section>
+
+        <!-- LIVE QUEUE & OVERVIEW TAB -->
+        <section id="t-queue" class="pg" style="display:none">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+            <div class="pg-title" style="margin:0">Live Practice Intelligence</div>
+            <button class="ref-btn" onclick="window.loadQueue()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="15" height="15" stroke-width="2.2"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+            </button>
+          </div>
+          <div id="queue-body"><div class="ldg"><div class="spin"></div></div></div>
+        </section>
+
+        <!-- PATIENTS TAB -->
+        <section id="t-patients" class="pg" style="display:none">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+            <div class="pg-title" style="margin:0">Patients Management</div>
+            <div style="display:flex;gap:10px">
+              <button class="small-btn" style="background:var(--purple-bg);color:var(--purple);border-color:#DDD6FE" onclick="window.openSheet('scan-file')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></svg>
+                <span>AI File Scanner</span>
+              </button>
+              <button class="small-btn primary" onclick="window.openSheet('new-patient')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                <span>New Patient</span>
+              </button>
+            </div>
+          </div>
+          <div class="srch">
+            <span class="srch-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+            <input id="pat-q" type="search" placeholder="Search by patient name, phone, or ID…" oninput="window.searchPats(this.value)">
+          </div>
+          <div id="pat-list"><div class="empty">Type above to search patients</div></div>
+        </section>
+
+        <!-- BILLING TAB -->
+        <section id="t-billing" class="pg" style="display:none">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+            <div class="pg-title" style="margin:0">Billing &amp; Invoices</div>
+            <button class="small-btn primary" onclick="window.openSheet('inv-new')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+              <span>Create Invoice</span>
+            </button>
+          </div>
+          <div class="srch" style="margin-bottom:12px">
+            <span class="srch-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+            <input id="inv-srch" type="search" placeholder="Search by patient name or invoice #…" oninput="window.renderInvoices()">
+          </div>
+          <div class="pill-row">
+            <div class="pill on" data-ifilter="all" onclick="window.setIFilter('all',this)">All Invoices</div>
+            <div class="pill" data-ifilter="unpaid" onclick="window.setIFilter('unpaid',this)">Unpaid</div>
+            <div class="pill" data-ifilter="partial" onclick="window.setIFilter('partial',this)">Partial</div>
+            <div class="pill" data-ifilter="paid" onclick="window.setIFilter('paid',this)">Paid</div>
+            <div class="pill on" id="inv-today-pill" onclick="window.toggleTodayFilter(this)">Today Only</div>
+          </div>
+          <div id="inv-list"><div class="ldg"><div class="spin"></div></div></div>
+        </section>
+
+        <!-- CLINICAL TAB -->
+        <section id="t-clinical" class="pg" style="display:none">
+          <div class="pg-title">Clinical Dental Chart &amp; Records</div>
+          <div class="srch">
+            <span class="srch-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+            <input id="cl-q" type="search" placeholder="Search patient to view odontogram and treatments…" oninput="window.srchCL(this.value)">
+          </div>
+          <div id="cl-pres" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden;display:none;margin-bottom:14px;box-shadow:var(--shadow-md)"></div>
+          <div id="cl-body"><div class="empty">Search for a patient above to load dental chart and clinical history</div></div>
+        </section>
+
+        <!-- MORE MODULES TAB -->
+        <section id="t-more" class="pg" style="display:none">
+          <div class="pg-title">Practice Management Tools</div>
+          <div class="more-grid">
+            <button id="btn-reports" class="more-btn" onclick="window.openSheet('reports')">
+              <div class="more-ico" style="background:var(--teal-dim);color:var(--teal)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg></div>
+              <div><div class="more-lbl">Financial &amp; Clinical Analytics</div><div class="more-sub">Revenue, profit, treatment metrics &amp; stats</div></div>
+            </button>
+            <button id="btn-staff" class="more-btn" onclick="window.openSheet('staff-mgmt')">
+              <div class="more-ico" style="background:var(--purple-bg);color:var(--purple)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+              <div><div class="more-lbl">Staff &amp; Role Permissions</div><div class="more-sub">Manage dentists, assistants &amp; receptionists</div></div>
+            </button>
+            <button class="more-btn" onclick="window.openSheet('services')">
+              <div class="more-ico" style="background:var(--success-bg);color:var(--success)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+              <div><div class="more-lbl">Procedures &amp; Price Catalog</div><div class="more-sub">Manage default treatment fees and services</div></div>
+            </button>
+            <button id="btn-expenses" class="more-btn" onclick="window.openSheet('expenses')">
+              <div class="more-ico" style="background:var(--warning-bg);color:var(--warning)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M6 12h12"/></svg></div>
+              <div><div class="more-lbl">Operating Clinic Expenses</div><div class="more-sub">Track clinic rent, supplies, lab fees &amp; costs</div></div>
+            </button>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <nav id="nav">
+      <button class="nb on" data-t="sched" onclick="window.sw('sched')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <span>Schedule</span>
+      </button>
+      <button class="nb" data-t="queue" onclick="window.sw('queue')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Queue</span>
+      </button>
+      <button class="nb" data-t="patients" onclick="window.sw('patients')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+        <span>Patients</span>
+      </button>
+      <button class="nb" data-t="billing" onclick="window.sw('billing')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+        <span>Billing</span>
+      </button>
+      <button class="nb" data-t="clinical" onclick="window.sw('clinical')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3C9.8 3 8 4.3 7.5 6C6.7 5.5 5.5 5.6 4.8 6.5C4 7.5 4.5 9 5.3 9.8C5.6 10.1 5.7 10.5 5.7 11C5.7 14 7.5 17 9.2 18.8L9.7 20.5C9.9 21.4 10.6 22 11.5 22H12.5C13.4 22 14.1 21.4 14.3 20.5L14.8 18.8C16.5 17 18.3 14 18.3 11C18.3 10.5 18.4 10.1 18.7 9.8C19.5 9 20 7.5 19.2 6.5C18.5 5.6 17.3 5.5 16.5 6C16 4.3 14.2 3 12 3Z"/><path d="M10 10.5L11.5 12L15 8.5"/></svg>
+        <span>Clinical</span>
+      </button>
+      <button class="nb" data-t="more" onclick="window.sw('more')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg>
+        <span>More</span>
+      </button>
+    </nav>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MODAL DRAWERS & SLIDE-IN SHEETS
+══════════════════════════════════════════ -->
+
+<!-- Patient Detail Sheet -->
+<div class="sheet" id="sh-patient">
+  <div class="sh-hdr">
+    <button class="back" onclick="window.closeSheet('patient')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div style="flex:1"><div id="sh-pat-name" class="sh-title">Patient Profile</div><div id="sh-pat-num" class="sh-sub"></div></div>
+    <button class="sh-action-btn" onclick="window.openEditPat()">Edit Patient</button>
+  </div>
+  <div id="sh-pat-body" style="padding-bottom:40px"></div>
+</div>
+
+<!-- Edit Patient Sheet -->
+<div class="sheet" id="sh-edit-patient">
+  <div class="sh-hdr">
+    <button class="back" onclick="window.closeSheet('edit-patient')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div style="flex:1"><div class="sh-title">Edit Patient Profile</div></div>
+    <button class="sh-danger-btn" onclick="window.deletePatient()">Delete</button>
+  </div>
+  <div class="pg" style="padding:20px 20px 40px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="ff"><label>First Name *</label><input id="ep-fname" type="text"></div>
+      <div class="ff"><label>Last Name</label><input id="ep-lname" type="text"></div>
+    </div>
+    <div class="ff"><label>Phone Number</label><input id="ep-phone" type="tel" dir="ltr"></div>
+    <div class="ff"><label>Email Address</label><input id="ep-email" type="email"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="ff"><label>Date of Birth</label><input id="ep-dob" type="date"></div>
+      <div class="ff"><label>Gender</label><select id="ep-gender"><option value="">—</option><option>Male</option><option>Female</option></select></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="ff"><label>City / Location</label><input id="ep-city" type="text"></div>
+      <div class="ff"><label>Blood Type</label><select id="ep-blood"><option value="">—</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div>
+    </div>
+    <div class="ff"><label>Known Medical Allergies</label><select id="ep-allergies"><option value="">None</option><option>Penicillin</option><option>Latex</option><option>Aspirin / NSAIDs</option><option>Local Anesthetics</option><option>Codeine / Opioids</option><option>Iodine / Antiseptics</option></select></div>
+    <div class="ff"><label>Medical Conditions</label><select id="ep-conditions"><option value="">None</option><option>Diabetes</option><option>Hypertension</option><option>Heart Disease</option><option>Blood Clotting Disorder</option><option>Osteoporosis</option><option>Asthma</option></select></div>
+    <div class="ff"><label>Current Medications</label><textarea id="ep-medications"></textarea></div>
+    <div class="ff"><label>General Notes</label><textarea id="ep-notes"></textarea></div>
+    <button class="btn-primary" style="border-radius:var(--r-md);padding:14px" onclick="window.saveEditPat()">Save Changes</button>
+  </div>
+</div>
+
+<!-- Invoice Detail Sheet -->
+<div class="sheet" id="sh-inv">
+  <div class="sh-hdr">
+    <button class="back" onclick="window.closeSheet('inv')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div style="flex:1"><div id="sh-inv-title" class="sh-title">Invoice</div><div id="sh-inv-sub" class="sh-sub"></div></div>
+    <button id="inv-edit-btn" class="sh-action-btn" onclick="window.openEditInv()">Edit Invoice</button>
+  </div>
+  <div id="sh-inv-body" style="padding-bottom:40px"></div>
+</div>
+
+<!-- New Invoice Sheet -->
+<div class="sheet" id="sh-inv-new">
+  <div class="sh-hdr">
+    <button class="back" onclick="window.closeSheet('inv-new')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="sh-title">Create New Invoice</div>
+  </div>
+  <div class="pg" style="padding:20px 20px 40px">
+    <div class="ff">
+      <label>Select Patient</label>
+      <div class="srch" style="margin-bottom:6px">
+        <span class="srch-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+        <input id="ni-psrch" type="search" placeholder="Type to search patient name…" oninput="window.srchNI(this.value)">
+      </div>
+      <div id="ni-pres" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden;display:none;margin-bottom:6px;box-shadow:var(--shadow-md)"></div>
+      <div id="ni-psel" style="background:var(--teal-dim);border:1px solid var(--teal-low);border-radius:var(--r-md);padding:12px 14px;display:none">
+        <div style="font-size:10px;color:var(--teal-dark);text-transform:uppercase;letter-spacing:0.6px;font-weight:700;margin-bottom:2px">Selected Patient</div>
+        <div id="ni-pname" style="font-weight:700;font-size:14px;color:var(--navy)"></div>
+      </div>
+    </div>
+    <div class="ff"><label>Invoice Notes</label><textarea id="ni-notes" placeholder="Optional notes for the invoice…"></textarea></div>
+    <div id="ni-items" style="margin-bottom:16px">
+      <div class="sec-hdr"><div class="slbl" style="margin:0">Line Items</div><button class="small-btn primary" onclick="window.addNIItem()">+ Add Item</button></div>
+      <div id="ni-item-rows"></div>
+    </div>
+    <div style="background:var(--surface);border-radius:var(--r-lg);padding:16px 20px;margin-bottom:20px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;box-shadow:var(--shadow-sm)">
+      <div style="font-size:12px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.8px">Total Amount</div>
+      <div id="ni-total" style="font-size:24px;font-weight:800;color:var(--navy);font-family:var(--font-mono)">EGP 0.00</div>
+    </div>
+    <button class="btn-primary" style="border-radius:var(--r-md);padding:14px" onclick="window.submitInvoice()">Generate &amp; Save Invoice</button>
+  </div>
+</div>
+
+<!-- New Appointment Sheet -->
+<div class="sheet" id="sh-new-appt">
+  <div class="sh-hdr">
+    <button class="back" onclick="window.closeSheet('new-appt')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="sh-title">Book New Appointment</div>
+  </div>
+  <div class="pg" style="padding:20px 20px 40px">
+    <div class="ff">
+      <label>Patient Selection</label>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button id="na-tab-existing" onclick="window.naSetMode('existing')" style="flex:1;padding:10px;border-radius:var(--r-md);font-size:12px;font-weight:700;background:var(--teal);color:#fff;border:1px solid var(--teal);cursor:pointer;transition:all .15s">Existing Patient</button>
+        <button id="na-tab-new" onclick="window.naSetMode('new')" style="flex:1;padding:10px;border-radius:var(--r-md);font-size:12px;font-weight:700;background:var(--surface);color:var(--text-muted);border:1px solid var(--border);cursor:pointer;transition:all .15s">New Patient</button>
+      </div>
+      <div id="na-existing-fields">
+        <div class="srch" style="margin-bottom:6px">
+          <span class="srch-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+          <input id="na-psrch" type="text" placeholder="Search patient name or ID…" oninput="window.srchNA(this.value)">
+        </div>
+        <div id="na-pres" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden;display:none;margin-bottom:6px;box-shadow:var(--shadow-md)"></div>
+        <div id="na-psel" style="background:var(--teal-dim);border:1px solid var(--teal-low);border-radius:var(--r-md);padding:12px 14px;display:none">
+          <div style="font-size:10px;color:var(--teal-dark);text-transform:uppercase;letter-spacing:0.6px;font-weight:700;margin-bottom:2px">Selected Patient</div>
+          <div id="na-pname" style="font-weight:700;font-size:14px;color:var(--navy)"></div>
+        </div>
+      </div>
+      <div id="na-new-fields" style="display:none">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div class="ff" style="margin:0"><label>First Name *</label><input id="na-new-fname" type="text" placeholder="First name"></div>
+          <div class="ff" style="margin:0"><label>Last Name *</label><input id="na-new-lname" type="text" placeholder="Last name"></div>
+        </div>
+        <div class="ff" style="margin-bottom:10px"><label>Phone Number</label><input id="na-new-phone" type="tel" dir="ltr" placeholder="010XXXXXXXX"></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="ff"><label>Date</label><input type="date" id="na-date"></div>
+      <div class="ff"><label>Time</label><input type="time" id="na-time"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="ff"><label>Procedure Type</label><select id="na-type"><option>General Checkup</option><option>Dental Cleaning / Scaling</option><option>Composite Filling</option><option>Surgical Extraction</option><option>Root Canal Treatment</option><option>Crown / Bridge</option><option>Teeth Whitening</option><option>Orthodontic Consultation</option><option>Dental Emergency</option><option>Other</option></select></div>
+      <div class="ff"><label>Expected Duration</label><select id="na-dur"><option value="15">15 minutes</option><option value="30" selected>30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option><option value="90">90 minutes</option></select></div>
+    </div>
+    <div class="ff"><label>Appointment Notes</label><input type="text" id="na-notes" placeholder="e.g. Toothache lower right, follow-up…"></div>
+    <button class="btn-primary" style="border-radius:var(--r-md);padding:14px" onclick="window.submitAppt()">Confirm &amp; Book Appointment</button>
+  </div>
+</div>
+
+<!-- New Patient Sheet -->
+<div class="sheet" id="sh-new-patient">
+  <div class="sh-hdr">
+    <button class="back" onclick="window.closeSheet('new-patient')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="sh-title">Register New Patient</div>
+  </div>
+  <div class="pg" style="padding:20px 20px 40px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="ff"><label>First Name *</label><input id="np-fname" type="text"></div>
+      <div class="ff"><label>Last Name</label><input id="np-lname" type="text"></div>
+    </div>
+    <div class="ff"><label>Phone Number</label><input id="np-phone" type="tel" dir="ltr" placeholder="010XXXXXXXX"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="ff"><label>Age</label><input id="np-age" type="number" min="0" max="120" placeholder="Years"></div>
+      <div class="ff"><label>Gender</label><select id="np-gender"><option value="">—</option><option>Male</option><option>Female</option></select></div>
+    </div>
+    <div class="ff"><label>Medical Allergies</label><select id="np-allergies"><option value="">None</option><option>Penicillin</option><option>Latex</option><option>Aspirin / NSAIDs</option><option>Local Anesthetics</option><option>Codeine / Opioids</option><option>Iodine / Antiseptics</option></select></div>
+    <div class="ff"><label>Medical Conditions</label><select id="np-conditions"><option value="">None</option><option>Diabetes</option><option>Hypertension</option><option>Heart Disease</option><option>Blood Clotting Disorder</option><option>Osteoporosis</option><option>Asthma</option></select></div>
+    <div class="ff"><label>Initial Clinical Notes</label><textarea id="np-notes" placeholder="Chief complaint, dental history…"></textarea></div>
+    <button class="btn-primary" style="border-radius:var(--r-md);padding:14px" onclick="window.submitNewPatient()">Create Patient Record</button>
+  </div>
+</div>
+
+<!-- Scan Patient File Sheet (AI Vision) -->
+<div class="sheet" id="sh-scan-file">
+  <div class="sh-hdr">
+    <button class="back" onclick="window.closeScanSheet()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="sh-title">AI Patient File Scanner</div>
+  </div>
+  <div class="pg" style="padding:20px 20px 40px">
+    <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px;line-height:1.6">
+      Capture or upload a photo of a handwritten dental file. AI vision will transcribe the handwriting, extract demographics, medical history, diagnosis, and pre-fill a new patient record.
+    </div>
+
+    <div id="scan-drop" style="border:2px dashed var(--border);border-radius:var(--r-lg);padding:24px 16px;text-align:center;cursor:pointer;background:var(--surface);transition:border-color .15s" onclick="document.getElementById('scan-file-input').click()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--teal)" width="36" height="36" stroke-width="1.8" style="margin:0 auto 10px;display:block"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      <div style="font-size:14px;font-weight:700;color:var(--navy)">Tap to capture or upload Page 1</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:4px">Camera or photo library · JPG/PNG</div>
+    </div>
+    <input id="scan-file-input" type="file" accept="image/*" capture="environment" style="display:none" onchange="window.onScanFileChange(event)">
+
+    <div id="scan-preview-wrap" style="display:none;margin-top:14px">
+      <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:6px">PAGE 1 PREVIEW</div>
+      <img id="scan-preview-img" style="width:100%;border-radius:var(--r-md);border:1px solid var(--border);display:block">
+      <button class="small-btn" style="margin-top:8px" onclick="document.getElementById('scan-file-input').click()">Retake Photo</button>
+    </div>
+
+    <div id="scan-add-page2-wrap" style="display:none;margin-top:12px">
+      <button class="small-btn" onclick="document.getElementById('scan-file-input-2').click()">+ Add Page 2 (if file has two sides)</button>
+    </div>
+    <input id="scan-file-input-2" type="file" accept="image/*" capture="environment" style="display:none" onchange="window.onScanFileChange2(event)">
+    
+    <div id="scan-preview-wrap-2" style="display:none;margin-top:14px">
+      <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:6px">PAGE 2 PREVIEW</div>
+      <img id="scan-preview-img-2" style="width:100%;border-radius:var(--r-md);border:1px solid var(--border);display:block">
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="small-btn" style="flex:1" onclick="document.getElementById('scan-file-input-2').click()">Retake Page 2</button>
+        <button class="small-btn" style="flex:1;color:var(--error)" onclick="window.removeScanPage2()">Remove Page 2</button>
+      </div>
+    </div>
+
+    <button id="scan-analyze-btn" class="btn-primary" style="border-radius:var(--r-md);padding:14px;margin-top:16px;display:none" onclick="window.analyzeScanFile()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+      <span>Extract Data with AI Vision</span>
+    </button>
+    
+    <div id="scan-status" style="font-size:13px;color:var(--teal-dark);font-weight:600;margin-top:12px;display:none"></div>
+
+    <div id="scan-result-wrap" style="display:none;margin-top:20px">
+      <div class="slbl">Review &amp; Confirm Extracted Information</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="ff"><label>First Name *</label><input id="scan-fname" type="text"></div>
+        <div class="ff"><label>Last Name</label><input id="scan-lname" type="text"></div>
+      </div>
+      <div class="ff"><label>Phone</label><input id="scan-phone" type="tel" dir="ltr"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="ff"><label>Age</label><input id="scan-age" type="number" min="0" max="120"></div>
+        <div class="ff"><label>Gender</label><select id="scan-gender"><option value="">—</option><option>Male</option><option>Female</option></select></div>
+      </div>
+      <div class="ff"><label>Medical Allergies</label><input id="scan-allergies" type="text"></div>
+      <div class="ff"><label>Medical Conditions</label><input id="scan-conditions" type="text"></div>
+      <div class="ff"><label>Extracted Notes</label><textarea id="scan-notes"></textarea></div>
+      <div class="ff"><label>Chief Complaint / Diagnosis</label><textarea id="scan-diagnosis"></textarea></div>
+      <div class="ff"><label>Treatment Procedure</label><input id="scan-procedure" type="text"></div>
+      <button class="btn-primary" style="border-radius:var(--r-md);padding:14px" onclick="window.createPatientFromScan()">Confirm &amp; Create Patient Record</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reports Sheet -->
+<div class="sheet" id="sh-reports">
+  <div class="sh-hdr">
+    <button class="back" onclick="window.closeSheet('reports')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="sh-title">Practice Performance &amp; Analytics</div>
+  </div>
+  <div id="sh-rep-body" class="pg" style="padding:20px 20px 40px"><div class="ldg"><div class="spin"></div></div></div>
+</div>
+
+<!-- Services Catalog Sheet -->
+<div class="sheet" id="sh-services">
+  <div class="sh-hdr">
+    <button class="back" onclick="window.closeSheet('services')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div style="flex:1"><div class="sh-title">Dental Procedures &amp; Fees</div></div>
+    <button class="sh-action-btn" onclick="window.openAddService()">+ Add Service</button>
+  </div>
+  <div id="sh-services-body" class="pg" style="padding:20px 20px 40px"><div class="ldg"><div class="spin"></div></div></div>
+</div>
+
+<!-- Service Edit Sheet -->
+<div class="sheet" id="sh-service-edit">
+  <div class="sh-hdr">
+    <button class="back" onclick="window.closeSheet('service-edit')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="sh-title" id="service-edit-title">New Dental Service</div>
+  </div>
+  <div class="pg" style="padding:20px 20px 40px">
+    <div class="ff"><label>Service Name</label><input id="svc-name" type="text" placeholder="e.g. Composite Restoration"></div>
+    <div class="ff"><label>Default Fee (EGP)</label><input id="svc-price" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00"></div>
+    <div class="ff"><label>Category</label><select id="svc-cat"><option value="General">General</option><option value="Preventive">Preventive</option><option value="Restorative">Restorative</option><option value="Surgical">Surgical</option><option value="Endodontic">Endodontic</option><option value="Prosthetic">Prosthetic</option><option value="Cosmetic">Cosmetic</option><option value="Diagnostic">Diagnostic</option><option value="Other">Other</option></select></div>
+    <button class="btn-primary" style="border-radius:var(--r-md);padding:14px" onclick="window.saveService()">Save Service to Price List</button>
+    <button id="svc-delete-btn" onclick="window.deleteService()" class="btn-danger" style="display:none">Remove Service</button>
+  </div>
+</div>
+
+<!-- Staff Management Sheet -->
+<div class="sheet" id="sh-staff-mgmt">
+  <div class="sh-hdr">
+    <button class="back" onclick="window.closeSheet('staff-mgmt')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div style="flex:1"><div class="sh-title">Staff &amp; Role Management</div></div>
+    <button class="sh-action-btn" onclick="window.openAddStaff()">+ Add Staff</button>
+  </div>
+  <div id="sh-staff-mgmt-body" class="pg" style="padding:20px 20px 40px"><div class="ldg"><div class="spin"></div></div></div>
+</div>
+
+<!-- Staff Edit Sheet -->
+<div class="sheet" id="sh-staff-edit">
+  <div class="sh-hdr">
+    <button class="back" onclick="window.closeSheet('staff-edit')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="sh-title" id="staff-edit-title">New Staff Member</div>
+  </div>
+  <div class="pg" style="padding:20px 20px 40px">
+    <div class="ff"><label>Full Name</label><input id="stf-name" type="text" placeholder="Dr. Ahmed Ali"></div>
+    <div class="ff"><label>Username (login identifier)</label><input id="stf-user" type="text" placeholder="ahmed.ali" autocapitalize="none"></div>
+    <div class="ff"><label>Staff Role</label><select id="stf-role"><option value="admin">Admin</option><option value="dentist">Dentist</option><option value="assistant" selected>Assistant</option><option value="receptionist">Receptionist</option></select></div>
+    <div class="ff"><label>Phone Number</label><input id="stf-phone" type="tel" dir="ltr" placeholder="010XXXXXXXX"></div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;margin-bottom:16px;box-shadow:var(--shadow-sm)">
+      <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:12px;letter-spacing:0.6px;text-transform:uppercase">
+        Authentication Credentials
+      </div>
+      <div class="ff" style="margin-bottom:10px"><label>Password</label><input id="stf-pass" type="password" placeholder="Enter password"></div>
+      <div class="ff" style="margin-bottom:0"><label>Confirm Password</label><input id="stf-pass2" type="password" placeholder="Repeat password"></div>
+    </div>
+    <div id="stf-status-row" style="display:none;margin-bottom:16px">
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;font-weight:600;color:var(--navy)">
+        <input type="checkbox" id="stf-active" style="width:18px;height:18px;accent-color:var(--teal)"> Account Active (permitted to login)
+      </label>
+    </div>
+    <button class="btn-primary" style="border-radius:var(--r-md);padding:14px" onclick="window.saveStaff()">Save Staff Member</button>
+    <button id="stf-delete-btn" onclick="window.deleteStaff()" class="btn-danger" style="display:none">Remove Staff Member</button>
+  </div>
+</div>
+
+<!-- Appointment Detail Sheet -->
+<div class="sheet" id="sh-appt-detail">
+  <div class="sh-hdr">
+    <button class="back" onclick="window.closeSheet('appt-detail')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div style="flex:1"><div id="sh-appt-title" class="sh-title">Appointment</div><div id="sh-appt-sub" class="sh-sub"></div></div>
+  </div>
+  <div id="sh-appt-body" class="pg" style="padding-bottom:40px"></div>
+</div>
+
+<!-- Edit Treatment Sheet -->
+<div class="sheet" id="sh-edit-tx">
+  <div class="sh-hdr">
+    <button class="back" onclick="window.closeSheet('edit-tx')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div style="flex:1"><div class="sh-title">Edit Treatment Record</div></div>
+    <button class="sh-danger-btn" onclick="window.deleteTx()">Delete</button>
+  </div>
+  <div class="pg" style="padding:20px 20px 40px">
+    <div class="ff"><label>Procedure Name</label><input id="etx-name" type="text"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="ff"><label>Tooth # (FDI)</label><input id="etx-tooth" type="number" placeholder="Tooth number"></div>
+      <div class="ff"><label>Cost (EGP)</label><input id="etx-cost" type="number" inputmode="decimal" step="0.01" min="0"></div>
+    </div>
+    <div class="ff"><label>Date Performed</label><input id="etx-date" type="date"></div>
+    <div class="ff"><label>Diagnosis &amp; Notes</label><textarea id="etx-notes"></textarea></div>
+    <button class="btn-primary" style="border-radius:var(--r-md);padding:14px" onclick="window.saveEditTx()">Save Changes</button>
+  </div>
+</div>
+
+<!-- Edit Invoice Sheet -->
+<div class="sheet" id="sh-edit-inv">
+  <div class="sh-hdr">
+    <button class="back" onclick="window.closeSheet('edit-inv')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div style="flex:1"><div class="sh-title">Edit Invoice Record</div></div>
+    <button class="sh-danger-btn" onclick="window.deleteInv()">Delete</button>
+  </div>
+  <div class="pg" style="padding:20px 20px 40px">
+    <div class="ff"><label>Invoice Notes</label><textarea id="einv-notes"></textarea></div>
+    <div class="ff"><label>Payment Status</label><select id="einv-status"><option value="unpaid">Unpaid</option><option value="partial">Partial</option><option value="paid">Paid</option></select></div>
+    <div id="einv-items-section" style="margin-bottom:16px">
+      <div class="sec-hdr"><div class="slbl" style="margin:0">Line Items</div><button class="small-btn primary" onclick="window.addEditInvItem()">+ Add Item</button></div>
+      <div id="einv-item-rows"></div>
+    </div>
+    <div style="background:var(--surface);border-radius:var(--r-lg);padding:16px 20px;margin-bottom:20px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:12px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.8px">Recalculated Total</div>
+      <div id="einv-total" style="font-size:24px;font-weight:800;color:var(--navy);font-family:var(--font-mono)">EGP 0.00</div>
+    </div>
+    <button class="btn-primary" style="border-radius:var(--r-md);padding:14px" onclick="window.saveEditInv()">Save Changes</button>
+  </div>
+</div>
+
+<!-- Expenses Sheet -->
+<div class="sheet" id="sh-expenses">
+  <div class="sh-hdr">
+    <button class="back" onclick="window.closeSheet('expenses')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div style="flex:1"><div class="sh-title">Clinic Operating Expenses</div><div id="exp-month-sub" class="sh-sub"></div></div>
+    <button class="sh-action-btn" onclick="window.openAddExpense()">+ Record Expense</button>
+  </div>
+  <div class="pg" style="padding:20px 20px 40px">
+    <div style="display:flex;gap:10px;margin-bottom:18px;align-items:center">
+      <input type="month" id="exp-month" class="dt-sel" style="flex:1" onchange="window.loadExpenses()">
+      <button class="ref-btn" onclick="window.loadExpenses()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="15" height="15" stroke-width="2.2"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10M23 14l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+      </button>
+    </div>
+    <div id="exp-summary" style="margin-bottom:16px"></div>
+    <div id="exp-list"><div class="ldg"><div class="spin"></div></div></div>
+  </div>
+</div>
+
+<!-- Expense Edit Sheet -->
+<div class="sheet" id="sh-expense-edit">
+  <div class="sh-hdr">
+    <button class="back" onclick="window.closeSheet('expense-edit')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div style="flex:1"><div class="sh-title" id="exp-edit-title">Add Expense</div></div>
+    <button id="exp-delete-btn" onclick="window.deleteExpense()" class="sh-danger-btn" style="display:none">Delete</button>
+  </div>
+  <div class="pg" style="padding:20px 20px 40px">
+    <div class="ff"><label>Expense Category</label><select id="exp-cat"><option value="Rent">Clinic Rent</option><option value="Electricity">Electricity &amp; Utilities</option><option value="Water">Water &amp; Sanitation</option><option value="Salaries">Staff Salaries</option><option value="Supplies">Dental Consumables &amp; Supplies</option><option value="Maintenance">Equipment Maintenance</option><option value="Marketing">Marketing &amp; Advertising</option><option value="Medical Equipment">Medical Instruments / Devices</option><option value="Miscellaneous">Miscellaneous</option><option value="Other">Other Expenses</option></select></div>
+    <div class="ff"><label>Amount (EGP)</label><input id="exp-amount" type="number" inputmode="decimal" step="0.01" min="0" placeholder="0.00"></div>
+    <div class="ff"><label>Date Incurred</label><input id="exp-date" type="date"></div>
+    <div class="ff"><label>Details / Supplier Notes</label><textarea id="exp-notes" placeholder="Invoice #, vendor name, notes…"></textarea></div>
+    <input id="exp-title" type="hidden">
+    <button class="btn-primary" style="border-radius:var(--r-md);padding:14px" onclick="window.saveExpense()">Save Expense</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Bootstrap Client Application -->
+<script type="module" src="./src/main.js"></script>
+
+</body>
+</html>

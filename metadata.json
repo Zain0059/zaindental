@@ -1,0 +1,6 @@
+{
+  "name": "Zain Dental Clinic",
+  "description": "A modern premium dental SaaS and dental practice management system for scheduling, patients, billing, clinical records, expenses, and AI file scanning.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
