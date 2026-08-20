@@ -24,7 +24,7 @@
 <div id="login">
   <div class="login-lang-wrap">
     <button class="lang-toggle-btn" onclick="window.toggleLanguage()" title="Switch Language / تغيير اللغة">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
       <span class="lang-label">English</span>
     </button>
   </div>
@@ -128,7 +128,7 @@
     <div class="sidebar-footer">
       <div style="margin-bottom:12px;display:flex;justify-content:center">
         <button class="lang-toggle-btn" onclick="window.toggleLanguage()" style="width:100%;justify-content:center">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
           <span class="lang-label">English</span>
         </button>
       </div>
@@ -150,7 +150,7 @@
     <!-- Top Header -->
     <header id="hdr">
       <div id="hdr-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 3C9.8 3 8 4.3 7.5 6C6.7 5.5 5.5 5.6 4.8 6.5C4 7.5 4.5 9 5.3 9.8C5.6 10.1 5.7 10.5 5.7 11C5.7 14 7.5 17 9.2 18.8L9.7 20.5C9.9 21.4 10.6 22 11.5 22H12.5C13.4 22 14.1 21.4 14.3 20.5L14.8 18.8C16.5 17 18.3 14 18.3 11C18.3 10.5 18.4 10.1 18.7 9.8C19.5 9 20 7.5 19.2 6.5C18.5 5.6 17.3 5.5 16.5 6C16 4.3 14.2 3 12 3Z"/>
           <path d="M10 10.5L11.5 12L15 8.5" stroke-width="1.8"/>
         </svg>
@@ -158,7 +158,7 @@
       </div>
       <div id="hdr-right">
         <button class="lang-toggle-btn" onclick="window.toggleLanguage()" title="Switch Language / تغيير اللغة">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
           <span class="lang-label">English</span>
         </button>
         <span id="hdr-user">د. عبد الله زين</span>
@@ -173,8 +173,8 @@
         <!-- SCHEDULE TAB -->
         <section id="t-sched" class="pg">
           <div class="pg-header">
-            <h2 class="greeting-title" id="sched-greeting">Good morning, Dr. Abdullah 👋</h2>
-            <p class="greeting-subtitle">Here is what is happening in your clinic today.</p>
+            <h2 class="greeting-title" id="sched-greeting">مرحباً د. عبد الله 👋</h2>
+            <p class="greeting-subtitle" id="sched-subtitle" data-i18n="greeting_sub">إليك ملخص ما يحدث في عيادتك اليوم.</p>
           </div>
 
           <!-- Premium Today Overview Hero Banner -->
@@ -306,27 +306,27 @@
     <nav id="nav">
       <button class="nb on" data-t="sched" onclick="window.sw('sched')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-        <span data-i18n="nav_sched">المواعيد</span>
+        <span data-i18n="nav_sched_short">المواعيد</span>
       </button>
       <button class="nb" data-t="queue" onclick="window.sw('queue')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        <span data-i18n="nav_queue">الانتظار</span>
+        <span data-i18n="nav_queue_short">الانتظار</span>
       </button>
       <button class="nb" data-t="patients" onclick="window.sw('patients')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
-        <span data-i18n="nav_patients">المرضى</span>
+        <span data-i18n="nav_patients_short">المرضى</span>
       </button>
       <button class="nb" data-t="billing" onclick="window.sw('billing')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
-        <span data-i18n="nav_billing">الفواتير</span>
+        <span data-i18n="nav_billing_short">الفواتير</span>
       </button>
       <button class="nb" data-t="clinical" onclick="window.sw('clinical')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3C9.8 3 8 4.3 7.5 6C6.7 5.5 5.5 5.6 4.8 6.5C4 7.5 4.5 9 5.3 9.8C5.6 10.1 5.7 10.5 5.7 11C5.7 14 7.5 17 9.2 18.8L9.7 20.5C9.9 21.4 10.6 22 11.5 22H12.5C13.4 22 14.1 21.4 14.3 20.5L14.8 18.8C16.5 17 18.3 14 18.3 11C18.3 10.5 18.4 10.1 18.7 9.8C19.5 9 20 7.5 19.2 6.5C18.5 5.6 17.3 5.5 16.5 6C16 4.3 14.2 3 12 3Z"/><path d="M10 10.5L11.5 12L15 8.5"/></svg>
-        <span data-i18n="nav_clinical">المخطط</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3C9.8 3 8 4.3 7.5 6C6.7 5.5 5.6 5.6 4.8 6.5C4 7.5 4.5 9 5.3 9.8C5.6 10.1 5.7 10.5 5.7 11C5.7 14 7.5 17 9.2 18.8L9.7 20.5C9.9 21.4 10.6 22 11.5 22H12.5C13.4 22 14.1 21.4 14.3 20.5L14.8 18.8C16.5 17 18.3 14 18.3 11C18.3 10.5 18.4 10.1 18.7 9.8C19.5 9 20 7.5 19.2 6.5C18.5 5.6 17.3 5.5 16.5 6C16 4.3 14.2 3 12 3Z"/><path d="M10 10.5L11.5 12L15 8.5"/></svg>
+        <span data-i18n="nav_clinical_short">المخطط</span>
       </button>
       <button class="nb" data-t="more" onclick="window.sw('more')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg>
-        <span data-i18n="nav_more">المزيد</span>
+        <span data-i18n="nav_more_short">المزيد</span>
       </button>
     </nav>
   </div>

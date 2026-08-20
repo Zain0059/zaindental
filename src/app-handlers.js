@@ -13,6 +13,28 @@ let _editPatId = null, _editInvId = null, _editTxId = null, _editStfId = null, _
 let _allInvoices = [], _invToday = true;
 let _editInvItems = [], _editInvOrigItems = [];
 let _scanImgB64 = null, _scanImgMime = null, _scanImg2B64 = null, _scanImg2Mime = null;
+let _activeTab = "sched";
+
+export function getCurrentActiveTab() {
+  return _activeTab;
+}
+
+export function refreshCurrentView() {
+  const currentUser = getCurrentUser();
+  const hdrUser = document.getElementById("hdr-user");
+  if (hdrUser) hdrUser.textContent = currentUser?.full_name || (isAr() ? "د. عبد الله زين" : "Dr. Abdullah Zain");
+  
+  const sbUser = document.getElementById("sb-user-name");
+  if (sbUser) sbUser.textContent = currentUser?.full_name || (isAr() ? "د. عبد الله زين" : "Dr. Abdullah Zain");
+  
+  const sbRole = document.getElementById("sb-user-role");
+  if (sbRole) {
+    const r = currentUser?.role || "admin";
+    sbRole.textContent = isAr() ? (r === 'admin' ? 'مدير النظام' : r === 'dentist' ? 'طبيب أسنان' : r === 'assistant' ? 'مساعد طبيب' : 'استقبال') : r.toUpperCase();
+  }
+
+  sw(_activeTab);
+}
 
 // Authentication
 export async function doLogin() {
@@ -105,6 +127,7 @@ export function showApp() {
 
 // Navigation
 export function sw(tab) {
+  _activeTab = tab;
   ["sched", "queue", "patients", "billing", "clinical", "more"].forEach(t => {
     const el = document.getElementById("t-" + t);
     if (el) el.style.display = t === tab ? "block" : "none";
@@ -205,7 +228,12 @@ export async function loadSched() {
   const greetingEl = document.getElementById("sched-greeting");
   if (greetingEl) {
     const user = getCurrentUser();
-    greetingEl.textContent = `${timeOfDay}، ${user?.full_name || (isAr() ? "د. عبد الله" : "Dr. Abdullah")} 👋`;
+    const uName = user?.full_name || (isAr() ? "د. عبد الله" : "Dr. Abdullah");
+    greetingEl.textContent = isAr() ? `${timeOfDay}، ${uName} 👋` : `${timeOfDay}, ${uName} 👋`;
+  }
+  const subEl = document.getElementById("sched-subtitle");
+  if (subEl) {
+    subEl.textContent = isAr() ? "إليك ملخص ما يحدث في عيادتك اليوم." : "Here is what is happening in your clinic today.";
   }
 
   const el = document.getElementById("sched-list");
@@ -260,7 +288,7 @@ export async function loadSched() {
       <div class="today-hero-card">
         <div class="hero-top">
           <div>
-            <div style="font-size:17px;font-weight:700;letter-spacing:-0.2px">${isAr() ? "نظرة عامة على مواعيد العيادة اليوم" : "Today's Clinic Overview"}</div>
+            <div style="font-size:16px;font-weight:700;letter-spacing:-0.2px">${isAr() ? "نظرة عامة على مواعيد العيادة اليوم" : "Today's Clinic Overview"}</div>
             <div style="font-size:12px;color:#94A3B8;margin-top:2px">${isAr() ? "متابعة المواعيد والتدفق الفعلي للمرضى" : "Real-time schedule & patient flow"}</div>
           </div>
           <div class="hero-date-badge">
@@ -278,8 +306,8 @@ export async function loadSched() {
             <div class="hero-stat-lbl">${isAr() ? "حضور مؤكد / تم الفحص" : "Confirmed / Done"}</div>
           </div>
           <div class="hero-stat-item" style="grid-column: span 2">
-            <div style="font-size:11px;color:#94A3B8;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.5px;font-weight:700">${isAr() ? "الموعد القادم التالي" : "Next Upcoming Appointment"}</div>
-            <div style="font-size:13px;font-weight:700;color:#FFFFFF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+            <div style="font-size:11px;color:#94A3B8;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;font-weight:700">${isAr() ? "الموعد القادم التالي" : "Next Upcoming Appointment"}</div>
+            <div style="font-size:13px;font-weight:700;color:#FFFFFF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:${isAr() ? 'rtl' : 'ltr'};text-align:${isAr() ? 'right' : 'left'}">
               ${nextAppt ? `⏱ ${(nextAppt.appointment_time || "").slice(0, 5)} · ${esc(nextAppt.patients?.first_name ? nextAppt.patients.first_name + ' ' + (nextAppt.patients.last_name || '') : nextAppt.patient_name || (isAr() ? 'مريض' : 'Patient'))} (${esc(nextAppt.appt_type || (isAr() ? 'كشف عام' : 'General Treatment'))})` : (isAr() ? 'لا توجد مواعيد قادمة مجدولة' : 'No upcoming appointments scheduled')}
             </div>
           </div>

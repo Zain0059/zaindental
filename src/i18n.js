@@ -36,15 +36,21 @@ export const DICT = {
 
     // Nav Items
     nav_sched: "الجدول والمواعيد",
+    nav_sched_short: "المواعيد",
     nav_queue: "قائمة الانتظار",
+    nav_queue_short: "الانتظار",
     nav_patients: "المرضى والملفات",
+    nav_patients_short: "المرضى",
     nav_billing: "الفواتير والحسابات",
+    nav_billing_short: "الفواتير",
     nav_clinical: "مخطط الأسنان",
+    nav_clinical_short: "المخطط",
     nav_reports: "التحليلات والتقارير",
     nav_staff: "إدارة الطاقم",
     nav_services: "قائمة الأسعار",
     nav_expenses: "المصروفات والعهد",
     nav_more: "المزيد",
+    nav_more_short: "المزيد",
 
     // Schedule Tab
     today_overview: "نظرة عامة على العيادة اليوم",
@@ -327,15 +333,21 @@ export const DICT = {
 
     // Nav Items
     nav_sched: "Schedule",
+    nav_sched_short: "Schedule",
     nav_queue: "Live Queue",
+    nav_queue_short: "Queue",
     nav_patients: "Patients",
+    nav_patients_short: "Patients",
     nav_billing: "Billing & Invoices",
+    nav_billing_short: "Billing",
     nav_clinical: "Dental Chart",
+    nav_clinical_short: "Chart",
     nav_reports: "Analytics & Reports",
     nav_staff: "Staff Management",
     nav_services: "Price Catalog",
     nav_expenses: "Expenses",
     nav_more: "More",
+    nav_more_short: "More",
 
     // Schedule Tab
     today_overview: "Today's Clinic Overview",
@@ -621,8 +633,16 @@ export function setLanguage(lang) {
   applyLangToDOM();
 
   // Trigger UI re-renders if app is active
-  if (window.refreshCurrentView) {
-    window.refreshCurrentView();
+  if (typeof window !== "undefined") {
+    if (typeof window.refreshCurrentView === "function") {
+      window.refreshCurrentView();
+    } else if (typeof window.getCurrentActiveTab === "function" && typeof window.sw === "function") {
+      window.sw(window.getCurrentActiveTab());
+    } else if (typeof window.sw === "function") {
+      const activeTabEl = document.querySelector(".nb.on") || document.querySelector(".sidebar-item.on");
+      const activeTab = activeTabEl?.getAttribute("data-t") || "sched";
+      window.sw(activeTab);
+    }
   }
 }
 
@@ -635,7 +655,9 @@ export function applyLangToDOM() {
   const isArabic = _currentLang === "ar";
   document.documentElement.lang = _currentLang;
   document.documentElement.dir = isArabic ? "rtl" : "ltr";
-  document.body.classList.toggle("rtl-mode", isArabic);
+  if (document.body) {
+    document.body.classList.toggle("rtl-mode", isArabic);
+  }
 
   // Update dynamic elements marked with data-i18n
   document.querySelectorAll("[data-i18n]").forEach(el => {
@@ -663,7 +685,9 @@ export function applyLangToDOM() {
 
   // Update Language toggle buttons
   document.querySelectorAll(".lang-toggle-btn").forEach(btn => {
-    const labelSpan = btn.querySelector(".lang-label") || btn;
-    labelSpan.textContent = isArabic ? "English" : "العربية";
+    const labelSpan = btn.querySelector(".lang-label");
+    if (labelSpan) {
+      labelSpan.textContent = isArabic ? "English" : "العربية";
+    }
   });
 }
