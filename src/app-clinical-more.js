@@ -1,5 +1,6 @@
 import {
-  sb, SC, SL, MONTHS, USER, toothOpts, toast, esc, age, fmt, today, toEG
+  sb, SC, SL, MONTHS, USER, toothOpts, toast, esc, age, fmt, today, toEG,
+  getEditInvId, setEditInvId
 } from './app.js';
 import { openInv, loadInvoices, loadProcs, _procs } from './app-features.js';
 import { openSheet, closeSheet, sw } from './app-handlers.js';
@@ -426,16 +427,32 @@ export async function saveStaff() {
   }
 }
 
+let _delStaffPending = false;
+let _delStaffTimer = null;
+
 export async function deleteStaff() {
   if (!_editStfId) return;
   if (USER?.id === _editStfId) { toast("Cannot delete your currently active account ✗"); return; }
-  if (!confirm("Are you sure you want to remove this staff member?")) return;
+  const delBtn = document.querySelector("#sh-staff-edit .sh-danger-btn");
+  if (!_delStaffPending) {
+    _delStaffPending = true;
+    if (delBtn) { delBtn.textContent = "Confirm Remove?"; delBtn.style.background = "var(--error)"; delBtn.style.color = "#fff"; }
+    toast("Click again to confirm staff removal");
+    clearTimeout(_delStaffTimer);
+    _delStaffTimer = setTimeout(() => {
+      _delStaffPending = false;
+      if (delBtn) { delBtn.textContent = "Delete Staff"; delBtn.style.background = ""; delBtn.style.color = ""; }
+    }, 4000);
+    return;
+  }
+  _delStaffPending = false;
+  clearTimeout(_delStaffTimer);
   const { error } = await sb.from("staff").delete().eq("id", _editStfId);
   if (!error) {
     toast("Staff member removed ✓");
     closeSheet("staff-edit");
     loadStaffMgmt();
-  } else toast("Failed ✗");
+  } else toast("Failed: " + error.message + " ✗");
 }
 
 // Services catalog
@@ -499,16 +516,32 @@ export async function saveService() {
   } else toast("Failed: " + error.message + " ✗");
 }
 
+let _delSvcPending = false;
+let _delSvcTimer = null;
+
 export async function deleteService() {
   if (!_editSvcId) return;
-  if (!confirm("Are you sure you want to delete this service from the price list?")) return;
+  const delBtn = document.getElementById("svc-delete-btn");
+  if (!_delSvcPending) {
+    _delSvcPending = true;
+    if (delBtn) { delBtn.textContent = "Confirm Delete?"; delBtn.style.background = "var(--error)"; delBtn.style.color = "#fff"; }
+    toast("Click again to confirm deleting this service");
+    clearTimeout(_delSvcTimer);
+    _delSvcTimer = setTimeout(() => {
+      _delSvcPending = false;
+      if (delBtn) { delBtn.textContent = "Delete Service"; delBtn.style.background = ""; delBtn.style.color = ""; }
+    }, 4000);
+    return;
+  }
+  _delSvcPending = false;
+  clearTimeout(_delSvcTimer);
   const { error } = await sb.from("procedures_catalog").delete().eq("id", _editSvcId);
   if (!error) {
     toast("Service deleted ✓");
     closeSheet("service-edit");
     loadServices();
     loadProcs();
-  } else toast("Failed ✗");
+  } else toast("Failed: " + error.message + " ✗");
 }
 
 // Edit treatment & Invoice
@@ -539,22 +572,48 @@ export async function saveEditTx() {
   } else toast("Failed: " + error.message + " ✗");
 }
 
+let _delTxPending = false;
+let _delTxTimer = null;
+
 export async function deleteTx() {
   if (!_editTxId) return;
-  if (!confirm("Delete this treatment record?")) return;
+  const delBtn = document.querySelector("#sh-edit-tx .sh-danger-btn");
+  if (!_delTxPending) {
+    _delTxPending = true;
+    if (delBtn) { delBtn.textContent = "Confirm Delete?"; delBtn.style.background = "var(--error)"; delBtn.style.color = "#fff"; }
+    toast("Click again to confirm deleting treatment");
+    clearTimeout(_delTxTimer);
+    _delTxTimer = setTimeout(() => {
+      _delTxPending = false;
+      if (delBtn) { delBtn.textContent = "Delete"; delBtn.style.background = ""; delBtn.style.color = ""; }
+    }, 4000);
+    return;
+  }
+  _delTxPending = false;
+  clearTimeout(_delTxTimer);
   const { error } = await sb.from("treatments").delete().eq("id", _editTxId);
   if (!error) {
     toast("Treatment deleted ✓");
     closeSheet("edit-tx");
     if (_clPatId) loadCLPat(_clPatId, document.getElementById("cl-q").value);
-  } else toast("Failed ✗");
+  } else toast("Failed: " + error.message + " ✗");
 }
 
 // Edit Invoice
-export async function openEditInv() {
-  if (!_editInvId) return;
-  const { data: items } = await sb.from("invoice_items").select("*").eq("invoice_id", _editInvId);
-  const { data: inv } = await sb.from("invoices").select("*").eq("id", _editInvId).single();
+export async function openEditInv(optId) {
+  const invId = optId || _editInvId || getEditInvId();
+  if (!invId) {
+    toast("Please select an invoice first ✗");
+    return;
+  }
+  _editInvId = invId;
+  setEditInvId(invId);
+
+  const [{ data: items }, { data: inv }] = await Promise.all([
+    sb.from("invoice_items").select("*").eq("invoice_id", invId),
+    sb.from("invoices").select("*").eq("id", invId).single()
+  ]);
+
   _editInvItems = items ? [...items] : [];
   _editInvOrigItems = items ? [...items] : [];
   document.getElementById("einv-notes").value = inv?.notes || "";
@@ -608,41 +667,109 @@ export function calcEditInvTotal() {
 }
 
 export async function saveEditInv() {
-  if (!_editInvId) return;
-  const items = _editInvItems.filter(i => i && i.description);
-  const total = items.reduce((s, i) => s + (i.total_price || 0), 0);
-  const newStatus = document.getElementById("einv-status").value;
+  const invId = _editInvId || getEditInvId();
+  if (!invId) { toast("No invoice selected ✗"); return; }
+  const validItems = _editInvItems.filter(i => i && i.description && i.description.trim());
+  const sanitizedItems = validItems.map(it => ({
+    invoice_id: invId,
+    description: it.description.trim(),
+    quantity: parseInt(it.quantity, 10) || 1,
+    unit_price: parseFloat(it.unit_price) || 0,
+    total_price: (parseInt(it.quantity, 10) || 1) * (parseFloat(it.unit_price) || 0)
+  }));
+  const total = sanitizedItems.reduce((s, i) => s + (i.total_price || 0), 0);
+  const newStatus = document.getElementById("einv-status").value || "unpaid";
+  const notes = (document.getElementById("einv-notes")?.value || "").trim();
 
-  await sb.from("invoice_items").delete().eq("invoice_id", _editInvId);
-  if (items.length) await sb.from("invoice_items").insert(items.map(it => ({ ...it, invoice_id: _editInvId })));
-  if (newStatus === "unpaid") await sb.from("payments").delete().eq("invoice_id", _editInvId);
+  // Delete previous items and insert sanitized new ones
+  await sb.from("invoice_items").delete().eq("invoice_id", invId);
+  if (sanitizedItems.length) {
+    const { error: itemErr } = await sb.from("invoice_items").insert(sanitizedItems);
+    if (itemErr) {
+      toast("Error saving items: " + itemErr.message + " ✗");
+      return;
+    }
+  }
+  if (newStatus === "unpaid") {
+    await sb.from("payments").delete().eq("invoice_id", invId);
+  }
 
-  const invUpdate = { total_amount: total, status: newStatus, notes: document.getElementById("einv-notes").value.trim() };
+  const invUpdate = { total_amount: total, status: newStatus, notes };
   if (newStatus === "unpaid") invUpdate.paid_amount = 0;
 
-  const { error } = await sb.from("invoices").update(invUpdate).eq("id", _editInvId);
+  const { error } = await sb.from("invoices").update(invUpdate).eq("id", invId);
   if (!error) {
     toast(newStatus === "unpaid" ? "Invoice reset to unpaid ✓" : "Invoice updated ✓");
     closeSheet("edit-inv");
-    openInv(_editInvId);
+    openInv(invId);
     loadInvoices();
-  } else toast("Failed: " + error.message + " ✗");
+  } else {
+    toast("Failed to update invoice: " + error.message + " ✗");
+  }
 }
 
+let _delInvPending = false;
+let _delInvTimer = null;
+
 export async function deleteInv() {
-  if (!_editInvId) return;
-  if (!confirm("Are you sure you want to delete this invoice?")) return;
-  const { data: invItems } = await sb.from("invoice_items").select("description").eq("invoice_id", _editInvId);
-  const { data: invData } = await sb.from("invoices").select("patient_id,invoice_number").eq("id", _editInvId).single();
-  if (invData && invItems?.length) await sb.from("treatments").delete().eq("patient_id", invData.patient_id).eq("diagnosis", "Via Invoice " + (invData.invoice_number || _editInvId));
-  const { error } = await sb.from("invoices").delete().eq("id", _editInvId);
+  const invId = _editInvId || getEditInvId();
+  if (!invId) { toast("No invoice selected ✗"); return; }
+
+  const delBtn = document.querySelector("#sh-edit-inv .sh-danger-btn");
+  if (!_delInvPending) {
+    _delInvPending = true;
+    if (delBtn) {
+      delBtn.textContent = "Confirm Delete?";
+      delBtn.style.background = "var(--error)";
+      delBtn.style.color = "#fff";
+    }
+    toast("Click 'Confirm Delete?' to permanently remove this invoice");
+    clearTimeout(_delInvTimer);
+    _delInvTimer = setTimeout(() => {
+      _delInvPending = false;
+      if (delBtn) {
+        delBtn.textContent = "Delete";
+        delBtn.style.background = "";
+        delBtn.style.color = "";
+      }
+    }, 4500);
+    return;
+  }
+
+  // Confirmed delete
+  _delInvPending = false;
+  clearTimeout(_delInvTimer);
+  if (delBtn) {
+    delBtn.textContent = "Deleting…";
+    delBtn.disabled = true;
+  }
+
+  const { data: invItems } = await sb.from("invoice_items").select("description").eq("invoice_id", invId);
+  const { data: invData } = await sb.from("invoices").select("patient_id,invoice_number").eq("id", invId).single();
+  if (invData && invItems?.length) {
+    await sb.from("treatments").delete().eq("patient_id", invData.patient_id).eq("diagnosis", "Via Invoice " + (invData.invoice_number || invId));
+  }
+  await sb.from("payments").delete().eq("invoice_id", invId);
+  await sb.from("invoice_items").delete().eq("invoice_id", invId);
+  const { error } = await sb.from("invoices").delete().eq("id", invId);
+
+  if (delBtn) {
+    delBtn.disabled = false;
+    delBtn.textContent = "Delete";
+    delBtn.style.background = "";
+    delBtn.style.color = "";
+  }
+
   if (!error) {
     toast("Invoice deleted ✓");
     closeSheet("edit-inv");
     closeSheet("inv");
     _editInvId = null;
+    setEditInvId(null);
     loadInvoices();
-  } else toast("Failed ✗");
+  } else {
+    toast("Failed: " + error.message + " ✗");
+  }
 }
 
 // Expenses
@@ -729,15 +856,31 @@ export async function saveExpense() {
   } else toast("Failed: " + error.message + " ✗");
 }
 
+let _delExpPending = false;
+let _delExpTimer = null;
+
 export async function deleteExpense() {
   if (!_editExpId) return;
-  if (!confirm("Delete this expense entry?")) return;
+  const delBtn = document.getElementById("exp-delete-btn");
+  if (!_delExpPending) {
+    _delExpPending = true;
+    if (delBtn) { delBtn.textContent = "Confirm Delete?"; delBtn.style.background = "var(--error)"; delBtn.style.color = "#fff"; }
+    toast("Click again to confirm deleting this expense");
+    clearTimeout(_delExpTimer);
+    _delExpTimer = setTimeout(() => {
+      _delExpPending = false;
+      if (delBtn) { delBtn.textContent = "Delete Expense"; delBtn.style.background = ""; delBtn.style.color = ""; }
+    }, 4000);
+    return;
+  }
+  _delExpPending = false;
+  clearTimeout(_delExpTimer);
   const { error } = await sb.from("clinic_expenses").delete().eq("id", _editExpId);
   if (!error) {
     toast("Expense deleted ✓");
     closeSheet("expense-edit");
     loadExpenses();
-  } else toast("Failed ✗");
+  } else toast("Failed: " + error.message + " ✗");
 }
 
 // AI File Scanner

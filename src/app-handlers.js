@@ -1,8 +1,8 @@
 import {
-  sb, SC, SL, MONTHS, USER, sha256, toothOpts, toast, esc, age, fmt, today, toEG, sendWA
+  sb, SC, SL, MONTHS, USER, sha256, toothOpts, toast, esc, age, fmt, today, toEG, sendWA,
+  getCurrentUser, setCurrentUser, isAdmin
 } from './app.js';
 
-let currentUser = USER;
 let _niPatId = null, _naPatId = null, _clPatId = null, _invFilter = "all";
 let _niItems = [], _procs = [], _naMode = "existing";
 let _tmrs = {};
@@ -30,8 +30,7 @@ export async function doLogin() {
       if (btn) { btn.textContent = "Sign In to Portal"; btn.disabled = false; }
       return;
     }
-    currentUser = data;
-    localStorage.setItem("zd_user", JSON.stringify(currentUser));
+    setCurrentUser(data);
     showApp();
   } catch (e) {
     console.error("Login attempt failed:", e);
@@ -41,8 +40,7 @@ export async function doLogin() {
 }
 
 export function doLogout() {
-  currentUser = null;
-  localStorage.removeItem("zd_user");
+  setCurrentUser(null);
   location.reload();
 }
 
@@ -54,6 +52,7 @@ export function togglePassword() {
 }
 
 export function showApp() {
+  const currentUser = getCurrentUser();
   const loginEl = document.getElementById("login");
   const appEl = document.getElementById("app");
   if (loginEl) loginEl.style.display = "none";
@@ -66,7 +65,7 @@ export function showApp() {
   if (sbUser) sbUser.textContent = currentUser?.full_name || "Dr. Abdullah Zain";
   
   const sbRole = document.getElementById("sb-user-role");
-  if (sbRole) sbRole.textContent = (currentUser?.role || "Admin").toUpperCase();
+  if (sbRole) sbRole.textContent = (currentUser?.role || "Staff").toUpperCase();
 
   const sbAvatar = document.getElementById("sb-user-avatar");
   if (sbAvatar && currentUser?.full_name) {
@@ -76,20 +75,23 @@ export function showApp() {
   const schedDt = document.getElementById("sched-dt");
   if (schedDt) schedDt.value = today();
 
-  const isAdmin = currentUser?.role === "admin";
+  const isAdminUser = isAdmin();
+  
+  // Admin-only buttons in More menu
   const btnReports = document.getElementById("btn-reports");
   const btnStaff = document.getElementById("btn-staff");
   const btnExpenses = document.getElementById("btn-expenses");
-  if (btnReports) btnReports.style.display = isAdmin ? "flex" : "none";
-  if (btnStaff) btnStaff.style.display = isAdmin ? "flex" : "none";
-  if (btnExpenses) btnExpenses.style.display = isAdmin ? "flex" : "none";
+  if (btnReports) btnReports.style.display = isAdminUser ? "flex" : "none";
+  if (btnStaff) btnStaff.style.display = isAdminUser ? "flex" : "none";
+  if (btnExpenses) btnExpenses.style.display = isAdminUser ? "flex" : "none";
 
+  // Admin-only items in Sidebar
   const sbReports = document.getElementById("sb-item-reports");
   const sbStaff = document.getElementById("sb-item-staff");
   const sbExpenses = document.getElementById("sb-item-expenses");
-  if (sbReports) sbReports.style.display = isAdmin ? "flex" : "none";
-  if (sbStaff) sbStaff.style.display = isAdmin ? "flex" : "none";
-  if (sbExpenses) sbExpenses.style.display = isAdmin ? "flex" : "none";
+  if (sbReports) sbReports.style.display = isAdminUser ? "flex" : "none";
+  if (sbStaff) sbStaff.style.display = isAdminUser ? "flex" : "none";
+  if (sbExpenses) sbExpenses.style.display = isAdminUser ? "flex" : "none";
 
   loadProcs();
   sw("sched");
@@ -135,7 +137,7 @@ export function sw(tab) {
 
 export function openSheet(name) {
   const adminOnlySheets = ['reports', 'staff-mgmt', 'expenses'];
-  if (adminOnlySheets.includes(name) && currentUser?.role !== 'admin') {
+  if (adminOnlySheets.includes(name) && !isAdmin()) {
     toast("Access restricted — Admin only 🔒");
     return;
   }
@@ -189,7 +191,8 @@ export async function loadSched() {
   const timeOfDay = hr < 12 ? "Good morning" : hr < 17 ? "Good afternoon" : "Good evening";
   const greetingEl = document.getElementById("sched-greeting");
   if (greetingEl) {
-    greetingEl.textContent = `${timeOfDay}, ${currentUser?.full_name || "Dr. Abdullah"} 👋`;
+    const user = getCurrentUser();
+    greetingEl.textContent = `${timeOfDay}, ${user?.full_name || "Dr. Abdullah"} 👋`;
   }
 
   const el = document.getElementById("sched-list");
@@ -275,30 +278,57 @@ export async function loadSched() {
   // Render Key Practice Metrics Grid
   const metricsEl = document.getElementById("sched-metrics-grid");
   if (metricsEl) {
-    metricsEl.innerHTML = `
-      <div class="sg">
-        <div class="sc sc-featured">
-          <div class="sc-ico" style="--ac:var(--teal)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg></div>
-          <div class="sc-val">${patCount || 0}</div>
-          <div class="sc-lbl">Total Registered Patients</div>
+    if (isAdmin()) {
+      metricsEl.innerHTML = `
+        <div class="sg">
+          <div class="sc sc-featured">
+            <div class="sc-ico" style="--ac:var(--teal)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg></div>
+            <div class="sc-val">${patCount || 0}</div>
+            <div class="sc-lbl">Total Registered Patients</div>
+          </div>
+          <div class="sc">
+            <div class="sc-ico" style="--ac:var(--info)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+            <div class="sc-val">${totalAppts}</div>
+            <div class="sc-lbl">Visits on This Date</div>
+          </div>
+          <div class="sc">
+            <div class="sc-ico" style="--ac:var(--success)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+            <div class="sc-val" style="color:var(--success)">EGP ${monthlyCollected.toFixed(0)}</div>
+            <div class="sc-lbl">Collected This Month</div>
+          </div>
+          <div class="sc">
+            <div class="sc-ico" style="--ac:var(--warning)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div>
+            <div class="sc-val" style="color:var(--warning)">EGP ${outstanding.toFixed(0)}</div>
+            <div class="sc-lbl">Outstanding Balance</div>
+          </div>
         </div>
-        <div class="sc">
-          <div class="sc-ico" style="--ac:var(--info)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
-          <div class="sc-val">${totalAppts}</div>
-          <div class="sc-lbl">Visits on This Date</div>
+      `;
+    } else {
+      metricsEl.innerHTML = `
+        <div class="sg">
+          <div class="sc sc-featured">
+            <div class="sc-ico" style="--ac:var(--teal)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg></div>
+            <div class="sc-val">${patCount || 0}</div>
+            <div class="sc-lbl">Total Registered Patients</div>
+          </div>
+          <div class="sc">
+            <div class="sc-ico" style="--ac:var(--info)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+            <div class="sc-val">${totalAppts}</div>
+            <div class="sc-lbl">Visits on This Date</div>
+          </div>
+          <div class="sc">
+            <div class="sc-ico" style="--ac:var(--success)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+            <div class="sc-val" style="color:var(--success)">${confirmedOrDone}</div>
+            <div class="sc-lbl">Confirmed & Completed</div>
+          </div>
+          <div class="sc">
+            <div class="sc-ico" style="--ac:var(--navy)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+            <div class="sc-val">${Math.max(0, totalAppts - confirmedOrDone)}</div>
+            <div class="sc-lbl">Scheduled / Pending</div>
+          </div>
         </div>
-        <div class="sc">
-          <div class="sc-ico" style="--ac:var(--success)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-          <div class="sc-val" style="color:var(--success)">EGP ${monthlyCollected.toFixed(0)}</div>
-          <div class="sc-lbl">Collected This Month</div>
-        </div>
-        <div class="sc">
-          <div class="sc-ico" style="--ac:var(--warning)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div>
-          <div class="sc-val" style="color:var(--warning)">EGP ${outstanding.toFixed(0)}</div>
-          <div class="sc-lbl">Outstanding Balance</div>
-        </div>
-      </div>
-    `;
+      `;
+    }
   }
 
   if (!visible.length) {

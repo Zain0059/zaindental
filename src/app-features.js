@@ -1,5 +1,6 @@
 import {
-  sb, SC, SL, MONTHS, USER, toothOpts, toast, esc, age, fmt, today, toEG
+  sb, SC, SL, MONTHS, USER, toothOpts, toast, esc, age, fmt, today, toEG,
+  isAdmin, getCurrentUser, setEditInvId
 } from './app.js';
 import { sw, openSheet, closeSheet } from './app-handlers.js';
 
@@ -86,6 +87,7 @@ export async function loadQueue() {
       <div class="sc-val">${newPats||0}</div>
       <div class="sc-lbl">New Patients This Month</div>
     </div>
+    ${isAdmin() ? `
     <div class="sc sc-featured" style="--ac:var(--navy)">
       <div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
       <div class="sc-val">EGP ${(monthRev||0).toLocaleString(undefined,{maximumFractionDigits:0})}</div>
@@ -96,6 +98,18 @@ export async function loadQueue() {
       <div class="sc-val" style="color:var(--error)">EGP ${(outstanding||0).toLocaleString(undefined,{maximumFractionDigits:0})}</div>
       <div class="sc-lbl">Outstanding Balance</div>
     </div>
+    ` : `
+    <div class="sc sc-featured" style="--ac:var(--navy)">
+      <div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+      <div class="sc-val">${by.completed || 0}</div>
+      <div class="sc-lbl">Visits Completed Today</div>
+    </div>
+    <div class="sc" style="--ac:var(--info)">
+      <div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+      <div class="sc-val">${waiting}</div>
+      <div class="sc-lbl">In Waiting Area</div>
+    </div>
+    `}
   </div>`;
 }
 
@@ -292,7 +306,7 @@ export async function openPat(pid) {
     <div id="pat-panel-overview" class="pat-tab-panel active">
       <!-- Financial Summary Box -->
       <div style="margin:0 16px 16px;background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--border);padding:14px 16px;box-shadow:var(--shadow-sm)">
-        <div class="slbl" style="margin-bottom:8px">Financial Account Summary</div>
+        <div class="slbl" style="margin-bottom:8px">Patient Account Balance</div>
         <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;text-align:center">
           <div>
             <div style="font-size:10px;color:var(--text-muted);font-weight:700;text-transform:uppercase">Total Billed</div>
@@ -344,7 +358,7 @@ export async function openPat(pid) {
       <div class="card" style="margin:0 16px 16px">${txHtml}</div>
     </div>
 
-    <!-- PANEL 4: BILLING -->
+    <!-- PANEL 4: BILLING & INVOICES -->
     <div id="pat-panel-billing" class="pat-tab-panel">
       <div style="display:flex;justify-content:space-between;align-items:center;padding:0 16px 8px">
         <div class="slbl" style="margin:0">Invoices &amp; Payments</div>
@@ -367,13 +381,13 @@ export function openOdontogramForPat(pid) {
   }
 }
 
-export function openNewInvForPat(pid) {
+export async function openNewInvForPat(pid) {
   closeSheet('patient');
-  openSheet('new-inv');
-  const sel = document.getElementById("ni-pat");
-  if (sel) {
-    sel.value = pid;
-    sel.dispatchEvent(new Event('change'));
+  openSheet('inv-new');
+  if (pid) {
+    const { data: pat } = await sb.from("patients").select("first_name,last_name,patient_number").eq("id", pid).single();
+    const name = pat ? `${pat.first_name} ${pat.last_name}` : "Patient #" + pid;
+    selNIPat(pid, name);
   }
 }
 
@@ -408,9 +422,34 @@ export async function saveEditPat() {
   }
 }
 
+let _delPatPending = false;
+let _delPatTimer = null;
+
 export async function deletePatient() {
   if (!_editPatId) return;
-  if (!confirm("Are you sure you want to permanently delete this patient and all associated clinical records?")) return;
+  const delBtn = document.querySelector("#sh-edit-patient .sh-danger-btn");
+  if (!_delPatPending) {
+    _delPatPending = true;
+    if (delBtn) {
+      delBtn.textContent = "Confirm Delete?";
+      delBtn.style.background = "var(--error)";
+      delBtn.style.color = "#fff";
+    }
+    toast("Click 'Confirm Delete?' to permanently remove this patient record");
+    clearTimeout(_delPatTimer);
+    _delPatTimer = setTimeout(() => {
+      _delPatPending = false;
+      if (delBtn) {
+        delBtn.textContent = "Delete";
+        delBtn.style.background = "";
+        delBtn.style.color = "";
+      }
+    }, 4500);
+    return;
+  }
+
+  _delPatPending = false;
+  clearTimeout(_delPatTimer);
   const { error } = await sb.from("patients").delete().eq("id", _editPatId);
   if (!error) {
     toast("Patient record deleted ✓");
@@ -503,6 +542,10 @@ export function renderInvoices() {
 
 export async function openInv(id) {
   _editInvId = id;
+  setEditInvId(id);
+  const editBtn = document.getElementById("inv-edit-btn");
+  if (editBtn) editBtn.style.display = "block";
+
   document.getElementById("sh-inv-title").textContent = "Invoice";
   document.getElementById("sh-inv-sub").textContent = "Loading details…";
   document.getElementById("sh-inv-body").innerHTML = '<div class="ldg"><div class="spin"></div></div>';
@@ -564,12 +607,13 @@ export async function recordPayment(invId) {
   const amt = parseFloat(document.getElementById("pay-amt")?.value || 0);
   const meth = document.getElementById("pay-meth")?.value || "cash";
   if (!amt || amt <= 0) { toast("Enter a valid amount ✗"); return; }
+  const user = getCurrentUser();
   const { error } = await sb.from("payments").insert({
     invoice_id: invId,
     amount: amt,
     payment_method: meth,
     payment_date: today(),
-    received_by: USER?.full_name || ""
+    received_by: user?.full_name || "Staff"
   });
   if (!error) {
     toast("Payment recorded successfully ✓");
@@ -591,11 +635,21 @@ export function srchNI(q) {
   const el = document.getElementById("ni-pres");
   if (!q.trim()) { el.style.display = "none"; return; }
   _tmrs.ni = setTimeout(async () => {
-    const { data } = await sb.from("patients").select("id,first_name,last_name,patient_number").or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%`).limit(5);
+    const { data } = await sb.from("patients")
+      .select("id,first_name,last_name,patient_number,phone")
+      .or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%,phone.ilike.%${q}%,patient_number.ilike.%${q}%`)
+      .order("first_name")
+      .limit(6);
     if (!data?.length) { el.style.display = "none"; return; }
     el.style.display = "block";
-    el.innerHTML = data.map(p => `<div onclick="window.selNIPat(${p.id},'${esc(p.first_name)} ${esc(p.last_name)}')" style="padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;font-size:14px"><strong>${esc(p.first_name)} ${esc(p.last_name)}</strong> <span style="color:var(--text-muted);font-size:12px">(${esc(p.patient_number || "P-" + p.id)})</span></div>`).join("");
-  }, 280);
+    el.innerHTML = data.map(p => `<div onclick="window.selNIPat(${p.id},'${esc(p.first_name)} ${esc(p.last_name)}')" style="padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;font-size:14px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <strong>${esc(p.first_name)} ${esc(p.last_name)}</strong>
+        <span style="color:var(--text-muted);font-size:12px"> (${esc(p.patient_number || "P-" + p.id)})</span>
+      </div>
+      ${p.phone ? `<span style="font-family:var(--font-mono);font-size:12px;color:var(--teal);background:var(--teal-dim);padding:2px 8px;border-radius:12px">📞 ${esc(p.phone)}</span>` : ""}
+    </div>`).join("");
+  }, 250);
 }
 
 export function selNIPat(id, name) {
@@ -671,13 +725,14 @@ export async function submitInvoice() {
   const { data: pat } = await sb.from("patients").select("first_name,last_name").eq("id", _niPatId).single();
   const pname = pat ? `${pat.first_name} ${pat.last_name}` : "";
 
+  const user = getCurrentUser();
   const { data: inv, error } = await sb.from("invoices").insert({
     patient_id: _niPatId,
     patient_name: pname,
     total_amount: total,
     notes: document.getElementById("ni-notes").value,
     issue_date: today(),
-    created_by: USER?.full_name || ""
+    created_by: user?.full_name || "Staff"
   }).select().single();
 
   if (error) { toast("Failed: " + error.message + " ✗"); return; }
@@ -688,7 +743,7 @@ export async function submitInvoice() {
     procedure_name: it.description,
     cost: it.total_price,
     date_performed: today(),
-    dentist_name: USER?.full_name || "",
+    dentist_name: user?.full_name || "Dr. Abdullah Zain",
     diagnosis: "Via Invoice " + inv.invoice_number
   }));
   await sb.from("treatments").insert(treatments);
@@ -728,11 +783,21 @@ export function srchNA(q) {
   const el = document.getElementById("na-pres");
   if (!q.trim()) { el.style.display = "none"; return; }
   _tmrs.na = setTimeout(async () => {
-    const { data } = await sb.from("patients").select("id,first_name,last_name,patient_number").or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%`).limit(5);
+    const { data } = await sb.from("patients")
+      .select("id,first_name,last_name,patient_number,phone")
+      .or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%,phone.ilike.%${q}%,patient_number.ilike.%${q}%`)
+      .order("first_name")
+      .limit(6);
     if (!data?.length) { el.style.display = "none"; return; }
     el.style.display = "block";
-    el.innerHTML = data.map(p => `<div onclick="window.selNAPat(${p.id},'${esc(p.first_name)} ${esc(p.last_name)}')" style="padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;font-size:14px"><strong>${esc(p.first_name)} ${esc(p.last_name)}</strong> <span style="color:var(--text-muted);font-size:12px">(${esc(p.patient_number || "P-" + p.id)})</span></div>`).join("");
-  }, 280);
+    el.innerHTML = data.map(p => `<div onclick="window.selNAPat(${p.id},'${esc(p.first_name)} ${esc(p.last_name)}')" style="padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;font-size:14px;display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <strong>${esc(p.first_name)} ${esc(p.last_name)}</strong>
+        <span style="color:var(--text-muted);font-size:12px"> (${esc(p.patient_number || "P-" + p.id)})</span>
+      </div>
+      ${p.phone ? `<span style="font-family:var(--font-mono);font-size:12px;color:var(--teal);background:var(--teal-dim);padding:2px 8px;border-radius:12px">📞 ${esc(p.phone)}</span>` : ""}
+    </div>`).join("");
+  }, 250);
 }
 
 export function selNAPat(id, name) {

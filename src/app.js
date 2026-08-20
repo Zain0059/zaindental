@@ -63,10 +63,34 @@ try {
   localStorage.removeItem("zd_user");
 }
 
+export function getCurrentUser() {
+  try {
+    const stored = localStorage.getItem("zd_user");
+    if (stored) return JSON.parse(stored);
+  } catch (e) {}
+  return USER;
+}
+
+export function setCurrentUser(u) {
+  USER = u;
+  if (u) {
+    localStorage.setItem("zd_user", JSON.stringify(u));
+  } else {
+    localStorage.removeItem("zd_user");
+  }
+}
+
+export function isAdmin() {
+  const u = getCurrentUser();
+  return u?.role === 'admin';
+}
+
 export let _niPatId = null, _naPatId = null, _clPatId = null, _invFilter = "all";
 export let _niItems = [], _procs = [], _naMode = "existing";
 export let _tmrs = {};
 export let _editPatId = null, _editInvId = null, _editTxId = null, _editStfId = null, _editSvcId = null, _editExpId = null;
+export function setEditInvId(id) { _editInvId = id; }
+export function getEditInvId() { return _editInvId; }
 export let _allInvoices = [], _invToday = true;
 export let _editInvItems = [], _editInvOrigItems = [];
 export let _scanImgB64 = null, _scanImgMime = null, _scanImg2B64 = null, _scanImg2Mime = null;

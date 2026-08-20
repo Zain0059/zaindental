@@ -1026,19 +1026,25 @@ a {
   margin-bottom: 16px;
 }
 
-.srch input {
+.srch input,
+.ff .srch input,
+#na-psrch,
+#ni-psrch {
   width: 100%;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
-  padding: 11px 16px 11px 44px;
+  padding: 11px 16px 11px 44px !important;
   font-size: 14px;
   color: var(--text);
   box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
 }
 
-.srch input:focus {
+.srch input:focus,
+.ff .srch input:focus,
+#na-psrch:focus,
+#ni-psrch:focus {
   border-color: var(--teal);
   box-shadow: 0 0 0 3px var(--teal-dim);
   outline: none;
@@ -1051,6 +1057,10 @@ a {
   transform: translateY(-50%);
   color: var(--text-muted);
   pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
 }
 
 /* Date selector & Refresh */
