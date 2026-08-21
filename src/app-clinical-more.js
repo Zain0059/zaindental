@@ -19,6 +19,10 @@ let _editInvOrigItems = [];
 let _scanImgB64 = null, _scanImgMime = null, _scanImg2B64 = null, _scanImg2Mime = null;
 let _clTmr = null;
 let _selectedToothNum = null;
+let _selectedTeeth = new Set();
+let _multiSelectMode = false;
+let _longPressTimer = null;
+let _longPressTriggered = false;
 let _clDentitionMode = 'adult'; // 'adult' or 'pediatric'
 
 // Clinical & Odontogram
@@ -165,12 +169,18 @@ export async function loadCLPat(pid, name) {
 
   const renderTooth = (num) => {
     const isTreated = treatedTeeth.has(num);
-    const isSelected = _selectedToothNum === num;
+    const isSelected = _selectedTeeth.has(num) || _selectedToothNum === num;
     const info = TOOTH_NAMES[num] || { code: '', en: `Tooth #${num}`, ar: `سن #${num}` };
-    const titleText = isAr() ? info.ar : info.en;
-    return `<div class="od-tooth-wrap" onclick="window.selectToothFromChart(${num})" title="${titleText}">
+    const titleText = (isAr() ? info.ar : info.en) + (_multiSelectMode ? (isAr() ? ' · انقر للإضافة/الإزالة' : ' · Click to toggle') : (isAr() ? ' · انقر للتحديد أو اضغط مطولاً للتحديد المتعدد' : ' · Click to select, hold for multi-select'));
+    return `<div class="od-tooth-wrap"
+      onpointerdown="window.handleToothPointerDown(event, ${num})"
+      onpointerup="window.handleToothPointerUp(event, ${num})"
+      onpointercancel="window.handleToothPointerCancel(event, ${num})"
+      onclick="window.handleToothClick(event, ${num})"
+      title="${titleText}">
       <div id="tooth-box-${num}" class="od-tooth-box ${isTreated ? 'is-treated' : ''} ${isSelected ? 'selected' : ''}" data-tooth="${num}">
         ${num}
+        ${isSelected && _selectedTeeth.size > 1 ? '<span class="od-tooth-badge">✓</span>' : ''}
       </div>
       <span class="od-tooth-lbl">${info.code}</span>
     </div>`;
@@ -198,20 +208,72 @@ export async function loadCLPat(pid, name) {
           <div style="font-size:16px;font-weight:700;color:var(--navy)">${esc(pat?.first_name || "")} ${esc(pat?.last_name || "")}</div>
           <div style="font-size:12px;color:var(--text-muted);margin-top:2px">${isAr() ? "رقم المريض:" : "ID:"} ${esc(pat?.patient_number || "P-" + pid)} · 📞 <span dir="ltr">${esc(pat?.phone || (isAr() ? "لا يوجد هاتف" : "No phone"))}</span></div>
         </div>
-        <button class="small-btn primary" onclick="window.openAddTx()">${isAr() ? "+ إضافة إجراء علاجي" : "+ Add Treatment"}</button>
+        <div style="display:flex;gap:8px">
+          <button class="small-btn primary" onclick="window.openAddTx()">${isAr() ? "+ إضافة إجراء علاجي" : "+ Add Treatment"}</button>
+        </div>
       </div>
       ${pat?.allergies ? `<div style="font-size:12px;color:var(--error);margin-top:8px;font-weight:600;background:var(--error-bg);padding:6px 10px;border-radius:var(--r-sm);border:1px solid var(--error-border)">⚠ ${isAr() ? "تنبيه حساسيات طبية:" : "Medical Alert:"} ${esc(pat.allergies)}</div>` : ""}
     </div>
 
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;margin-bottom:18px;box-shadow:var(--shadow-sm)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <div class="od-toolbar">
         <div>
           <div class="slbl" style="margin:0">${isAr() ? "مخطط الأسنان التفاعلي (نظام FDI العالمي)" : "Interactive Dental Odontogram (FDI System)"}</div>
-          <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px">${isAr() ? "انقر على أي سن لتحديده وبدء تسجيل الإجراء العلاجي" : "Click any tooth to select it and record a dental procedure"}</div>
+          <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px">
+            ${isAr() ? "انقر على الأسنان أو اضغط مطولاً للتحديد المتعدد وإجراء عمليات مجمعة" : "Click teeth or hold to multi-select for bulk operations"}
+          </div>
         </div>
-        <div style="display:flex;gap:6px;align-items:center">
-          <button class="small-btn ${!isPed ? 'primary' : ''}" onclick="window.setDentitionMode('adult')" style="font-size:11px">${isAr() ? "دائمة (32 سن)" : "Adult (32)"}</button>
-          <button class="small-btn ${isPed ? 'primary' : ''}" onclick="window.setDentitionMode('pediatric')" style="font-size:11px">${isAr() ? "لبنية (20 سن)" : "Pediatric (20)"}</button>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <button id="od-multi-toggle-btn" class="od-toggle-btn ${_multiSelectMode ? 'active' : ''}" onclick="window.toggleMultiSelectMode()">
+            <span class="od-toggle-dot"></span>
+            <span>${isAr() ? "التحديد المتعدد" : "Multi-Select"}</span>
+          </button>
+          <div style="display:flex;gap:4px">
+            <button class="small-btn ${!isPed ? 'primary' : ''}" onclick="window.setDentitionMode('adult')" style="font-size:11px">${isAr() ? "دائمة (32)" : "Adult (32)"}</button>
+            <button class="small-btn ${isPed ? 'primary' : ''}" onclick="window.setDentitionMode('pediatric')" style="font-size:11px">${isAr() ? "لبنية (20)" : "Pediatric (20)"}</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Multi-Select Action Banner -->
+      <div id="od-multibar" class="od-multibar" style="display:${_selectedTeeth.size > 0 ? 'block' : 'none'}">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy)">
+              🦷 ${isAr() ? `الأسنان المحددة (${_selectedTeeth.size}):` : `Selected Teeth (${_selectedTeeth.size}):`}
+            </div>
+            <div id="od-multi-chips-wrap" class="od-multi-chips">
+              ${Array.from(_selectedTeeth).sort((a, b) => a - b).map(num => `
+                <span class="od-chip">
+                  #${num}
+                  <span class="od-chip-del" onclick="window.removeToothFromSelection(${num})" title="${isAr() ? 'إزالة السن' : 'Remove tooth'}">×</span>
+                </span>
+              `).join('')}
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <button class="small-btn primary" onclick="window.openBulkMarkTreated()" style="padding:6px 12px;font-weight:700">
+              ✓ ${isAr() ? "تحديد كمعالج مجمع" : "Mark as Treated"}
+            </button>
+            <button class="small-btn" onclick="window.openBulkAddTx()" style="padding:6px 12px;font-weight:700">
+              + ${isAr() ? "تسجيل علاج مجمع" : "Add Treatment Record"}
+            </button>
+            <button class="small-btn danger" onclick="window.clearToothSelection()" style="padding:6px 10px;font-weight:700">
+              ${isAr() ? "إلغاء التحديد" : "Clear"}
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick Quadrant / Arch Selectors -->
+        <div class="od-quick-sel-row">
+          <span style="font-size:10.5px;font-weight:700;color:var(--text-muted);margin-inline-end:4px">${isAr() ? "تحديد سريع:" : "Quick Select:"}</span>
+          <span class="od-quick-tag" onclick="window.selectArchOrQuadrant('all')">${isAr() ? "كامل الفم" : "All Teeth"}</span>
+          <span class="od-quick-tag" onclick="window.selectArchOrQuadrant('upper')">${isAr() ? "الفك العلوي" : "Upper Arch"}</span>
+          <span class="od-quick-tag" onclick="window.selectArchOrQuadrant('lower')">${isAr() ? "الفك السفلي" : "Lower Arch"}</span>
+          <span class="od-quick-tag" onclick="window.selectArchOrQuadrant('q1')">${isAr() ? "الربع 1 (علوي أيمن)" : "Q1 (UR)"}</span>
+          <span class="od-quick-tag" onclick="window.selectArchOrQuadrant('q2')">${isAr() ? "الربع 2 (علوي أيسر)" : "Q2 (UL)"}</span>
+          <span class="od-quick-tag" onclick="window.selectArchOrQuadrant('q3')">${isAr() ? "الربع 3 (سفلي أيسر)" : "Q3 (LL)"}</span>
+          <span class="od-quick-tag" onclick="window.selectArchOrQuadrant('q4')">${isAr() ? "الربع 4 (سفلي أيمن)" : "Q4 (LR)"}</span>
         </div>
       </div>
 
@@ -281,6 +343,10 @@ export async function loadCLPat(pid, name) {
           <span style="width:12px;height:12px;border-radius:3px;border:2px solid var(--teal);background:var(--teal-dim);display:inline-block"></span>
           <span>${isAr() ? "محدد حاليًا" : "Selected Tooth"}</span>
         </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="od-tooth-badge" style="position:static;display:inline-flex;width:12px;height:12px;font-size:8px">✓</span>
+          <span>${isAr() ? "ضمن التحديد المتعدد" : "Multi-selected"}</span>
+        </div>
       </div>
     </div>
 
@@ -289,8 +355,15 @@ export async function loadCLPat(pid, name) {
     </div>
     <div class="card" style="margin-bottom:16px">${txHtml}</div>
 
+    <!-- Add Treatment Form -->
     <div id="cl-add-form" style="display:none;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px;box-shadow:var(--shadow-md)">
-      <div class="slbl">${isAr() ? "تسجيل إجراء علاجي جديد" : "Record New Dental Treatment"}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div class="slbl" id="cl-form-title" style="margin:0">${isAr() ? "تسجيل إجراء علاجي جديد" : "Record New Dental Treatment"}</div>
+        <div id="cl-form-multi-badge" style="display:none;font-size:11px;font-weight:700;color:var(--teal-dark);background:var(--teal-dim);padding:3px 8px;border-radius:12px;border:1px solid var(--teal)">
+          ${isAr() ? "إجراء مجمع لعدة أسنان" : "Bulk Multi-Tooth Treatment"}
+        </div>
+      </div>
+
       <div class="ff"><label>${isAr() ? "الخدمة / الإجراء العلاجي" : "Procedure / Treatment"}</label>
         <select id="cl-proc" onchange="window.clProcSel(this)" style="width:100%;margin-bottom:6px">
           <option value="">${isAr() ? "— اختر من قائمة الخدمات —" : "— Select from catalog —"}</option>
@@ -299,12 +372,66 @@ export async function loadCLPat(pid, name) {
         </select>
         <input id="cl-proc-name" type="text" placeholder="${isAr() ? 'أو أدخل اسم الإجراء يدويًا…' : 'Or enter custom procedure name…'}" style="display:none">
       </div>
+
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-        <div class="ff" style="margin:0"><label>${isAr() ? "رقم السن (FDI)" : "Tooth # (FDI)"}</label><select id="cl-tooth" onchange="window.onCLToothChange(this.value)">${toothOpts()}</select></div>
-        <div class="ff" style="margin:0"><label>${isAr() ? "التكلفة (جنيه)" : "Cost (EGP)"}</label><input id="cl-cost" type="number" inputmode="decimal" step="0.01" min="0" value="0"></div>
+        <div class="ff" style="margin:0">
+          <label id="cl-tooth-lbl">${isAr() ? "رقم السن (FDI)" : "Tooth # (FDI)"}</label>
+          <select id="cl-tooth" onchange="window.onCLToothChange(this.value)">${toothOpts()}</select>
+          <div id="cl-multi-tooth-chips" style="display:none;flex-wrap:wrap;gap:4px;margin-top:6px"></div>
+        </div>
+        <div class="ff" style="margin:0">
+          <label id="cl-cost-lbl">${isAr() ? "التكلفة الإجمالية (جنيه)" : "Total Cost (EGP)"}</label>
+          <input id="cl-cost" type="number" inputmode="decimal" step="0.01" min="0" value="0">
+        </div>
       </div>
       <div class="ff"><label>${isAr() ? "التشخيص والملاحظات السريرية" : "Clinical Diagnosis & Notes"}</label><textarea id="cl-notes" placeholder="${isAr() ? 'الملاحظات السريرية والمواد المستخدمة…' : 'Observations, materials used, patient feedback…'}"></textarea></div>
       <button class="btn-primary" style="border-radius:var(--r-md);padding:13px" onclick="window.submitTx()">${isAr() ? "حفظ العلاج وإنشاء فاتورة" : "Save Treatment & Create Invoice"}</button>
+    </div>
+
+    <!-- Bulk Mark As Treated Modal Sheet (rendered inline) -->
+    <div id="cl-bulk-modal" style="display:none;position:fixed;inset:0;background:rgba(11,37,69,0.5);backdrop-filter:blur(3px);z-index:9999;align-items:center;justify-content:center;padding:16px">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);max-width:500px;width:100%;padding:22px;box-shadow:var(--shadow-lg);animation:od-slide-in 0.2s ease-out">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="font-size:16px;font-weight:800;color:var(--navy)">
+            ✓ ${isAr() ? "تحديد الأسنان المحددة كمعالجة" : "Mark Selected Teeth as Treated"}
+          </div>
+          <button class="small-btn" onclick="window.closeBulkMarkTreated()" style="font-size:14px;padding:2px 8px">✕</button>
+        </div>
+        <div style="font-size:12.5px;color:var(--text-muted);margin-bottom:12px">
+          ${isAr() ? "سيتم تسجيل وتوثيق الإجراء الطبي لكل سن من الأسنان المحددة دفعة واحدة:" : "A clinical treatment entry will be recorded for each selected tooth:"}
+        </div>
+        <div id="cl-bulk-teeth-summary" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px;background:var(--bg);padding:8px 10px;border-radius:var(--r-sm);border:1px solid var(--border)">
+        </div>
+        <div class="ff"><label>${isAr() ? "الإجراء العلاجي المنجز" : "Completed Procedure"}</label>
+          <select id="cl-bulk-proc" onchange="window.onBulkProcChange(this)" style="width:100%;margin-bottom:6px">
+            <option value="Scaling & Polishing">${isAr() ? "تنظيف وتلميع أسنان (Scaling & Polishing)" : "Scaling & Polishing"}</option>
+            <option value="Fluoride Application">${isAr() ? "جلسة فلورايد وقائية (Fluoride Application)" : "Fluoride Application"}</option>
+            <option value="Composite Filling">${isAr() ? "حشو تجميلي كومبوزيت (Composite Filling)" : "Composite Filling"}</option>
+            <option value="Dental Extraction">${isAr() ? "خلع سن (Extraction)" : "Extraction"}</option>
+            <option value="Comprehensive Examination">${isAr() ? "فحص سريري شامل (Comprehensive Examination)" : "Comprehensive Examination"}</option>
+            <option value="custom">${isAr() ? "إجراء مخصص…" : "Custom Procedure…"}</option>
+          </select>
+          <input id="cl-bulk-custom-proc" type="text" placeholder="${isAr() ? 'أدخل اسم الإجراء…' : 'Enter procedure name…'}" style="display:none">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div class="ff" style="margin:0">
+            <label>${isAr() ? "تاريخ الإجراء" : "Date Performed"}</label>
+            <input id="cl-bulk-date" type="date" value="${today()}">
+          </div>
+          <div class="ff" style="margin:0">
+            <label>${isAr() ? "التكلفة الإجمالية (جنيه)" : "Total Cost (EGP)"}</label>
+            <input id="cl-bulk-cost" type="number" inputmode="decimal" min="0" step="0.01" value="0">
+          </div>
+        </div>
+        <div class="ff">
+          <label>${isAr() ? "الملاحظات السريرية (اختياري)" : "Clinical Notes (Optional)"}</label>
+          <textarea id="cl-bulk-notes" placeholder="${isAr() ? 'ملاحظات المواد أو العلاج المنجز…' : 'Clinical observations, materials used…'}" style="height:60px"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+          <button class="small-btn" onclick="window.closeBulkMarkTreated()">${isAr() ? "إلغاء" : "Cancel"}</button>
+          <button class="small-btn primary" onclick="window.submitBulkMarkTreated()">${isAr() ? "✓ تأكيد وحفظ الإجراءات" : "✓ Confirm & Save Records"}</button>
+        </div>
+      </div>
     </div>`;
 }
 
@@ -316,55 +443,216 @@ export function setDentitionMode(mode) {
   }
 }
 
-export function selectToothFromChart(num) {
-  _selectedToothNum = num;
-  
-  // Highlight clicked tooth with glowing effect and trigger smooth pop animation
-  document.querySelectorAll('.od-tooth-box').forEach(el => {
-    el.classList.remove('selected', 'anim-pop');
-  });
-
-  const toothEl = document.getElementById(`tooth-box-${num}`);
-  if (toothEl) {
-    toothEl.classList.add('selected', 'anim-pop');
-    // Allow animation to re-trigger on subsequent clicks
-    setTimeout(() => {
-      toothEl.classList.remove('anim-pop');
-    }, 400);
+// Multi-Selection State & Toggle Handlers
+export function toggleMultiSelectMode() {
+  _multiSelectMode = !_multiSelectMode;
+  const btn = document.getElementById("od-multi-toggle-btn");
+  if (btn) {
+    if (_multiSelectMode) {
+      btn.classList.add("active");
+      toast(isAr() ? "تم تفعيل وضع التحديد المتعدد 🦷" : "Multi-Select Mode Activated 🦷");
+    } else {
+      btn.classList.remove("active");
+      toast(isAr() ? "تم إيقاف التحديد المتعدد" : "Multi-Select Mode Deactivated");
+    }
   }
+  updateOdontogramSelectionUI();
+}
 
-  // Open add treatment form
-  openAddTx(true);
-  
-  const toothSelect = document.getElementById("cl-tooth");
-  if (toothSelect) {
-    toothSelect.value = num;
+export function handleToothPointerDown(e, num) {
+  _longPressTriggered = false;
+  clearTimeout(_longPressTimer);
+  _longPressTimer = setTimeout(() => {
+    _longPressTriggered = true;
+    if (!_multiSelectMode) {
+      _multiSelectMode = true;
+      const btn = document.getElementById("od-multi-toggle-btn");
+      if (btn) btn.classList.add("active");
+    }
+    toggleToothInSelection(num);
+    if (navigator.vibrate) {
+      try { navigator.vibrate(50); } catch (_) {}
+    }
+    toast(isAr() ? `تم تحديد السن #${num} عبر الضغط المطول` : `Tooth #${num} selected via long press`);
+  }, 450);
+}
+
+export function handleToothPointerUp(e, num) {
+  clearTimeout(_longPressTimer);
+}
+
+export function handleToothPointerCancel(e, num) {
+  clearTimeout(_longPressTimer);
+}
+
+export function handleToothClick(e, num) {
+  if (_longPressTriggered) {
+    _longPressTriggered = false;
+    return;
+  }
+  const isMulti = _multiSelectMode || e.shiftKey || e.ctrlKey || e.metaKey;
+  if (isMulti) {
+    toggleToothInSelection(num);
+  } else {
+    // Single selection mode
+    _selectedTeeth.clear();
+    _selectedTeeth.add(num);
+    _selectedToothNum = num;
+    updateOdontogramSelectionUI(num);
+
+    // Open add treatment form
+    openAddTx(true);
+    const toothSelect = document.getElementById("cl-tooth");
+    if (toothSelect) toothSelect.value = num;
+    syncAddFormToSelection();
     toast(isAr() ? `تم تحديد السن رقم #${num} للعلاج 🦷` : `Tooth #${num} selected for treatment 🦷`);
   }
+}
 
-  const formEl = document.getElementById("cl-add-form");
-  if (formEl) {
-    formEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+export function toggleToothInSelection(num) {
+  if (_selectedTeeth.has(num)) {
+    _selectedTeeth.delete(num);
+  } else {
+    _selectedTeeth.add(num);
   }
+  _selectedToothNum = _selectedTeeth.size === 1 ? Array.from(_selectedTeeth)[0] : null;
+  updateOdontogramSelectionUI(num);
+  syncAddFormToSelection();
+}
+
+export function removeToothFromSelection(num) {
+  _selectedTeeth.delete(num);
+  _selectedToothNum = _selectedTeeth.size === 1 ? Array.from(_selectedTeeth)[0] : null;
+  updateOdontogramSelectionUI();
+  syncAddFormToSelection();
+}
+
+export function clearToothSelection() {
+  _selectedTeeth.clear();
+  _selectedToothNum = null;
+  updateOdontogramSelectionUI();
+  syncAddFormToSelection();
+  toast(isAr() ? "تم مسح تحديد الأسنان" : "Tooth selection cleared");
+}
+
+export function selectArchOrQuadrant(type) {
+  const isPed = _clDentitionMode === 'pediatric';
+  const q1 = isPed ? [55, 54, 53, 52, 51] : [18, 17, 16, 15, 14, 13, 12, 11];
+  const q2 = isPed ? [61, 62, 63, 64, 65] : [21, 22, 23, 24, 25, 26, 27, 28];
+  const q3 = isPed ? [71, 72, 73, 74, 75] : [31, 32, 33, 34, 35, 36, 37, 38];
+  const q4 = isPed ? [85, 84, 83, 82, 81] : [48, 47, 46, 45, 44, 43, 42, 41];
+
+  let targetTeeth = [];
+  if (type === 'all') targetTeeth = [...q1, ...q2, ...q3, ...q4];
+  else if (type === 'upper') targetTeeth = [...q1, ...q2];
+  else if (type === 'lower') targetTeeth = [...q3, ...q4];
+  else if (type === 'q1') targetTeeth = q1;
+  else if (type === 'q2') targetTeeth = q2;
+  else if (type === 'q3') targetTeeth = q3;
+  else if (type === 'q4') targetTeeth = q4;
+
+  targetTeeth.forEach(n => _selectedTeeth.add(n));
+  _selectedToothNum = _selectedTeeth.size === 1 ? Array.from(_selectedTeeth)[0] : null;
+  updateOdontogramSelectionUI();
+  syncAddFormToSelection();
+  toast(isAr() ? `تم تحديد ${targetTeeth.length} سن بنجاح 🦷` : `Selected ${targetTeeth.length} teeth 🦷`);
+}
+
+function updateOdontogramSelectionUI(lastClickedNum = null) {
+  // Update tooth box styles and badges
+  document.querySelectorAll('.od-tooth-box').forEach(el => {
+    const num = parseInt(el.getAttribute('data-tooth'), 10);
+    const isSel = _selectedTeeth.has(num) || _selectedToothNum === num;
+    
+    // Remove existing badge
+    const badge = el.querySelector('.od-tooth-badge');
+    if (badge) badge.remove();
+
+    if (isSel) {
+      el.classList.add('selected');
+      if (_selectedTeeth.size > 1) {
+        const b = document.createElement('span');
+        b.className = 'od-tooth-badge';
+        b.textContent = '✓';
+        el.appendChild(b);
+      }
+    } else {
+      el.classList.remove('selected', 'anim-pop');
+    }
+  });
+
+  if (lastClickedNum) {
+    const lastEl = document.getElementById(`tooth-box-${lastClickedNum}`);
+    if (lastEl && _selectedTeeth.has(lastClickedNum)) {
+      lastEl.classList.add('anim-pop');
+      setTimeout(() => lastEl.classList.remove('anim-pop'), 400);
+    }
+  }
+
+  // Update Action Banner
+  const multibar = document.getElementById("od-multibar");
+  const chipsWrap = document.getElementById("od-multi-chips-wrap");
+  if (multibar) {
+    if (_selectedTeeth.size > 0) {
+      multibar.style.display = "block";
+      if (chipsWrap) {
+        chipsWrap.innerHTML = Array.from(_selectedTeeth).sort((a, b) => a - b).map(num => `
+          <span class="od-chip">
+            #${num}
+            <span class="od-chip-del" onclick="window.removeToothFromSelection(${num})" title="${isAr() ? 'إزالة' : 'Remove'}">×</span>
+          </span>
+        `).join('');
+      }
+    } else {
+      multibar.style.display = "none";
+    }
+  }
+}
+
+function syncAddFormToSelection() {
+  const toothSelect = document.getElementById("cl-tooth");
+  const chipsContainer = document.getElementById("cl-multi-tooth-chips");
+  const badge = document.getElementById("cl-form-multi-badge");
+  const toothLbl = document.getElementById("cl-tooth-lbl");
+  const costLbl = document.getElementById("cl-cost-lbl");
+
+  if (_selectedTeeth.size > 1) {
+    if (badge) badge.style.display = "inline-block";
+    if (toothSelect) toothSelect.style.display = "none";
+    if (chipsContainer) {
+      chipsContainer.style.display = "flex";
+      chipsContainer.innerHTML = Array.from(_selectedTeeth).sort((a, b) => a - b).map(n => `
+        <span class="od-chip">#${n}</span>
+      `).join('');
+    }
+    if (toothLbl) toothLbl.textContent = isAr() ? `الأسنان المحددة (${_selectedTeeth.size})` : `Selected Teeth (${_selectedTeeth.size})`;
+    if (costLbl) costLbl.textContent = isAr() ? "التكلفة الإجمالية لكافة الأسنان (جنيه)" : "Total Cost for all teeth (EGP)";
+  } else {
+    if (badge) badge.style.display = "none";
+    if (toothSelect) {
+      toothSelect.style.display = "block";
+      if (_selectedToothNum) toothSelect.value = _selectedToothNum;
+    }
+    if (chipsContainer) chipsContainer.style.display = "none";
+    if (toothLbl) toothLbl.textContent = isAr() ? "رقم السن (FDI)" : "Tooth # (FDI)";
+    if (costLbl) costLbl.textContent = isAr() ? "التكلفة (جنيه)" : "Cost (EGP)";
+  }
+}
+
+export function selectToothFromChart(num) {
+  handleToothClick({}, num);
 }
 
 export function onCLToothChange(val) {
   const num = parseInt(val, 10);
-  _selectedToothNum = num || null;
-
-  document.querySelectorAll('.od-tooth-box').forEach(el => {
-    el.classList.remove('selected', 'anim-pop');
-  });
-
+  _selectedTeeth.clear();
   if (num) {
-    const toothEl = document.getElementById(`tooth-box-${num}`);
-    if (toothEl) {
-      toothEl.classList.add('selected', 'anim-pop');
-      setTimeout(() => {
-        toothEl.classList.remove('anim-pop');
-      }, 400);
-    }
+    _selectedTeeth.add(num);
+    _selectedToothNum = num;
+  } else {
+    _selectedToothNum = null;
   }
+  updateOdontogramSelectionUI(num);
 }
 
 export function openAddTx(forceOpen = false) {
@@ -375,7 +663,119 @@ export function openAddTx(forceOpen = false) {
     } else {
       f.style.display = f.style.display === "none" ? "block" : "none";
     }
+    if (f.style.display === "block") {
+      syncAddFormToSelection();
+    }
   }
+}
+
+export function openBulkAddTx() {
+  openAddTx(true);
+  syncAddFormToSelection();
+  const f = document.getElementById("cl-add-form");
+  if (f) f.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+// Bulk Mark as Treated Modal Handlers
+export function openBulkMarkTreated() {
+  if (_selectedTeeth.size === 0) {
+    toast(isAr() ? "يرجى تحديد سن أو أكثر أولاً ✗" : "Please select one or more teeth first ✗");
+    return;
+  }
+  const modal = document.getElementById("cl-bulk-modal");
+  const sumWrap = document.getElementById("cl-bulk-teeth-summary");
+  if (sumWrap) {
+    sumWrap.innerHTML = Array.from(_selectedTeeth).sort((a, b) => a - b).map(num => `
+      <span class="od-chip" style="background:var(--surface)">#${num}</span>
+    `).join('');
+  }
+  if (modal) modal.style.display = "flex";
+}
+
+export function closeBulkMarkTreated() {
+  const modal = document.getElementById("cl-bulk-modal");
+  if (modal) modal.style.display = "none";
+}
+
+export function onBulkProcChange(sel) {
+  const customInput = document.getElementById("cl-bulk-custom-proc");
+  if (sel.value === "custom") {
+    if (customInput) { customInput.style.display = "block"; customInput.value = ""; }
+  } else {
+    if (customInput) customInput.style.display = "none";
+  }
+}
+
+export async function submitBulkMarkTreated() {
+  if (!_clPatId) { toast(isAr() ? "لم يتم تحديد مريض ✗" : "No patient selected ✗"); return; }
+  if (_selectedTeeth.size === 0) { toast(isAr() ? "لا توجد أسنان محددة ✗" : "No teeth selected ✗"); return; }
+
+  const sel = document.getElementById("cl-bulk-proc");
+  let procName = sel ? sel.value : "";
+  if (procName === "custom") {
+    procName = document.getElementById("cl-bulk-custom-proc").value.trim();
+  }
+  if (!procName) { toast(isAr() ? "يرجى تحديد أو إدخال الإجراء العلاجي ✗" : "Select or enter a procedure ✗"); return; }
+
+  const totalCost = parseFloat(document.getElementById("cl-bulk-cost").value) || 0;
+  const perfDate = document.getElementById("cl-bulk-date").value || today();
+  const notes = document.getElementById("cl-bulk-notes").value || "";
+  const teethList = Array.from(_selectedTeeth).sort((a, b) => a - b);
+  const costPerTooth = teethList.length > 0 ? (totalCost / teethList.length) : 0;
+  const dentistName = USER?.full_name || (isAr() ? "د. عبدالله زين" : "Dr. Abdullah Zain");
+
+  toast(isAr() ? `جاري حفظ العلاج لـ ${teethList.length} سن…` : `Saving records for ${teethList.length} teeth…`);
+
+  // Insert batch treatments
+  const treatmentInserts = teethList.map(tNum => ({
+    patient_id: _clPatId,
+    procedure_name: procName,
+    tooth_number: tNum,
+    cost: costPerTooth,
+    diagnosis: notes ? `${notes} (Bulk #${tNum})` : `Bulk procedure on Tooth #${tNum}`,
+    date_performed: perfDate,
+    dentist_name: dentistName
+  }));
+
+  const { data: insertedTxs, error: txError } = await sb.from("treatments").insert(treatmentInserts).select();
+
+  if (txError) {
+    toast(isAr() ? "فشل تسجيل العلاجات المجمعة ✗" : "Failed to record bulk treatments ✗");
+    return;
+  }
+
+  // Create invoice if cost > 0
+  if (totalCost > 0) {
+    const { data: pat } = await sb.from("patients").select("first_name,last_name").eq("id", _clPatId).single();
+    const pname = pat ? `${pat.first_name} ${pat.last_name}` : "";
+
+    const { data: inv } = await sb.from("invoices").insert({
+      patient_id: _clPatId,
+      patient_name: pname,
+      total_amount: totalCost,
+      issue_date: perfDate,
+      notes: notes + (isAr() ? ` · علاج مجمع للأسنان (${teethList.join(', ')})` : ` · Bulk treatment on teeth (${teethList.join(', ')})`),
+      created_by: dentistName
+    }).select().single();
+
+    if (inv) {
+      const invItems = teethList.map(tNum => ({
+        invoice_id: inv.id,
+        description: `${procName} (${isAr() ? 'سن #' : 'Tooth #'}${tNum})`,
+        quantity: 1,
+        unit_price: costPerTooth,
+        total_price: costPerTooth
+      }));
+      await sb.from("invoice_items").insert(invItems);
+      loadInvoices();
+    }
+  }
+
+  closeBulkMarkTreated();
+  toast(isAr() ? `✓ تم تسجيل العلاج بنجاح لـ ${teethList.length} أسنان!` : `✓ Successfully treated ${teethList.length} teeth!`);
+  _selectedTeeth.clear();
+  _selectedToothNum = null;
+  loadCLPat(_clPatId, document.getElementById("cl-q") ? document.getElementById("cl-q").value : "");
 }
 
 export function clProcSel(sel) {
@@ -385,27 +785,85 @@ export function clProcSel(sel) {
     if (customInput) { customInput.style.display = "block"; customInput.value = ""; }
   } else if (opt.value) {
     if (customInput) customInput.style.display = "none";
-    document.getElementById("cl-cost").value = opt.dataset.cost || 0;
+    const defaultCost = parseFloat(opt.dataset.cost) || 0;
+    const multiplier = _selectedTeeth.size > 1 ? _selectedTeeth.size : 1;
+    document.getElementById("cl-cost").value = defaultCost * multiplier;
   }
 }
 
 export async function submitTx() {
   if (!_clPatId) { toast(isAr() ? "لم يتم تحديد مريض ✗" : "No patient selected ✗"); return; }
   const sel = document.getElementById("cl-proc");
-  const opt = sel.options[sel.selectedIndex];
+  const opt = sel ? sel.options[sel.selectedIndex] : null;
   const name = (opt && opt.value && opt.value !== "custom") ? (opt.dataset.name || opt.text) : document.getElementById("cl-proc-name").value.trim();
   if (!name) { toast(isAr() ? "يرجى تحديد أو إدخال الإجراء العلاجي ✗" : "Select or enter a procedure ✗"); return; }
   const cost = parseFloat(document.getElementById("cl-cost").value) || 0;
   const clNotes = document.getElementById("cl-notes").value;
+  const dentistName = USER?.full_name || (isAr() ? "د. عبدالله زين" : "Dr. Abdullah Zain");
 
+  // Multi-tooth handling
+  if (_selectedTeeth.size > 1) {
+    const teethList = Array.from(_selectedTeeth).sort((a, b) => a - b);
+    const costPerTooth = cost / teethList.length;
+
+    const inserts = teethList.map(tNum => ({
+      patient_id: _clPatId,
+      procedure_name: name,
+      tooth_number: tNum,
+      cost: costPerTooth,
+      diagnosis: clNotes,
+      date_performed: today(),
+      dentist_name: dentistName
+    }));
+
+    const { error } = await sb.from("treatments").insert(inserts);
+    if (!error) {
+      toast(isAr() ? `تم حفظ العلاج لـ ${teethList.length} سن — جاري إنشاء الفاتورة…` : `Treatment saved for ${teethList.length} teeth — generating invoice…`);
+      const { data: pat } = await sb.from("patients").select("first_name,last_name").eq("id", _clPatId).single();
+      const pname = pat ? `${pat.first_name} ${pat.last_name}` : "";
+
+      if (cost > 0) {
+        const { data: inv } = await sb.from("invoices").insert({
+          patient_id: _clPatId,
+          patient_name: pname,
+          total_amount: cost,
+          issue_date: today(),
+          notes: clNotes + ` (${isAr() ? 'أسنان: ' : 'Teeth: '}${teethList.join(', ')})`,
+          created_by: dentistName
+        }).select().single();
+
+        if (inv) {
+          const invItems = teethList.map(tNum => ({
+            invoice_id: inv.id,
+            description: `${name} (${isAr() ? 'سن #' : 'Tooth #'}${tNum})`,
+            quantity: 1,
+            unit_price: costPerTooth,
+            total_price: costPerTooth
+          }));
+          await sb.from("invoice_items").insert(invItems);
+          loadInvoices();
+          openInv(inv.id);
+        }
+      }
+      _selectedTeeth.clear();
+      _selectedToothNum = null;
+      loadCLPat(_clPatId, document.getElementById("cl-q") ? document.getElementById("cl-q").value : "");
+    } else {
+      toast(isAr() ? "فشل حفظ العلاج ✗" : "Failed to save treatment ✗");
+    }
+    return;
+  }
+
+  // Single tooth handling
+  const singleTooth = document.getElementById("cl-tooth") ? document.getElementById("cl-tooth").value : (_selectedToothNum || null);
   const { data: tx, error } = await sb.from("treatments").insert({
     patient_id: _clPatId,
     procedure_name: name,
-    tooth_number: document.getElementById("cl-tooth").value || null,
+    tooth_number: singleTooth || null,
     cost,
     diagnosis: clNotes,
     date_performed: today(),
-    dentist_name: USER?.full_name || (isAr() ? "د. عبدالله زين" : "Dr. Abdullah Zain")
+    dentist_name: dentistName
   }).select().single();
 
   if (!error) {
@@ -419,13 +877,13 @@ export async function submitTx() {
       total_amount: cost,
       issue_date: today(),
       notes: clNotes,
-      created_by: USER?.full_name || ""
+      created_by: dentistName
     }).select().single();
 
     if (inv) {
       await sb.from("invoice_items").insert({
         invoice_id: inv.id,
-        description: name + (document.getElementById("cl-tooth").value ? ` (${isAr() ? 'سن #' : 'Tooth #'}` + document.getElementById("cl-tooth").value + ")" : ""),
+        description: name + (singleTooth ? ` (${isAr() ? 'سن #' : 'Tooth #'}${singleTooth})` : ""),
         quantity: 1,
         unit_price: cost,
         total_price: cost
@@ -433,9 +891,13 @@ export async function submitTx() {
       const invRef = (clNotes ? clNotes + "\n" : "") + (isAr() ? "عبر فاتورة " : "Via Invoice ") + inv.invoice_number;
       await sb.from("treatments").update({ diagnosis: invRef }).eq("id", tx.id);
       loadInvoices();
+      _selectedTeeth.clear();
+      _selectedToothNum = null;
       loadCLPat(_clPatId, document.getElementById("cl-q").value);
       openInv(inv.id);
     } else {
+      _selectedTeeth.clear();
+      _selectedToothNum = null;
       loadCLPat(_clPatId, document.getElementById("cl-q").value);
     }
   } else {
