@@ -159,30 +159,48 @@ export async function sha256(msg) {
 export function toothOpts() {
   const isArabic = isAr();
   const T_EN = {
-    18: "18 — Wisdom", 17: "17 — Molar", 16: "16 — Molar", 15: "15 — Premolar", 14: "14 — Premolar", 13: "13 — Canine", 12: "12 — Lateral Incisor", 11: "11 — Central Incisor",
-    21: "21 — Central Incisor", 22: "22 — Lateral Incisor", 23: "23 — Canine", 24: "24 — Premolar", 25: "25 — Premolar", 26: "26 — Molar", 27: "27 — Molar", 28: "28 — Wisdom",
-    38: "38 — Wisdom", 37: "37 — Molar", 36: "36 — Molar", 35: "35 — Premolar", 34: "34 — Premolar", 33: "33 — Canine", 32: "32 — Lateral Incisor", 31: "31 — Central Incisor",
-    41: "41 — Central Incisor", 42: "42 — Lateral Incisor", 43: "43 — Canine", 44: "44 — Premolar", 45: "45 — Premolar", 46: "46 — Molar", 47: "47 — Molar", 48: "48 — Wisdom"
+    18: "18 — Wisdom Molar", 17: "17 — 2nd Molar", 16: "16 — 1st Molar", 15: "15 — 2nd Premolar", 14: "14 — 1st Premolar", 13: "13 — Canine", 12: "12 — Lateral Incisor", 11: "11 — Central Incisor",
+    21: "21 — Central Incisor", 22: "22 — Lateral Incisor", 23: "23 — Canine", 24: "24 — 1st Premolar", 25: "25 — 2nd Premolar", 26: "26 — 1st Molar", 27: "27 — 2nd Molar", 28: "28 — Wisdom Molar",
+    48: "48 — Wisdom Molar", 47: "47 — 2nd Molar", 46: "46 — 1st Molar", 45: "45 — 2nd Premolar", 44: "44 — 1st Premolar", 43: "43 — Canine", 42: "42 — Lateral Incisor", 41: "41 — Central Incisor",
+    31: "31 — Central Incisor", 32: "32 — Lateral Incisor", 33: "33 — Canine", 34: "34 — 1st Premolar", 35: "35 — 2nd Premolar", 36: "36 — 1st Molar", 37: "37 — 2nd Molar", 38: "38 — Wisdom Molar",
+    // Primary / Pediatric
+    55: "55 — 2nd Primary Molar", 54: "54 — 1st Primary Molar", 53: "53 — Primary Canine", 52: "52 — Primary Lateral Incisor", 51: "51 — Primary Central Incisor",
+    61: "61 — Primary Central Incisor", 62: "62 — Primary Lateral Incisor", 63: "63 — Primary Canine", 64: "64 — 1st Primary Molar", 65: "65 — 2nd Primary Molar",
+    85: "85 — 2nd Primary Molar", 84: "84 — 1st Primary Molar", 83: "83 — Primary Canine", 82: "82 — Primary Lateral Incisor", 81: "81 — Primary Central Incisor",
+    71: "71 — Primary Central Incisor", 72: "72 — Primary Lateral Incisor", 73: "73 — Primary Canine", 74: "74 — 1st Primary Molar", 75: "75 — 2nd Primary Molar"
   };
   const T_AR = {
     18: "18 — ضرس العقل", 17: "17 — ضرس ثان", 16: "16 — ضرس أول", 15: "15 — ضاحك ثان", 14: "14 — ضاحك أول", 13: "13 — ناب", 12: "12 — قاطع جانبي", 11: "11 — قاطع مركزي",
     21: "21 — قاطع مركزي", 22: "22 — قاطع جانبي", 23: "23 — ناب", 24: "24 — ضاحك أول", 25: "25 — ضاحك ثان", 26: "26 — ضرس أول", 27: "27 — ضرس ثان", 28: "28 — ضرس العقل",
-    38: "38 — ضرس العقل", 37: "37 — ضرس ثان", 36: "36 — ضرس أول", 35: "35 — ضاحك ثان", 34: "34 — ضاحك أول", 33: "33 — ناب", 32: "32 — قاطع جانبي", 31: "31 — قاطع مركزي",
-    41: "41 — قاطع مركزي", 42: "42 — قاطع جانبي", 43: "43 — ناب", 44: "44 — ضاحك أول", 45: "45 — ضاحك ثان", 46: "46 — ضرس أول", 47: "47 — ضرس ثان", 48: "48 — ضرس العقل"
+    48: "48 — ضرس العقل", 47: "47 — ضرس ثان", 46: "46 — ضرس أول", 45: "45 — ضاحك ثان", 44: "44 — ضاحك أول", 43: "43 — ناب", 42: "42 — قاطع جانبي", 41: "41 — قاطع مركزي",
+    31: "31 — قاطع مركزي", 32: "32 — قاطع جانبي", 33: "33 — ناب", 34: "34 — ضاحك أول", 35: "35 — ضاحك ثان", 36: "36 — ضرس أول", 37: "37 — ضرس ثان", 38: "38 — ضرس العقل",
+    // Primary / Pediatric
+    55: "55 — ضرس لبني ثان", 54: "54 — ضرس لبني أول", 53: "53 — ناب لبني", 52: "52 — قاطع جانبي لبني", 51: "51 — قاطع مركزي لبني",
+    61: "61 — قاطع مركزي لبني", 62: "62 — قاطع جانبي لبني", 63: "63 — ناب لبني", 64: "64 — ضرس لبني أول", 65: "65 — ضرس لبني ثان",
+    85: "85 — ضرس لبني ثان", 84: "84 — ضرس لبني أول", 83: "83 — ناب لبني", 82: "82 — قاطع جانبي لبني", 81: "81 — قاطع مركزي لبني",
+    71: "71 — قاطع مركزي لبني", 72: "72 — قاطع جانبي لبني", 73: "73 — ناب لبني", 74: "74 — ضرس لبني أول", 75: "75 — ضرس لبني ثان"
   };
   const T = isArabic ? T_AR : T_EN;
   const Q = isArabic ? [
-    [t("upper_right_q"), [18, 17, 16, 15, 14, 13, 12, 11]],
-    [t("upper_left_q"), [21, 22, 23, 24, 25, 26, 27, 28]],
-    [t("lower_left_q"), [31, 32, 33, 34, 35, 36, 37, 38]],
-    [t("lower_right_q"), [41, 42, 43, 44, 45, 46, 47, 48]]
+    ["الربع الأول: علوي أيمن (Q1: 18-11)", [18, 17, 16, 15, 14, 13, 12, 11]],
+    ["الربع الثاني: علوي أيسر (Q2: 21-28)", [21, 22, 23, 24, 25, 26, 27, 28]],
+    ["الربع الرابع: سفلي أيمن (Q4: 48-41)", [48, 47, 46, 45, 44, 43, 42, 41]],
+    ["الربع الثالث: سفلي أيسر (Q3: 31-38)", [31, 32, 33, 34, 35, 36, 37, 38]],
+    ["أسنان لبنية: علوي أيمن (Q5: 55-51)", [55, 54, 53, 52, 51]],
+    ["أسنان لبنية: علوي أيسر (Q6: 61-65)", [61, 62, 63, 64, 65]],
+    ["أسنان لبنية: سفلي أيمن (Q8: 85-81)", [85, 84, 83, 82, 81]],
+    ["أسنان لبنية: سفلي أيسر (Q7: 71-75)", [71, 72, 73, 74, 75]]
   ] : [
-    ["Upper Right (Q1)", [18, 17, 16, 15, 14, 13, 12, 11]],
-    ["Upper Left (Q2)", [21, 22, 23, 24, 25, 26, 27, 28]],
-    ["Lower Left (Q3)", [31, 32, 33, 34, 35, 36, 37, 38]],
-    ["Lower Right (Q4)", [41, 42, 43, 44, 45, 46, 47, 48]]
+    ["Upper Right (Q1: 18-11)", [18, 17, 16, 15, 14, 13, 12, 11]],
+    ["Upper Left (Q2: 21-28)", [21, 22, 23, 24, 25, 26, 27, 28]],
+    ["Lower Right (Q4: 48-41)", [48, 47, 46, 45, 44, 43, 42, 41]],
+    ["Lower Left (Q3: 31-38)", [31, 32, 33, 34, 35, 36, 37, 38]],
+    ["Primary Upper Right (Q5: 55-51)", [55, 54, 53, 52, 51]],
+    ["Primary Upper Left (Q6: 61-65)", [61, 62, 63, 64, 65]],
+    ["Primary Lower Right (Q8: 85-81)", [85, 84, 83, 82, 81]],
+    ["Primary Lower Left (Q7: 71-75)", [71, 72, 73, 74, 75]]
   ];
-  return `<option value="">${t("tooth_select_ph")}</option>` + Q.map(([lbl, teeth]) => `<optgroup label="${lbl}">${teeth.map(n => `<option value="${n}">${T[n]}</option>`).join("")}</optgroup>`).join("");
+  return `<option value="">${t("tooth_select_ph")}</option>` + Q.map(([lbl, teeth]) => `<optgroup label="${lbl}">${teeth.map(n => `<option value="${n}">${T[n] || n}</option>`).join("")}</optgroup>`).join("");
 }
 
 export function toast(m, ms = 2400) {

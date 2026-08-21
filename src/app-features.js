@@ -379,13 +379,13 @@ export async function openPat(pid) {
   `;
 }
 
-export function openOdontogramForPat(pid) {
+export async function openOdontogramForPat(pid) {
   closeSheet('patient');
-  goTo('odontogram');
-  const sel = document.getElementById("od-pat-sel");
-  if (sel) {
-    sel.value = pid;
-    sel.dispatchEvent(new Event('change'));
+  sw('clinical');
+  if (pid) {
+    const { data: pat } = await sb.from("patients").select("first_name,last_name").eq("id", pid).single();
+    const name = pat ? `${pat.first_name} ${pat.last_name}` : "Patient #" + pid;
+    if (window.loadCLPat) window.loadCLPat(pid, name);
   }
 }
 

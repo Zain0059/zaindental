@@ -18,6 +18,8 @@ let _editInvOrigItems = [];
 
 let _scanImgB64 = null, _scanImgMime = null, _scanImg2B64 = null, _scanImg2Mime = null;
 let _clTmr = null;
+let _selectedToothNum = null;
+let _clDentitionMode = 'adult'; // 'adult' or 'pediatric'
 
 // Clinical & Odontogram
 export async function loadRecentClinical() {
@@ -88,17 +90,89 @@ export async function loadCLPat(pid, name) {
     sb.from("patients").select("*").eq("id", pid).single()
   ]);
 
-  const treatedTeeth = new Set((txs || []).map(t => t.tooth_number).filter(Boolean));
+  const treatedTeeth = new Set((txs || []).map(t => parseInt(t.tooth_number, 10)).filter(Boolean));
 
-  const upperTeeth = [18, 17, 16, 15, 14, 13, 12, 11, 21, 22, 23, 24, 25, 26, 27, 28];
-  const lowerTeeth = [48, 47, 46, 45, 44, 43, 42, 41, 31, 32, 33, 34, 35, 36, 37, 38];
+  // FDI Standard ISO-3950 Tooth Definitions
+  const TOOTH_NAMES = {
+    18: { code: 'M3', en: '18 · Wisdom Molar', ar: '18 · ضرس العقل' },
+    17: { code: 'M2', en: '17 · 2nd Molar', ar: '17 · ضرس ثان' },
+    16: { code: 'M1', en: '16 · 1st Molar', ar: '16 · ضرس أول' },
+    15: { code: 'P2', en: '15 · 2nd Premolar', ar: '15 · ضاحك ثان' },
+    14: { code: 'P1', en: '14 · 1st Premolar', ar: '14 · ضاحك أول' },
+    13: { code: 'C',  en: '13 · Canine', ar: '13 · ناب' },
+    12: { code: 'I2', en: '12 · Lateral Incisor', ar: '12 · قاطع جانبي' },
+    11: { code: 'I1', en: '11 · Central Incisor', ar: '11 · قاطع مركزي' },
+
+    21: { code: 'I1', en: '21 · Central Incisor', ar: '21 · قاطع مركزي' },
+    22: { code: 'I2', en: '22 · Lateral Incisor', ar: '22 · قاطع جانبي' },
+    23: { code: 'C',  en: '23 · Canine', ar: '23 · ناب' },
+    24: { code: 'P1', en: '24 · 1st Premolar', ar: '24 · ضاحك أول' },
+    25: { code: 'P2', en: '25 · 2nd Premolar', ar: '25 · ضاحك ثان' },
+    26: { code: 'M1', en: '26 · 1st Molar', ar: '26 · ضرس أول' },
+    27: { code: 'M2', en: '27 · 2nd Molar', ar: '27 · ضرس ثان' },
+    28: { code: 'M3', en: '28 · Wisdom Molar', ar: '28 · ضرس العقل' },
+
+    48: { code: 'M3', en: '48 · Wisdom Molar', ar: '48 · ضرس العقل' },
+    47: { code: 'M2', en: '47 · 2nd Molar', ar: '47 · ضرس ثان' },
+    46: { code: 'M1', en: '46 · 1st Molar', ar: '46 · ضرس أول' },
+    45: { code: 'P2', en: '45 · 2nd Premolar', ar: '45 · ضاحك ثان' },
+    44: { code: 'P1', en: '44 · 1st Premolar', ar: '44 · ضاحك أول' },
+    43: { code: 'C',  en: '43 · Canine', ar: '43 · ناب' },
+    42: { code: 'I2', en: '42 · Lateral Incisor', ar: '42 · قاطع جانبي' },
+    41: { code: 'I1', en: '41 · Central Incisor', ar: '41 · قاطع مركزي' },
+
+    31: { code: 'I1', en: '31 · Central Incisor', ar: '31 · قاطع مركزي' },
+    32: { code: 'I2', en: '32 · Lateral Incisor', ar: '32 · قاطع جانبي' },
+    33: { code: 'C',  en: '33 · Canine', ar: '33 · ناب' },
+    34: { code: 'P1', en: '34 · 1st Premolar', ar: '34 · ضاحك أول' },
+    35: { code: 'P2', en: '35 · 2nd Premolar', ar: '35 · ضاحك ثان' },
+    36: { code: 'M1', en: '36 · 1st Molar', ar: '36 · ضرس أول' },
+    37: { code: 'M2', en: '37 · 2nd Molar', ar: '37 · ضرس ثان' },
+    38: { code: 'M3', en: '38 · Wisdom Molar', ar: '38 · ضرس العقل' },
+
+    // Pediatric / Primary teeth
+    55: { code: 'm2', en: '55 · 2nd Primary Molar', ar: '55 · ضرس لبني 2' },
+    54: { code: 'm1', en: '54 · 1st Primary Molar', ar: '54 · ضرس لبني 1' },
+    53: { code: 'c',  en: '53 · Primary Canine', ar: '53 · ناب لبني' },
+    52: { code: 'i2', en: '52 · Primary Lateral Incisor', ar: '52 · قاطع جانبي لبني' },
+    51: { code: 'i1', en: '51 · Primary Central Incisor', ar: '51 · قاطع مركزي لبني' },
+
+    61: { code: 'i1', en: '61 · Primary Central Incisor', ar: '61 · قاطع مركزي لبني' },
+    62: { code: 'i2', en: '62 · Primary Lateral Incisor', ar: '62 · قاطع جانبي لبني' },
+    63: { code: 'c',  en: '63 · Primary Canine', ar: '63 · ناب لبني' },
+    64: { code: 'm1', en: '64 · 1st Primary Molar', ar: '64 · ضرس لبني 1' },
+    65: { code: 'm2', en: '65 · 2nd Primary Molar', ar: '65 · ضرس لبني 2' },
+
+    85: { code: 'm2', en: '85 · 2nd Primary Molar', ar: '85 · ضرس لبني 2' },
+    84: { code: 'm1', en: '84 · 1st Primary Molar', ar: '84 · ضرس لبني 1' },
+    83: { code: 'c',  en: '83 · Primary Canine', ar: '83 · ناب لبني' },
+    82: { code: 'i2', en: '82 · Primary Lateral Incisor', ar: '82 · قاطع جانبي لبني' },
+    81: { code: 'i1', en: '81 · Primary Central Incisor', ar: '81 · قاطع مركزي لبني' },
+
+    71: { code: 'i1', en: '71 · Primary Central Incisor', ar: '71 · قاطع مركزي لبني' },
+    72: { code: 'i2', en: '72 · Primary Lateral Incisor', ar: '72 · قاطع جانبي لبني' },
+    73: { code: 'c',  en: '73 · Primary Canine', ar: '73 · ناب لبني' },
+    74: { code: 'm1', en: '74 · 1st Primary Molar', ar: '74 · ضرس لبني 1' },
+    75: { code: 'm2', en: '75 · 2nd Primary Molar', ar: '75 · ضرس لبني 2' }
+  };
+
+  // Quadrants definition:
+  const isPed = _clDentitionMode === 'pediatric';
+  const upperRightTeeth = isPed ? [55, 54, 53, 52, 51] : [18, 17, 16, 15, 14, 13, 12, 11];
+  const upperLeftTeeth  = isPed ? [61, 62, 63, 64, 65] : [21, 22, 23, 24, 25, 26, 27, 28];
+  const lowerRightTeeth = isPed ? [85, 84, 83, 82, 81] : [48, 47, 46, 45, 44, 43, 42, 41];
+  const lowerLeftTeeth  = isPed ? [71, 72, 73, 74, 75] : [31, 32, 33, 34, 35, 36, 37, 38];
 
   const renderTooth = (num) => {
     const isTreated = treatedTeeth.has(num);
-    return `<div onclick="window.selectToothFromChart(${num})" style="display:flex;flex-direction:column;align-items:center;cursor:pointer;padding:4px 2px" title="${isAr() ? 'سن #' : 'Tooth #'}${num}">
-      <div style="width:24px;height:28px;border-radius:4px;border:1.5px solid ${isTreated ? 'var(--teal)' : '#CBD5E1'};background:${isTreated ? 'var(--teal)' : '#FFFFFF'};color:${isTreated ? '#FFFFFF' : '#64748B'};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;box-shadow:var(--shadow-sm);transition:transform 0.15s">
+    const isSelected = _selectedToothNum === num;
+    const info = TOOTH_NAMES[num] || { code: '', en: `Tooth #${num}`, ar: `سن #${num}` };
+    const titleText = isAr() ? info.ar : info.en;
+    return `<div class="od-tooth-wrap" onclick="window.selectToothFromChart(${num})" title="${titleText}">
+      <div id="tooth-box-${num}" class="od-tooth-box ${isTreated ? 'is-treated' : ''} ${isSelected ? 'selected' : ''}" data-tooth="${num}">
         ${num}
       </div>
+      <span class="od-tooth-lbl">${info.code}</span>
     </div>`;
   };
 
@@ -130,15 +204,83 @@ export async function loadCLPat(pid, name) {
     </div>
 
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;margin-bottom:18px;box-shadow:var(--shadow-sm)">
-      <div class="slbl" style="margin-bottom:8px">${isAr() ? "مخطط الأسنان التفاعلي للبالغين (نظام FDI)" : "Interactive Adult Dental Chart (FDI System)"}</div>
-      <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px">${isAr() ? "الفك العلوي (Maxillary)" : "Upper Arch (Maxillary)"}</div>
-      <div style="display:flex;justify-content:center;gap:4px;overflow-x:auto;padding-bottom:8px">
-        ${upperTeeth.map(renderTooth).join("")}
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <div>
+          <div class="slbl" style="margin:0">${isAr() ? "مخطط الأسنان التفاعلي (نظام FDI العالمي)" : "Interactive Dental Odontogram (FDI System)"}</div>
+          <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px">${isAr() ? "انقر على أي سن لتحديده وبدء تسجيل الإجراء العلاجي" : "Click any tooth to select it and record a dental procedure"}</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="small-btn ${!isPed ? 'primary' : ''}" onclick="window.setDentitionMode('adult')" style="font-size:11px">${isAr() ? "دائمة (32 سن)" : "Adult (32)"}</button>
+          <button class="small-btn ${isPed ? 'primary' : ''}" onclick="window.setDentitionMode('pediatric')" style="font-size:11px">${isAr() ? "لبنية (20 سن)" : "Pediatric (20)"}</button>
+        </div>
       </div>
-      <div style="border-top:1px dashed var(--border);margin:8px 0"></div>
-      <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px">${isAr() ? "الفك السفلي (Mandibular)" : "Lower Arch (Mandibular)"}</div>
-      <div style="display:flex;justify-content:center;gap:4px;overflow-x:auto">
-        ${lowerTeeth.map(renderTooth).join("")}
+
+      <div class="od-viewport">
+        <div class="od-chart-inner" dir="ltr">
+          <!-- Anatomical Orientation Header -->
+          <div class="od-orientation-bar">
+            <span class="od-orient-tag">◀ ${isAr() ? "يمين المريض (Right)" : "Patient Right (R)"}</span>
+            <span style="font-size:10px;color:var(--text-muted);font-weight:700">FDI ISO 3950</span>
+            <span class="od-orient-tag">${isAr() ? "يسار المريض (Left)" : "Patient Left (L)"} ▶</span>
+          </div>
+
+          <!-- Upper Arch (Maxillary) -->
+          <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:6px;text-align:center">
+            ${isAr() ? "الفك العلوي (Maxillary Arch)" : "Upper Arch (Maxillary)"}
+          </div>
+          <div class="od-arch-row">
+            <div class="od-quadrant" title="${isAr() ? 'الربع الأول: علوي أيمن' : 'Quadrant 1: Upper Right'}">
+              ${upperRightTeeth.map(renderTooth).join("")}
+            </div>
+            <div class="od-midline">
+              <div class="od-midline-bar"></div>
+              <div class="od-midline-lbl">MID</div>
+            </div>
+            <div class="od-quadrant" title="${isAr() ? 'الربع الثاني: علوي أيسر' : 'Quadrant 2: Upper Left'}">
+              ${upperLeftTeeth.map(renderTooth).join("")}
+            </div>
+          </div>
+
+          <!-- Occlusal Plane Divider -->
+          <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin:10px 0 8px">
+            <div style="flex:1;height:1px;background:var(--border)"></div>
+            <div style="font-size:9.5px;font-weight:800;color:var(--text-muted);letter-spacing:1px;background:var(--surface);padding:2px 8px;border-radius:10px;border:1px solid var(--border)">OCCLUSAL PLANE</div>
+            <div style="flex:1;height:1px;background:var(--border)"></div>
+          </div>
+
+          <!-- Lower Arch (Mandibular) -->
+          <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:6px;text-align:center">
+            ${isAr() ? "الفك السفلي (Mandibular Arch)" : "Lower Arch (Mandibular)"}
+          </div>
+          <div class="od-arch-row">
+            <div class="od-quadrant" title="${isAr() ? 'الربع الرابع: سفلي أيمن' : 'Quadrant 4: Lower Right'}">
+              ${lowerRightTeeth.map(renderTooth).join("")}
+            </div>
+            <div class="od-midline">
+              <div class="od-midline-bar"></div>
+              <div class="od-midline-lbl">MID</div>
+            </div>
+            <div class="od-quadrant" title="${isAr() ? 'الربع الثالث: سفلي أيسر' : 'Quadrant 3: Lower Left'}">
+              ${lowerLeftTeeth.map(renderTooth).join("")}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div style="display:flex;justify-content:center;gap:16px;margin-top:12px;flex-wrap:wrap;font-size:11px;color:var(--text-muted)">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="width:12px;height:12px;border-radius:3px;border:1px solid #CBD5E1;background:var(--surface);display:inline-block"></span>
+          <span>${isAr() ? "سليم / غير مسجل" : "Healthy / Untreated"}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="width:12px;height:12px;border-radius:3px;background:var(--teal);display:inline-block"></span>
+          <span>${isAr() ? "تم علاجه مسجل" : "Treated Record"}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="width:12px;height:12px;border-radius:3px;border:2px solid var(--teal);background:var(--teal-dim);display:inline-block"></span>
+          <span>${isAr() ? "محدد حاليًا" : "Selected Tooth"}</span>
+        </div>
       </div>
     </div>
 
@@ -158,7 +300,7 @@ export async function loadCLPat(pid, name) {
         <input id="cl-proc-name" type="text" placeholder="${isAr() ? 'أو أدخل اسم الإجراء يدويًا…' : 'Or enter custom procedure name…'}" style="display:none">
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-        <div class="ff" style="margin:0"><label>${isAr() ? "رقم السن (FDI)" : "Tooth # (FDI)"}</label><select id="cl-tooth">${toothOpts()}</select></div>
+        <div class="ff" style="margin:0"><label>${isAr() ? "رقم السن (FDI)" : "Tooth # (FDI)"}</label><select id="cl-tooth" onchange="window.onCLToothChange(this.value)">${toothOpts()}</select></div>
         <div class="ff" style="margin:0"><label>${isAr() ? "التكلفة (جنيه)" : "Cost (EGP)"}</label><input id="cl-cost" type="number" inputmode="decimal" step="0.01" min="0" value="0"></div>
       </div>
       <div class="ff"><label>${isAr() ? "التشخيص والملاحظات السريرية" : "Clinical Diagnosis & Notes"}</label><textarea id="cl-notes" placeholder="${isAr() ? 'الملاحظات السريرية والمواد المستخدمة…' : 'Observations, materials used, patient feedback…'}"></textarea></div>
@@ -166,18 +308,74 @@ export async function loadCLPat(pid, name) {
     </div>`;
 }
 
-export function selectToothFromChart(num) {
-  openAddTx();
-  const toothSelect = document.getElementById("cl-tooth");
-  if (toothSelect) {
-    toothSelect.value = num;
-    toast(isAr() ? `تم تحديد السن رقم #${num} للعلاج` : `Tooth #${num} selected for treatment`);
+export function setDentitionMode(mode) {
+  _clDentitionMode = mode;
+  if (_clPatId) {
+    const clQ = document.getElementById("cl-q");
+    loadCLPat(_clPatId, clQ ? clQ.value : "");
   }
 }
 
-export function openAddTx() {
+export function selectToothFromChart(num) {
+  _selectedToothNum = num;
+  
+  // Highlight clicked tooth with glowing effect and trigger smooth pop animation
+  document.querySelectorAll('.od-tooth-box').forEach(el => {
+    el.classList.remove('selected', 'anim-pop');
+  });
+
+  const toothEl = document.getElementById(`tooth-box-${num}`);
+  if (toothEl) {
+    toothEl.classList.add('selected', 'anim-pop');
+    // Allow animation to re-trigger on subsequent clicks
+    setTimeout(() => {
+      toothEl.classList.remove('anim-pop');
+    }, 400);
+  }
+
+  // Open add treatment form
+  openAddTx(true);
+  
+  const toothSelect = document.getElementById("cl-tooth");
+  if (toothSelect) {
+    toothSelect.value = num;
+    toast(isAr() ? `تم تحديد السن رقم #${num} للعلاج 🦷` : `Tooth #${num} selected for treatment 🦷`);
+  }
+
+  const formEl = document.getElementById("cl-add-form");
+  if (formEl) {
+    formEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+}
+
+export function onCLToothChange(val) {
+  const num = parseInt(val, 10);
+  _selectedToothNum = num || null;
+
+  document.querySelectorAll('.od-tooth-box').forEach(el => {
+    el.classList.remove('selected', 'anim-pop');
+  });
+
+  if (num) {
+    const toothEl = document.getElementById(`tooth-box-${num}`);
+    if (toothEl) {
+      toothEl.classList.add('selected', 'anim-pop');
+      setTimeout(() => {
+        toothEl.classList.remove('anim-pop');
+      }, 400);
+    }
+  }
+}
+
+export function openAddTx(forceOpen = false) {
   const f = document.getElementById("cl-add-form");
-  if (f) f.style.display = f.style.display === "none" ? "block" : "none";
+  if (f) {
+    if (forceOpen) {
+      f.style.display = "block";
+    } else {
+      f.style.display = f.style.display === "none" ? "block" : "none";
+    }
+  }
 }
 
 export function clProcSel(sel) {
