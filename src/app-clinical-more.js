@@ -1550,66 +1550,255 @@ export async function deleteExpense() {
 }
 
 // AI File Scanner
+export function triggerFileInput(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.value = "";
+    el.click();
+  }
+}
+
 export function closeScanSheet() {
   closeSheet("scan-file");
   _scanImgB64 = null; _scanImgMime = null;
   _scanImg2B64 = null; _scanImg2Mime = null;
   const in1 = document.getElementById('scan-file-input'); if (in1) in1.value = "";
   const in2 = document.getElementById('scan-file-input-2'); if (in2) in2.value = "";
-  document.getElementById("scan-preview-wrap").style.display = "none";
-  document.getElementById("scan-add-page2-wrap").style.display = "none";
-  document.getElementById("scan-preview-wrap-2").style.display = "none";
-  document.getElementById("scan-analyze-btn").style.display = "none";
-  document.getElementById("scan-result-wrap").style.display = "none";
-  document.getElementById("scan-status").style.display = "none";
+  const wrap1 = document.getElementById("scan-preview-wrap"); if (wrap1) wrap1.style.display = "none";
+  const wrap2 = document.getElementById("scan-preview-wrap-2"); if (wrap2) wrap2.style.display = "none";
+  const page2Btn = document.getElementById("scan-add-page2-wrap"); if (page2Btn) page2Btn.style.display = "none";
+  const anBtn = document.getElementById("scan-analyze-btn"); if (anBtn) anBtn.style.display = "none";
+  const resWrap = document.getElementById("scan-result-wrap"); if (resWrap) resWrap.style.display = "none";
+  const st = document.getElementById("scan-status"); if (st) st.style.display = "none";
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("FileReader failed to access file stream"));
+    reader.onabort = () => reject(new Error("File read aborted"));
+    reader.readAsDataURL(file);
+  });
+}
+
+function optimizeImageIfLarge(dataUrl, originalMime) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const maxDimension = 2400;
+      let w = img.width;
+      let h = img.height;
+      if (w <= maxDimension && h <= maxDimension && dataUrl.length < 3 * 1024 * 1024) {
+        resolve({ base64: dataUrl.split(",")[1], mimeType: originalMime || "image/jpeg" });
+        return;
+      }
+      if (w > h && w > maxDimension) {
+        h = Math.round((h * maxDimension) / w);
+        w = maxDimension;
+      } else if (h > maxDimension) {
+        w = Math.round((w * maxDimension) / h);
+        h = maxDimension;
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(img, 0, 0, w, h);
+        const outData = canvas.toDataURL("image/jpeg", 0.90);
+        resolve({ base64: outData.split(",")[1], mimeType: "image/jpeg" });
+      } else {
+        resolve({ base64: dataUrl.split(",")[1], mimeType: originalMime || "image/jpeg" });
+      }
+    };
+    img.onerror = () => {
+      resolve({ base64: dataUrl.split(",")[1], mimeType: originalMime || "image/jpeg" });
+    };
+    img.src = dataUrl;
+  });
+}
+
+async function processSelectedFile(file, pageNum = 1) {
+  if (!file) return;
+
+  const maxBytes = 25 * 1024 * 1024; // 25 MB
+  if (file.size && file.size > maxBytes) {
+    toast(isAr() ? "حجم الملف كبير جداً (الحد الأقصى 25 ميغابايت) ✗" : "File size is too large (max 25MB) ✗");
+    return;
+  }
+
+  const name = file.name || (isAr() ? `مستند_صفحة_${pageNum}` : `page_${pageNum}_doc`);
+  const ext = name.split(".").pop().toLowerCase();
+  const isPdf = file.type === "application/pdf" || ext === "pdf";
+  const isImage = (file.type && file.type.startsWith("image/")) || ["jpg", "jpeg", "png", "webp", "heic", "heif"].includes(ext);
+
+  if (!isPdf && !isImage) {
+    toast(isAr() ? "صيغة الملف غير مدعومة. يرجى اختيار صورة JPG، PNG أو ملف PDF ✗" : "Unsupported file format. Please choose JPG, PNG, or PDF ✗");
+    return;
+  }
+
+  const sizeStr = file.size > 1024 * 1024
+    ? (file.size / (1024 * 1024)).toFixed(1) + " MB"
+    : Math.round((file.size || 0) / 1024) + " KB";
+
+  try {
+    toast(isAr() ? `جاري معالجة وتجهيز الصفحة ${pageNum}…` : `Loading page ${pageNum}…`);
+
+    const dataUrl = await readFileAsDataUrl(file);
+    if (!dataUrl || !dataUrl.includes(",")) {
+      throw new Error("Invalid base64 stream");
+    }
+
+    let finalB64 = dataUrl.split(",")[1];
+    let finalMime = file.type || (isPdf ? "application/pdf" : "image/jpeg");
+
+    if (isImage && !isPdf) {
+      try {
+        const optimized = await optimizeImageIfLarge(dataUrl, file.type || "image/jpeg");
+        if (optimized && optimized.base64) {
+          finalB64 = optimized.base64;
+          finalMime = optimized.mimeType;
+        }
+      } catch (optErr) {
+        console.warn("Using original dataUrl fallback:", optErr);
+      }
+    }
+
+    if (pageNum === 1) {
+      _scanImgB64 = finalB64;
+      _scanImgMime = finalMime;
+
+      const prevImg = document.getElementById("scan-preview-img");
+      const prevPdf = document.getElementById("scan-preview-pdf-1");
+      const pdfName = document.getElementById("scan-pdf-name-1");
+      const infoEl = document.getElementById("scan-preview-info-1");
+
+      if (infoEl) infoEl.textContent = `${name} (${sizeStr})`;
+
+      if (isPdf) {
+        if (prevImg) prevImg.style.display = "none";
+        if (prevPdf) prevPdf.style.display = "block";
+        if (pdfName) pdfName.textContent = name;
+      } else {
+        if (prevPdf) prevPdf.style.display = "none";
+        if (prevImg) {
+          prevImg.src = dataUrl;
+          prevImg.style.display = "block";
+        }
+      }
+
+      const wrap1 = document.getElementById("scan-preview-wrap");
+      if (wrap1) wrap1.style.display = "block";
+      const addP2Wrap = document.getElementById("scan-add-page2-wrap");
+      if (addP2Wrap) addP2Wrap.style.display = "block";
+      const anBtn = document.getElementById("scan-analyze-btn");
+      if (anBtn) anBtn.style.display = "flex";
+      const resWrap = document.getElementById("scan-result-wrap");
+      if (resWrap) resWrap.style.display = "none";
+      const st = document.getElementById("scan-status");
+      if (st) st.style.display = "none";
+
+      toast(isAr() ? "تم تحميل الصفحة 1 بنجاح ✓" : "Page 1 loaded successfully ✓");
+    } else {
+      _scanImg2B64 = finalB64;
+      _scanImg2Mime = finalMime;
+
+      const prevImg2 = document.getElementById("scan-preview-img-2");
+      const prevPdf2 = document.getElementById("scan-preview-pdf-2");
+      const pdfName2 = document.getElementById("scan-pdf-name-2");
+      const infoEl2 = document.getElementById("scan-preview-info-2");
+
+      if (infoEl2) infoEl2.textContent = `${name} (${sizeStr})`;
+
+      if (isPdf) {
+        if (prevImg2) prevImg2.style.display = "none";
+        if (prevPdf2) prevPdf2.style.display = "block";
+        if (pdfName2) pdfName2.textContent = name;
+      } else {
+        if (prevPdf2) prevPdf2.style.display = "none";
+        if (prevImg2) {
+          prevImg2.src = dataUrl;
+          prevImg2.style.display = "block";
+        }
+      }
+
+      const wrap2 = document.getElementById("scan-preview-wrap-2");
+      if (wrap2) wrap2.style.display = "block";
+      const resWrap = document.getElementById("scan-result-wrap");
+      if (resWrap) resWrap.style.display = "none";
+
+      toast(isAr() ? "تم تحميل الصفحة 2 بنجاح ✓" : "Page 2 loaded successfully ✓");
+    }
+  } catch (err) {
+    console.error("File reading error:", err);
+    toast(isAr() ? "تعذر قراءة الملف من ذاكرة الجهاز. يرجى المحاولة مجدداً ✗" : "Could not read file from device. Please try again ✗");
+  }
 }
 
 export function onScanFileChange(e) {
   const f = e.target.files && e.target.files[0];
-  if (!f) return;
-  _scanImgMime = f.type || "image/jpeg";
-  const reader = new FileReader();
-  reader.onload = () => {
-    _scanImgB64 = reader.result.split(",")[1];
-    document.getElementById("scan-preview-img").src = reader.result;
-    document.getElementById("scan-preview-wrap").style.display = "block";
-    document.getElementById("scan-add-page2-wrap").style.display = "block";
-    document.getElementById("scan-analyze-btn").style.display = "flex";
-    document.getElementById("scan-result-wrap").style.display = "none";
-  };
-  reader.readAsDataURL(f);
+  if (!f) return; // User canceled picker
+  processSelectedFile(f, 1);
 }
 
 export function onScanFileChange2(e) {
   const f = e.target.files && e.target.files[0];
-  if (!f) return;
-  _scanImg2Mime = f.type || "image/jpeg";
-  const reader = new FileReader();
-  reader.onload = () => {
-    _scanImg2B64 = reader.result.split(",")[1];
-    document.getElementById("scan-preview-img-2").src = reader.result;
-    document.getElementById("scan-preview-wrap-2").style.display = "block";
-    document.getElementById("scan-result-wrap").style.display = "none";
-  };
-  reader.readAsDataURL(f);
+  if (!f) return; // User canceled picker
+  processSelectedFile(f, 2);
+}
+
+export function clearScanPage1() {
+  _scanImgB64 = null;
+  _scanImgMime = null;
+  const in1 = document.getElementById('scan-file-input');
+  if (in1) in1.value = "";
+  const wrap1 = document.getElementById("scan-preview-wrap");
+  if (wrap1) wrap1.style.display = "none";
+  if (!_scanImg2B64) {
+    const p2Wrap = document.getElementById("scan-add-page2-wrap");
+    if (p2Wrap) p2Wrap.style.display = "none";
+    const anBtn = document.getElementById("scan-analyze-btn");
+    if (anBtn) anBtn.style.display = "none";
+  }
+  const resWrap = document.getElementById("scan-result-wrap");
+  if (resWrap) resWrap.style.display = "none";
+  toast(isAr() ? "تمت إزالة الصفحة 1" : "Page 1 removed");
 }
 
 export function removeScanPage2() {
-  _scanImg2B64 = null; _scanImg2Mime = null;
-  const in2 = document.getElementById('scan-file-input-2'); if (in2) in2.value = "";
-  document.getElementById("scan-preview-wrap-2").style.display = "none";
+  _scanImg2B64 = null;
+  _scanImg2Mime = null;
+  const in2 = document.getElementById('scan-file-input-2');
+  if (in2) in2.value = "";
+  const wrap2 = document.getElementById("scan-preview-wrap-2");
+  if (wrap2) wrap2.style.display = "none";
+  toast(isAr() ? "تمت إزالة الصفحة 2" : "Page 2 removed");
 }
 
 export async function analyzeScanFile() {
-  if (!_scanImgB64) { toast(isAr() ? "يرجى التقاط صورة أو رفع ملف أولاً ✗" : "Please capture or choose a photo first ✗"); return; }
+  if (!_scanImgB64 && !_scanImg2B64) {
+    toast(isAr() ? "يرجى التقاط صورة أو رفع ملف أولاً ✗" : "Please capture or choose a photo first ✗");
+    return;
+  }
   const statusEl = document.getElementById("scan-status");
   statusEl.style.display = "block";
-  statusEl.textContent = _scanImg2B64 ? (isAr() ? "جاري تحليل الملف متعدد الصفحات بالذكاء الاصطناعي…" : "Analyzing multi-page patient file with AI…") : (isAr() ? "جاري قراءة وتحليل الخط اليدوي بالذكاء الاصطناعي…" : "Transcribing handwriting with AI vision…");
-  document.getElementById("scan-analyze-btn").disabled = true;
+  statusEl.textContent = _scanImg2B64
+    ? (isAr() ? "جاري تحليل الملف متعدد الصفحات بالذكاء الاصطناعي…" : "Analyzing multi-page patient file with AI…")
+    : (isAr() ? "جاري قراءة وتحليل الخط اليدوي والبيانات بالذكاء الاصطناعي…" : "Transcribing handwriting with AI vision…");
+  
+  const analyzeBtn = document.getElementById("scan-analyze-btn");
+  if (analyzeBtn) analyzeBtn.disabled = true;
 
   try {
-    const body = { image_base64: _scanImgB64, mime_type: _scanImgMime };
-    if (_scanImg2B64) { body.image_base64_2 = _scanImg2B64; body.mime_type_2 = _scanImg2Mime; }
+    const primaryB64 = _scanImgB64 || _scanImg2B64;
+    const primaryMime = _scanImgB64 ? _scanImgMime : _scanImg2Mime;
+    const body = { image_base64: primaryB64, mime_type: primaryMime };
+    if (_scanImgB64 && _scanImg2B64) {
+      body.image_base64_2 = _scanImg2B64;
+      body.mime_type_2 = _scanImg2Mime;
+    }
+
     const { data, error } = await sb.functions.invoke("Scan-proxy", { body });
     if (error) {
       let detail = "";
@@ -1633,12 +1822,13 @@ export async function analyzeScanFile() {
     document.getElementById("scan-diagnosis").value = ex.diagnosis || "";
     document.getElementById("scan-procedure").value = ex.procedure || "";
     document.getElementById("scan-result-wrap").style.display = "block";
-    statusEl.textContent = isAr() ? "اكتمل الاستخراج بنجاح — يرجى مراجعة الحقول قبل الحفظ." : "Extraction complete — please verify fields before saving.";
+    statusEl.textContent = isAr() ? "اكتمل الاستخراج بنجاح — يرجى مراجعة الحقول وتأكيد الحفظ." : "Extraction complete — please verify fields before saving.";
+    toast(isAr() ? "تم استخراج البيانات بنجاح ✓" : "Data extracted successfully ✓");
   } catch (err) {
     statusEl.textContent = (isAr() ? "خطأ في الفحص: " : "Scan error: ") + err.message;
-    toast(isAr() ? "فشل التحليل ✗" : "Analysis failed ✗");
+    toast(isAr() ? "فشل التحليل: " + err.message + " ✗" : "Analysis failed: " + err.message + " ✗");
   } finally {
-    document.getElementById("scan-analyze-btn").disabled = false;
+    if (analyzeBtn) analyzeBtn.disabled = false;
   }
 }
 

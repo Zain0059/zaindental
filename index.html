@@ -511,29 +511,48 @@
       التقط صورة أو ارفع صورة لملف المريض الورقي أو المكتوب بخط اليد. سيقوم الذكاء الاصطناعي بنسخ الخط اليدوي، استخراج البيانات، التاريخ الطبي والتشخيص وتعبئة ملف المريض تلقائياً.
     </div>
 
-    <div id="scan-drop" style="border:2px dashed var(--border);border-radius:var(--r-lg);padding:24px 16px;text-align:center;cursor:pointer;background:var(--surface);transition:border-color .15s" onclick="document.getElementById('scan-file-input').click()">
+    <div id="scan-drop" style="border:2px dashed var(--border);border-radius:var(--r-lg);padding:24px 16px;text-align:center;cursor:pointer;background:var(--surface);transition:border-color .15s" onclick="window.triggerFileInput('scan-file-input')">
       <svg viewBox="0 0 24 24" fill="none" stroke="var(--teal)" width="36" height="36" stroke-width="1.8" style="margin:0 auto 10px;display:block"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
       <div style="font-size:14px;font-weight:700;color:var(--navy)" data-i18n="scan_tap_p1">اضغط لالتقاط أو رفع الصفحة 1</div>
-      <div style="font-size:12px;color:var(--text-muted);margin-top:4px">الكاميرا أو مكتبة الصور · JPG / PNG</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:4px">الصور أو الملفات أو المستندات · JPG / PNG / PDF</div>
     </div>
-    <input id="scan-file-input" type="file" accept="image/*" capture="environment" style="display:none" onchange="window.onScanFileChange(event)">
+    <input id="scan-file-input" type="file" accept="image/jpeg,image/png,image/jpg,image/webp,application/pdf,.jpg,.jpeg,.png,.webp,.pdf" style="display:none" onchange="window.onScanFileChange(event)">
 
     <div id="scan-preview-wrap" style="display:none;margin-top:14px">
-      <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:6px">معاينة الصفحة 1</div>
-      <img id="scan-preview-img" style="width:100%;border-radius:var(--r-md);border:1px solid var(--border);display:block">
-      <button class="small-btn" style="margin-top:8px" onclick="document.getElementById('scan-file-input').click()">إعادة التقاط الصورة</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div style="font-size:11px;font-weight:700;color:var(--navy)">معاينة الصفحة 1</div>
+        <div id="scan-preview-info-1" style="font-size:11px;color:var(--text-muted)"></div>
+      </div>
+      <img id="scan-preview-img" style="width:100%;max-height:300px;object-fit:contain;border-radius:var(--r-md);border:1px solid var(--border);display:block;background:var(--bg)">
+      <div id="scan-preview-pdf-1" style="display:none;padding:20px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-md);text-align:center">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--teal)" width="40" height="40" stroke-width="1.8" style="margin:0 auto 8px;display:block"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <div id="scan-pdf-name-1" style="font-weight:700;font-size:13px;color:var(--navy)"></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px">مستند PDF جاهز للتحليل بالذكاء الاصطناعي</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="small-btn" style="flex:1" onclick="window.triggerFileInput('scan-file-input')">إعادة التقاط أو اختيار الصفحة 1</button>
+        <button class="small-btn" style="color:var(--error)" onclick="window.clearScanPage1()">إزالة</button>
+      </div>
     </div>
 
     <div id="scan-add-page2-wrap" style="display:none;margin-top:12px">
-      <button class="small-btn" onclick="document.getElementById('scan-file-input-2').click()">+ إضافة الصفحة 2 (إذا كان الملف ذا وجهين)</button>
+      <button class="small-btn" onclick="window.triggerFileInput('scan-file-input-2')">+ إضافة الصفحة 2 (إذا كان الملف ذا وجهين)</button>
     </div>
-    <input id="scan-file-input-2" type="file" accept="image/*" capture="environment" style="display:none" onchange="window.onScanFileChange2(event)">
+    <input id="scan-file-input-2" type="file" accept="image/jpeg,image/png,image/jpg,image/webp,application/pdf,.jpg,.jpeg,.png,.webp,.pdf" style="display:none" onchange="window.onScanFileChange2(event)">
     
     <div id="scan-preview-wrap-2" style="display:none;margin-top:14px">
-      <div style="font-size:11px;font-weight:700;color:var(--navy);margin-bottom:6px">معاينة الصفحة 2</div>
-      <img id="scan-preview-img-2" style="width:100%;border-radius:var(--r-md);border:1px solid var(--border);display:block">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div style="font-size:11px;font-weight:700;color:var(--navy)">معاينة الصفحة 2</div>
+        <div id="scan-preview-info-2" style="font-size:11px;color:var(--text-muted)"></div>
+      </div>
+      <img id="scan-preview-img-2" style="width:100%;max-height:300px;object-fit:contain;border-radius:var(--r-md);border:1px solid var(--border);display:block;background:var(--bg)">
+      <div id="scan-preview-pdf-2" style="display:none;padding:20px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r-md);text-align:center">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--teal)" width="40" height="40" stroke-width="1.8" style="margin:0 auto 8px;display:block"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <div id="scan-pdf-name-2" style="font-weight:700;font-size:13px;color:var(--navy)"></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:2px">مستند PDF للصفحة 2 جاهز للتحليل</div>
+      </div>
       <div style="display:flex;gap:8px;margin-top:8px">
-        <button class="small-btn" style="flex:1" onclick="document.getElementById('scan-file-input-2').click()">إعادة التقاط الصفحة 2</button>
+        <button class="small-btn" style="flex:1" onclick="window.triggerFileInput('scan-file-input-2')">إعادة التقاط أو اختيار الصفحة 2</button>
         <button class="small-btn" style="flex:1;color:var(--error)" onclick="window.removeScanPage2()">إزالة الصفحة 2</button>
       </div>
     </div>
