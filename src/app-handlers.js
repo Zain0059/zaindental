@@ -319,57 +319,20 @@ export async function loadSched() {
   // Render Key Practice Metrics Grid
   const metricsEl = document.getElementById("sched-metrics-grid");
   if (metricsEl) {
-    if (isAdmin()) {
-      metricsEl.innerHTML = `
-        <div class="sg">
-          <div class="sc sc-featured">
-            <div class="sc-ico" style="--ac:var(--teal)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg></div>
-            <div class="sc-val">${patCount || 0}</div>
-            <div class="sc-lbl">${isAr() ? "إجمالي المرضى المسجلين" : "Total Registered Patients"}</div>
-          </div>
-          <div class="sc">
-            <div class="sc-ico" style="--ac:var(--info)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
-            <div class="sc-val">${totalAppts}</div>
-            <div class="sc-lbl">${isAr() ? "زيارات هذا اليوم" : "Visits on This Date"}</div>
-          </div>
-          <div class="sc">
-            <div class="sc-ico" style="--ac:var(--success)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-            <div class="sc-val" style="color:var(--success)">${fmt(monthlyCollected)}</div>
-            <div class="sc-lbl">${isAr() ? "محصل هذا الشهر" : "Collected This Month"}</div>
-          </div>
-          <div class="sc">
-            <div class="sc-ico" style="--ac:var(--warning)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div>
-            <div class="sc-val" style="color:var(--warning)">${fmt(outstanding)}</div>
-            <div class="sc-lbl">${isAr() ? "المتبقي غير المحصل" : "Outstanding Balance"}</div>
-          </div>
+    metricsEl.innerHTML = `
+      <div class="sg">
+        <div class="sc sc-featured">
+          <div class="sc-ico" style="--ac:var(--teal)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg></div>
+          <div class="sc-val">${patCount || 0}</div>
+          <div class="sc-lbl">${isAr() ? "إجمالي المرضى المسجلين" : "Total Registered Patients"}</div>
         </div>
-      `;
-    } else {
-      metricsEl.innerHTML = `
-        <div class="sg">
-          <div class="sc sc-featured">
-            <div class="sc-ico" style="--ac:var(--teal)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg></div>
-            <div class="sc-val">${patCount || 0}</div>
-            <div class="sc-lbl">${isAr() ? "إجمالي المرضى المسجلين" : "Total Registered Patients"}</div>
-          </div>
-          <div class="sc">
-            <div class="sc-ico" style="--ac:var(--info)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
-            <div class="sc-val">${totalAppts}</div>
-            <div class="sc-lbl">${isAr() ? "زيارات هذا اليوم" : "Visits on This Date"}</div>
-          </div>
-          <div class="sc">
-            <div class="sc-ico" style="--ac:var(--success)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
-            <div class="sc-val" style="color:var(--success)">${confirmedOrDone}</div>
-            <div class="sc-lbl">${isAr() ? "مؤكد وتم الفحص" : "Confirmed & Completed"}</div>
-          </div>
-          <div class="sc">
-            <div class="sc-ico" style="--ac:var(--navy)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-            <div class="sc-val">${Math.max(0, totalAppts - confirmedOrDone)}</div>
-            <div class="sc-lbl">${isAr() ? "في الانتظار والمجدول" : "Scheduled / Pending"}</div>
-          </div>
+        <div class="sc">
+          <div class="sc-ico" style="--ac:var(--info)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+          <div class="sc-val">${totalAppts}</div>
+          <div class="sc-lbl">${isAr() ? "زيارات هذا اليوم" : "Visits on This Date"}</div>
         </div>
-      `;
-    }
+      </div>
+    `;
   }
 
   if (!visible.length) {
