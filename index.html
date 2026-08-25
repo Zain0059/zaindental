@@ -774,51 +774,72 @@
 <div class="sheet" id="sh-notifications">
   <div class="sh-hdr">
     <button class="back" onclick="window.closeNotificationDrawer()" title="إغلاق">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2.2"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
-    <div style="flex:1">
+    <div class="sh-hdr-title-wrap">
       <div class="sh-title" data-i18n="notifications_title">مركز التنبيهات والإشعارات</div>
       <div class="sh-sub" data-i18n="notifications_sub">تذكيرات مواعيد 3:00 م وتنبيهات الحجوزات اللحظية</div>
     </div>
-    <div style="display:flex;gap:6px">
+    <div class="notif-hdr-actions">
       <button class="notif-hdr-action-btn" onclick="window.markAllNotificationsAsRead()" title="تحديد الكل كمقروء">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="15" height="15" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
       </button>
       <button class="notif-hdr-action-btn" onclick="window.clearAllNotifications()" title="مسح الكل">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="15" height="15" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" stroke-width="2.2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       </button>
     </div>
   </div>
 
-  <div class="pg" style="padding:16px 18px 40px">
+  <div class="pg notif-pg-container">
     <!-- Browser notification permission banner -->
     <div id="notif-perm-banner" class="notif-perm-box" style="display:none">
       <div class="notif-perm-info">
-        <div style="font-size:20px">🔔</div>
+        <div class="notif-perm-icon">🔔</div>
         <div>
-          <div style="font-weight:700;font-size:13px" data-i18n="enable_notif_title">تفعيل إشعارات سطح المكتب والمتصفح</div>
-          <div style="font-size:12px;color:var(--text-muted)" data-i18n="enable_notif_desc">لاستلام تنبيهات مواعيد الساعة 3:00 م والحجوزات الجديدة فوراً</div>
+          <div class="notif-perm-title" data-i18n="enable_notif_title">تفعيل إشعارات سطح المكتب والمتصفح</div>
+          <div class="notif-perm-desc" data-i18n="enable_notif_desc">استلام تنبيهات 3:00 م والحجوزات الجديدة فوراً</div>
         </div>
       </div>
-      <button class="btn-sm btn-primary" onclick="window.requestBrowserNotificationPermission()" style="white-space:nowrap;padding:6px 12px;font-size:12px" data-i18n="enable_btn">تفعيل الآن</button>
+      <button class="btn-sm btn-primary notif-perm-btn" onclick="window.requestBrowserNotificationPermission()" data-i18n="enable_btn">تفعيل الآن</button>
     </div>
 
-    <!-- Quick test actions bar -->
-    <div class="notif-test-bar">
-      <span style="font-size:12px;font-weight:700;color:var(--text-muted)" data-i18n="quick_tests">تجربة التنبيهات:</span>
-      <button class="notif-pill-btn" onclick="window.triggerDaily3PMNotification(true)">
-        <span>⏰ تجربة إشعار 3:00 م</span>
-      </button>
-      <button class="notif-pill-btn" onclick="window.broadcastNewAppointmentBooked({patient_name:'سارة أحمد (تجربة)', appointment_date:window.today(), appointment_time:'16:30', appt_type:'Checkup'})">
-        <span>📅 تجربة حجز موعد</span>
-      </button>
+    <!-- Quick test simulation cards -->
+    <div class="notif-test-section">
+      <div class="notif-test-header">
+        <span class="notif-test-title" data-i18n="quick_tests">⚡ تجربة واختبار الإشعارات:</span>
+      </div>
+      <div class="notif-test-grid">
+        <button class="notif-test-card" onclick="window.triggerDaily3PMNotification(true)">
+          <div class="notif-test-card-icon">⏰</div>
+          <div class="notif-test-card-text">
+            <span class="notif-test-card-title">إشعار 3:00 م</span>
+            <span class="notif-test-card-sub">ملخص المواعيد</span>
+          </div>
+        </button>
+        <button class="notif-test-card" onclick="window.broadcastNewAppointmentBooked({patient_name:'سارة أحمد (تجربة)', appointment_date:window.today(), appointment_time:'16:30', appt_type:'Checkup'})">
+          <div class="notif-test-card-icon">📅</div>
+          <div class="notif-test-card-text">
+            <span class="notif-test-card-title">تنبيه حجز جديد</span>
+            <span class="notif-test-card-sub">بث لحظي للمستخدمين</span>
+          </div>
+        </button>
+      </div>
     </div>
 
-    <!-- Filter tabs -->
+    <!-- Segmented filter tabs -->
     <div class="notif-filter-tabs">
-      <button id="notif-tab-all" class="notif-filter-tab active" onclick="window.setNotificationFilter('all')" data-i18n="notif_tab_all">كل الإشعارات</button>
-      <button id="notif-tab-3pm" class="notif-filter-tab" onclick="window.setNotificationFilter('3pm')" data-i18n="notif_tab_3pm">⏰ تذكير 3:00 م</button>
-      <button id="notif-tab-bookings" class="notif-filter-tab" onclick="window.setNotificationFilter('bookings')" data-i18n="notif_tab_bookings">📅 حجوزات جديدة</button>
+      <button id="notif-tab-all" class="notif-filter-tab active" onclick="window.setNotificationFilter('all')">
+        <span class="notif-tab-icon">🔔</span>
+        <span class="notif-tab-text" data-i18n="notif_tab_all">الكل</span>
+      </button>
+      <button id="notif-tab-3pm" class="notif-filter-tab" onclick="window.setNotificationFilter('3pm')">
+        <span class="notif-tab-icon">⏰</span>
+        <span class="notif-tab-text" data-i18n="notif_tab_3pm">تذكير 3:00 م</span>
+      </button>
+      <button id="notif-tab-bookings" class="notif-filter-tab" onclick="window.setNotificationFilter('bookings')">
+        <span class="notif-tab-icon">📅</span>
+        <span class="notif-tab-text" data-i18n="notif_tab_bookings">حجوزات جديدة</span>
+      </button>
     </div>
 
     <!-- Notification list container -->

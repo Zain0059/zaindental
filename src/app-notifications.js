@@ -328,7 +328,7 @@ export async function triggerDaily3PMNotification(isManualTest = false) {
     });
 
     const isArabic = isAr();
-    let title = isArabic ? '⏰ تذكير بمواعيد اليوم (الساعة 3:00 م)' : "⏰ Today's 3:00 PM Schedule Reminder";
+    let title = isArabic ? 'تذكير مواعيد اليوم (الساعة 3:00 م)' : "Today's 3:00 PM Schedule Summary";
     let body = '';
 
     if (total === 0) {
@@ -493,9 +493,9 @@ export function handleIncomingNewAppointmentAlert(payload) {
   const apptDate = payload.appointment_date;
   const bookedBy = payload.booked_by || (isArabic ? 'عضو بالفريق' : 'Staff');
 
-  const title = isArabic ? '📅 حجز موعد جديد في العيادة' : '📅 New Appointment Booked';
+  const title = isArabic ? 'حجز موعد جديد بالعيادة' : 'New Appointment Booked';
   const body = isArabic
-    ? `تم حجز موعد لـ ${pName} بتاريخ ${apptDate} الساعة ${apptTime} (بواسطة: ${bookedBy})`
+    ? `تم تسجيل حجز لـ ${pName} بتاريخ ${apptDate} في تمام ${apptTime} (بواسطة: ${bookedBy})`
     : `Appointment booked for ${pName} on ${apptDate} at ${apptTime} (by ${bookedBy})`;
 
   // Play audio chime
@@ -670,20 +670,20 @@ export function renderNotificationDrawer() {
     const dateDay = item.timestamp ? new Date(item.timestamp).toLocaleDateString(isArabic ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric' }) : '';
 
     return `
-      <div class="notif-card ${item.isRead ? 'read' : 'unread'}" onclick="window.handleNotificationCardClick('${item.id}', '${item.date}', '${item.type}')">
-        <div class="notif-card-icon" style="background:${badgeColor}15;color:${badgeColor}">${icon}</div>
+      <div class="notif-card ${item.isRead ? 'read' : 'unread'}" onclick="window.handleNotificationCardClick('${item.id}', '${item.date || ''}', '${item.type}')">
+        <div class="notif-card-icon notif-icon-${is3PM ? '3pm' : 'booking'}">${icon}</div>
         <div class="notif-card-content">
           <div class="notif-card-header">
-            <span class="notif-card-title">${esc(item.title)}</span>
+            <h4 class="notif-card-title">${esc(item.title)}</h4>
             <span class="notif-card-time">${dateDay} · ${dateFormatted}</span>
           </div>
           <div class="notif-card-body">${esc(item.body)}</div>
           <div class="notif-card-footer">
-            <span class="notif-card-tag" style="color:${badgeColor}">
-              ${is3PM ? (isArabic ? 'ملخص 3:00 م' : '3 PM Summary') : (isArabic ? 'حجز موعد' : 'New Booking')}
+            <span class="notif-card-tag notif-tag-${is3PM ? '3pm' : 'booking'}">
+              ${is3PM ? (isArabic ? 'ملخص 3:00 م' : '3 PM Summary') : (isArabic ? 'حجز موعد جديد' : 'New Booking')}
             </span>
-            <button class="notif-card-action-btn" onclick="event.stopPropagation();window.handleNotificationCardClick('${item.id}', '${item.date}', '${item.type}')">
-              ${isArabic ? 'عرض الجدول 📅' : 'Open Schedule 📅'}
+            <button class="notif-card-action-btn" onclick="event.stopPropagation();window.handleNotificationCardClick('${item.id}', '${item.date || ''}', '${item.type}')">
+              <span>${isArabic ? 'عرض بالجدول 📅' : 'View Schedule 📅'}</span>
             </button>
           </div>
         </div>

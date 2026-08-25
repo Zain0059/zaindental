@@ -298,12 +298,12 @@ export const DICT = {
     mark_all_read: "تحديد الكل كمقروء",
     clear_all: "مسح الكل",
     enable_notif_title: "تفعيل إشعارات سطح المكتب والمتصفح",
-    enable_notif_desc: "لاستلام تنبيهات مواعيد الساعة 3:00 م والحجوزات الجديدة فوراً",
+    enable_notif_desc: "استلام تنبيهات 3:00 م والحجوزات الجديدة فوراً",
     enable_btn: "تفعيل الآن",
-    quick_tests: "تجربة التنبيهات:",
-    notif_tab_all: "كل الإشعارات",
-    notif_tab_3pm: "⏰ تذكير 3:00 م",
-    notif_tab_bookings: "📅 حجوزات جديدة",
+    quick_tests: "تجربة واختبار الإشعارات:",
+    notif_tab_all: "الكل",
+    notif_tab_3pm: "تذكير 3:00 م",
+    notif_tab_bookings: "حجوزات جديدة",
 
     // Common Toasts & Actions
     saved_successfully: "تم الحفظ بنجاح ✓",
@@ -610,10 +610,10 @@ export const DICT = {
     enable_notif_title: "Enable Desktop & Browser Notifications",
     enable_notif_desc: "Receive 3:00 PM appointment summaries & new booking alerts instantly",
     enable_btn: "Enable Now",
-    quick_tests: "Quick Tests:",
-    notif_tab_all: "All Notifications",
-    notif_tab_3pm: "⏰ 3:00 PM Reminders",
-    notif_tab_bookings: "📅 New Bookings",
+    quick_tests: "Test & Simulate Notifications:",
+    notif_tab_all: "All",
+    notif_tab_3pm: "3:00 PM Reminders",
+    notif_tab_bookings: "New Bookings",
 
     // Common Toasts & Actions
     saved_successfully: "Saved successfully ✓",
