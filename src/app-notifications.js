@@ -96,21 +96,114 @@ export function playNotificationSound(type = 'default') {
 }
 
 // --------------------------------------------------
-// System/Browser Permissions & Push Dispatch
+// Service Worker & Android Drop-Down Notifications Engine
 // --------------------------------------------------
-export async function requestBrowserNotificationPermission() {
-  if (!('Notification' in window)) {
-    if (window.toast) window.toast(isAr() ? 'المتصفح لا يدعم إشعارات النظام ✗' : 'Browser does not support notifications ✗');
-    return false;
+let _swRegistration = null;
+
+// Register Service Worker for true Android System Drop-down tray notifications
+export async function registerServiceWorker() {
+  if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+    try {
+      const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+      _swRegistration = reg;
+      console.log('[Zain Dental] SW registered for Android notifications:', reg);
+
+      navigator.serviceWorker.addEventListener('message', (event) => {
+        if (event.data?.type === 'NOTIFICATION_CLICKED') {
+          const targetDate = event.data.targetDate;
+          if (targetDate) {
+            const dtInput = document.getElementById('sched-dt');
+            if (dtInput) dtInput.value = targetDate;
+          }
+          if (window.sw) window.sw('sched');
+          if (window.loadSched) window.loadSched();
+        }
+      });
+      return reg;
+    } catch (e) {
+      console.warn('[Zain Dental] SW registration error:', e);
+    }
   }
+  return null;
+}
+
+// Request permissions via Web API & Median / GoNative Android Native Bridge
+export function requestMedianAndroidPermissions() {
+  try {
+    // 1. Median.co JS API
+    if (window.median?.permissions?.request) {
+      window.median.permissions.request({ permission: 'android.permission.POST_NOTIFICATIONS' });
+    }
+    if (window.gonative?.permissions?.request) {
+      window.gonative.permissions.request({ permission: 'android.permission.POST_NOTIFICATIONS' });
+    }
+    if (window.median?.onesignal) {
+      if (typeof window.median.onesignal.register === 'function') window.median.onesignal.register();
+      if (typeof window.median.onesignal.enableForegroundNotifications === 'function') {
+        window.median.onesignal.enableForegroundNotifications(true);
+        window.median.onesignal.enableForegroundNotifications({ enabled: true });
+      }
+    }
+    if (window.gonative?.onesignal) {
+      if (typeof window.gonative.onesignal.register === 'function') window.gonative.onesignal.register();
+      if (typeof window.gonative.onesignal.enableForegroundNotifications === 'function') {
+        window.gonative.onesignal.enableForegroundNotifications(true);
+        window.gonative.onesignal.enableForegroundNotifications({ enabled: true });
+      }
+    }
+
+    // 2. Median / GoNative Custom URI schemes via hidden iframe
+    const sendBridgeUri = (uri) => {
+      try {
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = uri;
+        document.body.appendChild(iframe);
+        setTimeout(() => {
+          try { iframe.remove(); } catch (err) {}
+        }, 1200);
+      } catch (e) {}
+    };
+
+    sendBridgeUri('median://onesignal/register');
+    sendBridgeUri('median://onesignal/enableForegroundNotifications?enabled=true');
+  } catch (e) {
+    console.debug('Median permissions bridge fallback:', e);
+  }
+}
+
+export async function requestBrowserNotificationPermission() {
+  // Trigger Android native permission bridge
+  requestMedianAndroidPermissions();
+
+  if (!('Notification' in window)) {
+    if (window.toast) window.toast(isAr() ? 'تم طلب تفعيل إشعارات الهاتف بنجاح ✓' : 'Mobile notification request sent ✓');
+    updateNotificationPermissionUI();
+    return true;
+  }
+
   try {
     const permission = await Notification.requestPermission();
     if (permission === 'granted') {
-      if (window.toast) window.toast(isAr() ? 'تم تفعيل إشعارات النظام بنجاح ✓' : 'System notifications enabled ✓');
+      if (window.toast) window.toast(isAr() ? 'تم تفعيل إشعارات شريط الهاتف بنجاح ✓' : 'System notifications enabled ✓');
       updateNotificationPermissionUI();
+      
+      // Ensure Service Worker is registered
+      await registerServiceWorker();
+
+      // Dispatch initial welcome notification to confirm drop-down appearance
+      dispatchSystemNotification({
+        title: isAr() ? 'عيادة زين للأسنان' : 'Zain Dental Clinic',
+        body: isAr() ? 'تم تفعيل إشعارات الهاتف بنجاح، ستصلك ملخصات المواعيد وتنبيهات الحجوزات في شريط الإشعارات.' : 'Notifications activated! You will receive schedule alerts in your notification bar.',
+        tag: 'zd-welcome-notif'
+      });
       return true;
     } else {
-      if (window.toast) window.toast(isAr() ? 'تم رفض إذن الإشعارات من المتصفح ✗' : 'Notification permission was denied ✗');
+      if (permission === 'denied') {
+        if (window.toast) window.toast(isAr() ? 'يرجى السماح بالإشعارات من إعدادات الهاتف (Allow notifications)' : 'Please enable notifications in phone settings');
+      } else {
+        if (window.toast) window.toast(isAr() ? 'تم طلب إذن الإشعارات من النظام' : 'Notification permission requested');
+      }
       updateNotificationPermissionUI();
       return false;
     }
@@ -123,32 +216,118 @@ export async function requestBrowserNotificationPermission() {
 export function updateNotificationPermissionUI() {
   const permBtn = document.getElementById('notif-perm-banner');
   if (!permBtn) return;
-  if (!('Notification' in window) || Notification.permission === 'granted') {
+  if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
     permBtn.style.display = 'none';
   } else {
     permBtn.style.display = 'flex';
   }
 }
 
-export function dispatchSystemNotification({ title, body, tag, data, onClick }) {
+// Dispatches notification to Android System Drop-down Notification Drawer
+export async function dispatchSystemNotification({ title, body, tag, data, targetDate, notifType, onClick }) {
+  const isArabic = isAr();
+  const notificationId = Math.floor(Math.random() * 900000) + 100000;
+  const notifTag = tag || ('zd-notif-' + Date.now());
+
+  const notifOptions = {
+    body: body,
+    icon: '/assets/icon.png',
+    badge: '/assets/icon.png',
+    tag: notifTag,
+    renotify: true,
+    requireInteraction: true,
+    silent: false,
+    vibrate: [300, 150, 300, 150, 400], // Haptic vibration pulse for Android
+    data: {
+      targetDate: targetDate || data?.targetDate || today(),
+      notifType: notifType || data?.notifType || 'general',
+      timestamp: Date.now(),
+      ...(data || {})
+    },
+    actions: [
+      { action: 'open_schedule', title: isArabic ? 'عرض الجدول 📅' : 'View Schedule 📅' }
+    ]
+  };
+
+  // 1. Android Native Bridge (Median.co / GoNative wrapper)
+  try {
+    if (window.median?.localNotification?.schedule) {
+      window.median.localNotification.schedule({ title, body, id: notificationId });
+    }
+    if (window.median?.localNotifications?.schedule) {
+      window.median.localNotifications.schedule({ title, body, id: notificationId });
+    }
+    if (window.gonative?.localNotification?.schedule) {
+      window.gonative.localNotification.schedule({ title, body, id: notificationId });
+    }
+    if (window.gonative?.localNotifications?.schedule) {
+      window.gonative.localNotifications.schedule({ title, body, id: notificationId });
+    }
+    if (window.median?.notification) {
+      window.median.notification({ title, message: body });
+    }
+    
+    // Median URI scheme via hidden iframe
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = `median://localNotification/schedule?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}&id=${notificationId}`;
+    document.body.appendChild(iframe);
+    setTimeout(() => {
+      try { iframe.remove(); } catch (err) {}
+    }, 1200);
+  } catch (e) {
+    console.debug('Median bridge local notification:', e);
+  }
+
+  // 2. Android WebView Service Worker showNotification (Places in Android Dropdown Status Bar)
+  try {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.ready.then((registration) => {
+        if (registration && typeof registration.showNotification === 'function') {
+          registration.showNotification(title, notifOptions);
+        }
+      }).catch(() => {});
+
+      let registration = _swRegistration;
+      if (!registration) {
+        registration = await navigator.serviceWorker.getRegistration();
+      }
+      if (registration && typeof registration.showNotification === 'function') {
+        await registration.showNotification(title, notifOptions);
+      }
+
+      // Try posting message to active service worker controller
+      if (navigator.serviceWorker?.controller) {
+        navigator.serviceWorker.controller.postMessage({
+          type: 'SHOW_NOTIFICATION',
+          title,
+          options: notifOptions
+        });
+      }
+    }
+  } catch (e) {
+    console.warn('SW showNotification fallback:', e);
+  }
+
+  // 3. Direct HTML5 Notification Fallback (for Desktop Browsers)
   try {
     if ('Notification' in window && Notification.permission === 'granted') {
-      const notif = new Notification(title, {
-        body,
-        icon: '/assets/icon.png',
-        badge: '/assets/icon.png',
-        tag: tag || 'zd-clinic-' + Date.now(),
-        renotify: true,
-        data
-      });
-      notif.onclick = () => {
+      const notif = new Notification(title, notifOptions);
+      notif.onclick = (e) => {
+        e.preventDefault();
         window.focus();
+        if (targetDate) {
+          const dtInput = document.getElementById('sched-dt');
+          if (dtInput) dtInput.value = targetDate;
+        }
+        if (window.sw) window.sw('sched');
+        if (window.loadSched) window.loadSched();
         if (typeof onClick === 'function') onClick();
-        notif.close();
+        try { notif.close(); } catch (err) {}
       };
     }
   } catch (e) {
-    console.debug('System notification dispatch fallback:', e);
+    console.debug('Direct Notification constructor fallback:', e);
   }
 }
 
@@ -709,6 +888,8 @@ export function handleNotificationCardClick(notifId, targetDate, type) {
 // Module Bootstrapping
 // --------------------------------------------------
 export function initNotificationSystem() {
+  registerServiceWorker();
+  requestMedianAndroidPermissions();
   updateNotificationBadge();
   updateNotificationPermissionUI();
   initDaily3PMScheduler();
