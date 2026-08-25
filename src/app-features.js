@@ -4,6 +4,7 @@ import {
 } from './app.js';
 import { t, isAr, applyLangToDOM } from './i18n.js';
 import { sw, openSheet, closeSheet } from './app-handlers.js';
+import { broadcastNewAppointmentBooked } from './app-notifications.js';
 
 let _editPatId = null, _editInvId = null, _editTxId = null, _editStfId = null, _editSvcId = null, _editExpId = null;
 let _niPatId = null, _naPatId = null, _clPatId = null, _invFilter = "all";
@@ -853,7 +854,7 @@ export async function submitAppt() {
 
   if (!pid) { toast("Select or enter a patient ✗"); return; }
 
-  const { error } = await sb.from("appointments").insert({
+  const apptRecord = {
     patient_id: pid,
     patient_name: pname,
     appointment_date: dt,
@@ -862,10 +863,18 @@ export async function submitAppt() {
     duration_minutes: parseInt(document.getElementById("na-dur").value),
     notes: document.getElementById("na-notes").value,
     status: "scheduled"
-  });
+  };
+
+  const { data: createdAppt, error } = await sb.from("appointments").insert(apptRecord).select().single();
 
   if (!error) {
-    toast("Appointment booked successfully ✓");
+    toast(isAr() ? "تم حجز الموعد بنجاح ✓" : "Appointment booked successfully ✓");
+    // Broadcast notification to other users in real-time
+    try {
+      broadcastNewAppointmentBooked(createdAppt || apptRecord);
+    } catch (e) {
+      console.warn("Broadcast error:", e);
+    }
     closeSheet("new-appt");
     _naPatId = null;
     _naMode = "existing";

@@ -292,6 +292,19 @@ export const DICT = {
     treatment_procedure: "الإجراء المقترح أو المنفذ",
     extracted_notes: "الملاحظات المستخرجة",
 
+    // Notifications
+    notifications_title: "مركز التنبيهات والإشعارات",
+    notifications_sub: "تذكيرات مواعيد 3:00 م وتنبيهات الحجوزات اللحظية",
+    mark_all_read: "تحديد الكل كمقروء",
+    clear_all: "مسح الكل",
+    enable_notif_title: "تفعيل إشعارات سطح المكتب والمتصفح",
+    enable_notif_desc: "لاستلام تنبيهات مواعيد الساعة 3:00 م والحجوزات الجديدة فوراً",
+    enable_btn: "تفعيل الآن",
+    quick_tests: "تجربة التنبيهات:",
+    notif_tab_all: "كل الإشعارات",
+    notif_tab_3pm: "⏰ تذكير 3:00 م",
+    notif_tab_bookings: "📅 حجوزات جديدة",
+
     // Common Toasts & Actions
     saved_successfully: "تم الحفظ بنجاح ✓",
     deleted_successfully: "تم الحذف بنجاح ✓",
@@ -588,6 +601,19 @@ export const DICT = {
     chief_complaint: "Chief Complaint / Diagnosis",
     treatment_procedure: "Treatment Procedure",
     extracted_notes: "Extracted Notes",
+
+    // Notifications
+    notifications_title: "Notifications & Alerts Center",
+    notifications_sub: "3:00 PM daily schedule reminders & real-time booking alerts",
+    mark_all_read: "Mark all as read",
+    clear_all: "Clear all",
+    enable_notif_title: "Enable Desktop & Browser Notifications",
+    enable_notif_desc: "Receive 3:00 PM appointment summaries & new booking alerts instantly",
+    enable_btn: "Enable Now",
+    quick_tests: "Quick Tests:",
+    notif_tab_all: "All Notifications",
+    notif_tab_3pm: "⏰ 3:00 PM Reminders",
+    notif_tab_bookings: "📅 New Bookings",
 
     // Common Toasts & Actions
     saved_successfully: "Saved successfully ✓",
