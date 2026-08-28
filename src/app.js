@@ -245,3 +245,42 @@ export function toEG(phone) {
 export function sendWA(phone, msg) {
   window.open("https://wa.me/" + toEG(phone) + "?text=" + msg, "_blank");
 }
+
+export function fmtTime12(t, isArabic = isAr()) {
+  if (!t) return "—";
+  if (typeof t === 'string') {
+    const trimmed = t.trim();
+    if (trimmed.includes('T')) {
+      const d = new Date(trimmed);
+      if (!isNaN(d.getTime())) {
+        let h = d.getHours();
+        const m = String(d.getMinutes()).padStart(2, '0');
+        const period = h >= 12 ? (isArabic ? 'م' : 'PM') : (isArabic ? 'ص' : 'AM');
+        h = h % 12;
+        if (h === 0) h = 12;
+        const hStr = String(h).padStart(2, '0');
+        return `${hStr}:${m} ${period}`;
+      }
+    }
+    const match = trimmed.match(/^(\d{1,2}):(\d{2})/);
+    if (match) {
+      let h = parseInt(match[1], 10);
+      const m = match[2];
+      const period = h >= 12 ? (isArabic ? 'م' : 'PM') : (isArabic ? 'ص' : 'AM');
+      h = h % 12;
+      if (h === 0) h = 12;
+      const hStr = String(h).padStart(2, '0');
+      return `${hStr}:${m} ${period}`;
+    }
+  }
+  if (t instanceof Date && !isNaN(t.getTime())) {
+    let h = t.getHours();
+    const m = String(t.getMinutes()).padStart(2, '0');
+    const period = h >= 12 ? (isArabic ? 'م' : 'PM') : (isArabic ? 'ص' : 'AM');
+    h = h % 12;
+    if (h === 0) h = 12;
+    const hStr = String(h).padStart(2, '0');
+    return `${hStr}:${m} ${period}`;
+  }
+  return String(t);
+}

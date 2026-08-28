@@ -1,5 +1,5 @@
 import {
-  sb, SC, SL, MONTHS, USER, sha256, toothOpts, toast, esc, age, fmt, today, toEG, sendWA,
+  sb, SC, SL, MONTHS, USER, sha256, toothOpts, toast, esc, age, fmt, fmtTime12, today, toEG, sendWA,
   getCurrentUser, setCurrentUser, isAdmin
 } from './app.js';
 import { t, isAr, applyLangToDOM } from './i18n.js';
@@ -311,7 +311,7 @@ export async function loadSched() {
           <div class="hero-stat-item" style="grid-column: span 2">
             <div style="font-size:11px;color:#94A3B8;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;font-weight:700">${isAr() ? "الموعد القادم التالي" : "Next Upcoming Appointment"}</div>
             <div style="font-size:13px;font-weight:700;color:#FFFFFF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:${isAr() ? 'rtl' : 'ltr'};text-align:${isAr() ? 'right' : 'left'}">
-              ${nextAppt ? `⏱ ${(nextAppt.appointment_time || "").slice(0, 5)} · ${esc(nextAppt.patients?.first_name ? nextAppt.patients.first_name + ' ' + (nextAppt.patients.last_name || '') : nextAppt.patient_name || (isAr() ? 'مريض' : 'Patient'))} (${esc(nextAppt.appt_type || (isAr() ? 'كشف عام' : 'General Treatment'))})` : (isAr() ? 'لا توجد مواعيد قادمة مجدولة' : 'No upcoming appointments scheduled')}
+              ${nextAppt ? `⏱ ${fmtTime12(nextAppt.appointment_time)} · ${esc(nextAppt.patients?.first_name ? nextAppt.patients.first_name + ' ' + (nextAppt.patients.last_name || '') : nextAppt.patient_name || (isAr() ? 'مريض' : 'Patient'))} (${esc(nextAppt.appt_type || (isAr() ? 'كشف عام' : 'General Treatment'))})` : (isAr() ? 'لا توجد مواعيد قادمة مجدولة' : 'No upcoming appointments scheduled')}
             </div>
           </div>
         </div>
@@ -347,7 +347,7 @@ export async function loadSched() {
 
 export function apptRow(a) {
   const c = SC[a.status] || "#64748B";
-  const t = (a.appointment_time || "").slice(0, 5) || "—";
+  const t = fmtTime12(a.appointment_time);
   const pname = a.patients ? `${a.patients.first_name} ${a.patients.last_name || ''}` : a.patient_name || (isAr() ? "مريض غير معروف" : "Unknown Patient");
   const phone = a.patients?.phone || "";
   const waMsg = encodeURIComponent(`عيادة د. عبدالله سامي زين لطب وجراحة الفم والأسنان 🦷\nمرحباً أستاذ/ة ${pname}،\nنذكركم بموعدكم القادم بتاريخ ${a.appointment_date} الساعة ${t}.\n\nللتواصل أو الاستفسار: 01555563997\nنتطلع لرؤيتكم 😊`);
@@ -390,7 +390,7 @@ export function apptRow(a) {
 }
 
 export async function openAppt(a) {
-  document.getElementById("sh-appt-title").textContent = (a.appointment_time || "").slice(0, 5) + " · " + (a.appt_type || (isAr() ? "كشف عام" : "General"));
+  document.getElementById("sh-appt-title").textContent = fmtTime12(a.appointment_time) + " · " + (a.appt_type || (isAr() ? "كشف عام" : "General"));
   document.getElementById("sh-appt-sub").textContent = a.appointment_date || "";
   document.getElementById("sh-appt-body").innerHTML = '<div class="ldg"><div class="spin"></div></div>';
   document.getElementById("sh-appt-detail").classList.add("open");
@@ -399,7 +399,7 @@ export async function openAppt(a) {
   const phone = (pat?.phone || "").replace(/\D/g, "");
   const intlPhone = toEG(phone);
   const pname = pat ? `${pat.first_name} ${pat.last_name || ''}` : a.patient_name || "";
-  const t = (a.appointment_time || "").slice(0, 5);
+  const t = fmtTime12(a.appointment_time);
   const dt = a.appointment_date || "";
   const waMsg = encodeURIComponent(`عيادة د. عبدالله سامي زين لطب وجراحة الفم والأسنان 🦷\nمرحباً أستاذ/ة ${pname}،\nنذكركم بموعدكم القادم بتاريخ ${dt} الساعة ${t}.\n\nللتواصل أو الاستفسار: 01555563997\nنتطلع لرؤيتكم 😊`);
   const c = SC[a.status] || "#64748B";

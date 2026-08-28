@@ -6,7 +6,7 @@
 // 3. Audio chimes, Web Notification API, in-app banners & Notification Drawer
 // ==================================================
 
-import { sb, getCurrentUser, today, esc } from './app.js';
+import { sb, getCurrentUser, today, esc, fmtTime12 } from './app.js';
 import { isAr, t } from './i18n.js';
 
 const NOTIFS_STORAGE_KEY = 'zd_notifications_v1';
@@ -522,10 +522,10 @@ export async function triggerDaily3PMNotification(isManualTest = false) {
 
       if (isArabic) {
         body = `لديك إجمالي ${total} مواعيد اليوم (${upcoming.length} موعد قادم/مجدول).` +
-          (nextPName ? ` الموعد القادم: ${nextPName} الساعة ${(nextAppt.appointment_time || '').slice(0, 5)}.` : '');
+          (nextPName ? ` الموعد القادم: ${nextPName} الساعة ${fmtTime12(nextAppt.appointment_time, true)}.` : '');
       } else {
         body = `You have ${total} total appointment(s) today (${upcoming.length} upcoming).` +
-          (nextPName ? ` Next: ${nextPName} at ${(nextAppt.appointment_time || '').slice(0, 5)}.` : '');
+          (nextPName ? ` Next: ${nextPName} at ${fmtTime12(nextAppt.appointment_time, false)}.` : '');
       }
     }
 
@@ -668,13 +668,13 @@ export function handleIncomingNewAppointmentAlert(payload) {
 
   const isArabic = isAr();
   const pName = payload.patient_name || (isArabic ? 'مريض جديد' : 'New Patient');
-  const apptTime = (payload.appointment_time || '').slice(0, 5);
+  const apptTime = fmtTime12(payload.appointment_time, isArabic);
   const apptDate = payload.appointment_date;
   const bookedBy = payload.booked_by || (isArabic ? 'عضو بالفريق' : 'Staff');
 
   const title = isArabic ? 'حجز موعد جديد بالعيادة' : 'New Appointment Booked';
   const body = isArabic
-    ? `تم تسجيل حجز لـ ${pName} بتاريخ ${apptDate} في تمام ${apptTime} (بواسطة: ${bookedBy})`
+    ? `تم تسجيل حجز لـ ${pName} بتاريخ ${apptDate} الساعة ${apptTime} (بواسطة: ${bookedBy})`
     : `Appointment booked for ${pName} on ${apptDate} at ${apptTime} (by ${bookedBy})`;
 
   // Play audio chime
@@ -845,7 +845,7 @@ export function renderNotificationDrawer() {
     const is3PM = item.type === '3pm_summary';
     const icon = is3PM ? '⏰' : '📅';
     const badgeColor = is3PM ? 'var(--navy)' : 'var(--teal)';
-    const dateFormatted = item.timestamp ? new Date(item.timestamp).toLocaleTimeString(isArabic ? 'ar-EG' : 'en-US', { hour: '2-digit', minute: '2-digit' }) : '';
+    const dateFormatted = item.timestamp ? fmtTime12(item.timestamp, isArabic) : '';
     const dateDay = item.timestamp ? new Date(item.timestamp).toLocaleDateString(isArabic ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric' }) : '';
 
     return `

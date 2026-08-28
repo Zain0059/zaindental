@@ -1,5 +1,5 @@
 import {
-  sb, SC, SL, MONTHS, USER, toothOpts, toast, esc, age, fmt, today, toEG,
+  sb, SC, SL, MONTHS, USER, toothOpts, toast, esc, age, fmt, fmtTime12, today, toEG,
   isAdmin, getCurrentUser, setEditInvId
 } from './app.js';
 import { t, isAr, applyLangToDOM } from './i18n.js';
@@ -225,13 +225,14 @@ export async function openPat(pid) {
   // Appointments HTML
   const apptHtml = appts?.length ? appts.map(a => {
     const c = SC[a.status] || "#64748B";
-    const apptWaMsg = encodeURIComponent(`عيادة د. عبدالله سامي زين لطب وجراحة الفم والأسنان 🦷\nمرحباً أستاذ/ة ${fullName}،\nنذكركم بموعدكم القادم بتاريخ ${a.appointment_date} الساعة ${(a.appointment_time || '').slice(0,5)}.\n\nللتواصل أو الاستفسار: 01555563997`);
+    const t = fmtTime12(a.appointment_time);
+    const apptWaMsg = encodeURIComponent(`عيادة د. عبدالله سامي زين لطب وجراحة الفم والأسنان 🦷\nمرحباً أستاذ/ة ${fullName}،\nنذكركم بموعدكم القادم بتاريخ ${a.appointment_date} الساعة ${t}.\n\nللتواصل أو الاستفسار: 01555563997`);
     return `
       <div class="ar row-sep" style="padding:12px 14px">
         <div class="ar-main-col">
           <div class="ar-top-row">
             <div class="ar-patient-info">
-              <span class="ar-time-badge">${(a.appointment_time || "").slice(0, 5) || "—"}</span>
+              <span class="ar-time-badge">${t}</span>
               <div class="ar-name" style="font-size:14px">${esc(a.appt_type || (isAr() ? "علاج عام" : "General Treatment"))}</div>
             </div>
             <div class="ar-act-top">
