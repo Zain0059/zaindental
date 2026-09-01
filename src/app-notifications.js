@@ -176,6 +176,18 @@ export async function requestBrowserNotificationPermission() {
   // Trigger Android native permission bridge
   requestMedianAndroidPermissions();
 
+  // Also trigger OneSignal Web SDK permission if loaded
+  try {
+    if (window.OneSignal?.Notifications?.requestPermission) {
+      await window.OneSignal.Notifications.requestPermission();
+    }
+    if (window.OneSignal?.User?.PushSubscription?.optIn) {
+      await window.OneSignal.User.PushSubscription.optIn();
+    }
+  } catch (e) {
+    console.debug('OneSignal requestPermission debug:', e);
+  }
+
   if (!('Notification' in window)) {
     if (window.toast) window.toast(isAr() ? 'تم طلب تفعيل إشعارات الهاتف بنجاح ✓' : 'Mobile notification request sent ✓');
     updateNotificationPermissionUI();
