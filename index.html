@@ -162,6 +162,10 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M6 12h12"/></svg>
           <span data-i18n="nav_expenses">المصروفات والعهد</span>
         </button>
+        <button class="sidebar-item" id="sb-item-materials" onclick="window.openSheet('materials')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          <span data-i18n="nav_materials">بورصة الماتريال</span>
+        </button>
       </nav>
     </div>
 
@@ -342,6 +346,10 @@
             <button id="btn-expenses" class="more-btn" onclick="window.openSheet('expenses')">
               <div class="more-ico" style="background:var(--warning-bg);color:var(--warning)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M6 12h12"/></svg></div>
               <div><div class="more-lbl" data-i18n="expenses_title">المصروفات والعهد التشغيلية</div><div class="more-sub">متابعة إيجار العيادة، المستهلكات، المعامل والمصروفات</div></div>
+            </button>
+            <button id="btn-materials" class="more-btn" onclick="window.openSheet('materials')">
+              <div class="more-ico" style="background:rgba(15,138,126,0.12);color:#0f8a7e"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg></div>
+              <div><div class="more-lbl" data-i18n="materials_title">بورصة الماتريال</div><div class="more-sub" data-i18n="materials_sub">طلب وتوريد مستلزمات وخامات طب الأسنان وحساب الفاتورة</div></div>
             </button>
           </div>
         </section>
@@ -807,6 +815,81 @@
     <div class="ff"><label data-i18n="notes">البيان / تفاصيل الفاتورة والمورد</label><textarea id="exp-notes" placeholder="رقم الإيصال، اسم المورد أو الصيدلية، تفاصيل البيان..."></textarea></div>
     <input id="exp-title" type="hidden">
     <button class="btn-primary" style="border-radius:var(--r-md);padding:14px" onclick="window.saveExpense()" data-i18n="save_expense_btn">حفظ وتسجيل المصروف</button>
+  </div>
+</div>
+
+<!-- Dental Materials Market Sheet (بورصة الماتريال) -->
+<div class="sheet" id="sh-materials">
+  <div class="sh-hdr">
+    <button class="back" onclick="window.closeSheet('materials')" title="رجوع">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div style="flex:1">
+      <div class="sh-title" data-i18n="materials_title">🦷 أوردر وبورصة ماتريال العيادة</div>
+      <div class="sh-sub" data-i18n="materials_sub">طلب وتوريد مستلزمات الأسنان، السلة، والفاتورة الفورية</div>
+    </div>
+    <button class="sh-action-btn" onclick="window.matShow('cart')" style="display:flex;align-items:center;gap:6px">
+      <span>🛒 السلة</span>
+    </button>
+  </div>
+
+  <div id="sh-materials-body">
+    <!-- View 1: Shop / Materials Catalog -->
+    <div id="mat-shop">
+      <div class="mat-search-wrap">
+        <input id="mat-q" class="mat-search-input" placeholder="🔍 ابحث عن صنف أو خامة (كمبوزيت، بنج، روتاري، جلفز...)" oninput="window.matRender()">
+      </div>
+      <div class="mat-tabs" id="mat-tabs"></div>
+      <div id="mat-list" class="mat-list"></div>
+      <div class="mat-bar" id="mat-bar">
+        <div class="mat-bar-info"><b id="mat-cnt">0</b> صنف — <b id="mat-sum">0</b> ج</div>
+        <button type="button" class="mat-btn" onclick="window.matShow('cart')">السلة ←</button>
+      </div>
+    </div>
+
+    <!-- View 2: Cart -->
+    <div id="mat-cart" class="mat-pg">
+      <h2 style="font-size:18px;margin:0 0 14px">🛒 سلة المشتريات والمستلزمات</h2>
+      <div id="mat-cartbody"></div>
+      <div class="mat-tot">الإجمالي: <span id="mat-ctot">0</span> ج</div>
+      <div class="mat-row">
+        <button type="button" class="mat-btn g" onclick="window.matShow('shop')">→ رجوع للأصناف</button>
+        <button type="button" class="mat-btn" onclick="window.matShow('co')">إتمام الطلب ←</button>
+      </div>
+    </div>
+
+    <!-- View 3: Checkout Delivery Info -->
+    <div id="mat-co" class="mat-pg">
+      <h2 style="font-size:18px;margin:0 0 14px">📍 بيانات التوصيل والاستلام</h2>
+      <label class="mat-label">اسم الطبيب / العيادة *</label>
+      <input id="mat-nm" class="mat-input" placeholder="د. عبدالله سامي / عيادة زين لطب الأسنان">
+      <label class="mat-label">رقم الموبايل 1 *</label>
+      <input id="mat-p1" class="mat-input" type="tel" inputmode="tel" placeholder="010xxxxxxxx" dir="ltr">
+      <label class="mat-label">رقم الموبايل 2 (إضافي)</label>
+      <input id="mat-p2" class="mat-input" type="tel" inputmode="tel" placeholder="015xxxxxxxx" dir="ltr">
+      <label class="mat-label">العنوان بالتفصيل *</label>
+      <textarea id="mat-ad" class="mat-textarea" rows="3" placeholder="المحافظة، المدينة، اسم الشارع، تفاصيل مقر العيادة..."></textarea>
+      <div class="mat-row">
+        <button type="button" class="mat-btn g" onclick="window.matShow('cart')">→ رجوع للسلة</button>
+        <button type="button" class="mat-btn" onclick="window.matMakeInv()">إنشاء الفاتورة ←</button>
+      </div>
+    </div>
+
+    <!-- View 4: Order Invoice -->
+    <div id="mat-inv" class="mat-pg">
+      <h2 style="font-size:18px;margin:0 0 14px">📄 فاتورة أوردر مستلزمات العيادة</h2>
+      <div id="mat-invinfo"></div>
+      <table id="mat-invt" class="mat-table"></table>
+      <div class="mat-tot" id="mat-invtot"></div>
+      <div class="mat-row mat-noprint">
+        <button type="button" class="mat-btn" onclick="window.matPrint()">📄 تحميل PDF / طباعة</button>
+        <button type="button" class="mat-btn" style="background:#25D366" onclick="window.matWa()">💬 إرسال واتساب</button>
+        <button type="button" class="mat-btn g" onclick="window.matShow('shop')">أوردر جديد</button>
+      </div>
+      <p class="mat-noprint" style="color:var(--mat-mut);font-size:13px;margin-top:12px">
+        * من نافذة الطباعة اختر "حفظ كـ PDF" (Save as PDF). الأسعار الموضحة لا تشمل مصاريف الشحن.
+      </p>
+    </div>
   </div>
 </div>
 

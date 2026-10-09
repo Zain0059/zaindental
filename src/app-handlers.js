@@ -190,6 +190,11 @@ export function openSheet(name) {
     if (expM && !expM.value) expM.value = today().slice(0, 7);
     loadExpenses();
   }
+  if (name === "materials") {
+    if (typeof window.initMaterialsMarket === 'function') {
+      window.initMaterialsMarket();
+    }
+  }
 }
 
 export function closeSheet(name) {

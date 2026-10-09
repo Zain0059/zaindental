@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>أوردر وبورصة ماتريال العيادة</title>
+<style>
+:root{--bg:#f6f8fa;--card:#fff;--tx:#1b2430;--mut:#6b7785;--pr:#0f8a7e;--bd:#e1e6ec;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10161c;--card:#1a232c;--tx:#e8edf2;--mut:#93a0ad;--bd:#2a3642}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Tahoma,Arial,sans-serif;font-size:15px}
+header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--pr);color:#fff;padding:10px 12px;z-index:5}
+header h1{font-size:17px;margin:0 0 8px}
+input,textarea,select{width:100%;padding:10px;border:1px solid var(--bd);border-radius:8px;background:var(--card);color:var(--tx);font:inherit}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:8px 12px;background:var(--card);border-bottom:1px solid var(--bd)}
+.tabs button{white-space:nowrap;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:16px;padding:6px 12px;font:inherit;cursor:pointer}
+.tabs button.on{background:var(--pr);color:#fff;border-color:var(--pr)}
+#list{padding:10px 12px 90px}
+.it{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px;margin-bottom:8px}
+.it .n{flex:1;line-height:1.5}.it .p{color:var(--pr);font-weight:700}
+.q{display:flex;align-items:center;gap:6px}
+.q button,.add{border:0;background:var(--pr);color:#fff;border-radius:8px;min-width:34px;height:34px;font:inherit;font-size:18px;cursor:pointer}
+.add{font-size:14px;padding:0 12px}
+.bar{position:fixed;bottom:0;inset-inline:0;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center}
+.bar button,.btn{background:var(--pr);color:#fff;border:0;border-radius:10px;padding:11px 18px;font:inherit;font-weight:700;cursor:pointer}
+.btn.g{background:var(--mut)}
+.pg{display:none;padding:12px;max-width:720px;margin:auto}
+.pg.on{display:block}
+table{width:100%;border-collapse:collapse;background:var(--card)}
+th,td{border:1px solid var(--bd);padding:7px;text-align:right}
+.tot{font-size:18px;font-weight:700;margin:12px 0}
+label{display:block;margin:10px 0 4px;color:var(--mut)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+@media print{header,.tabs,.bar,.noprint{display:none!important}body{background:#fff;color:#000}.pg{display:none}#inv.on{display:block}}
+</style>
+</head>
+<body>
+<div id="shop">
+<header><h1>🦷 أوردر وبورصة ماتريال العيادة</h1><input id="q" placeholder="ابحث عن صنف..." oninput="render()"></header>
+<div class="tabs" id="tabs"></div>
+<div id="list"></div>
+<div class="bar"><div><b id="cnt">0</b> صنف — <b id="sum">0</b> ج</div><button onclick="show('cart')">السلة ←</button></div>
+</div>
+
+<div id="cart" class="pg">
+<h2>السلة</h2><div id="cartbody"></div>
+<div class="tot">الإجمالي: <span id="ctot">0</span> ج</div>
+<div class="row"><button class="btn g" onclick="show('shop')">→ رجوع للأصناف</button><button class="btn" onclick="show('co')">إتمام الطلب</button></div>
+</div>
+
+<div id="co" class="pg">
+<h2>بيانات التوصيل</h2>
+<label>الاسم</label><input id="nm">
+<label>رقم الموبايل 1</label><input id="p1" type="tel" inputmode="tel">
+<label>رقم الموبايل 2</label><input id="p2" type="tel" inputmode="tel">
+<label>العنوان بالتفصيل</label><textarea id="ad" rows="3"></textarea>
+<div class="row"><button class="btn g" onclick="show('cart')">→ رجوع</button><button class="btn" onclick="makeInv()">إنشاء الفاتورة</button></div>
+</div>
+
+<div id="inv" class="pg">
+<h2>فاتورة أوردر</h2><div id="invinfo"></div>
+<table id="invt"></table><div class="tot" id="invtot"></div>
+<div class="row noprint"><button class="btn" onclick="window.print()">📄 تحميل PDF / طباعة</button><button class="btn" onclick="wa()">إرسال واتساب</button><button class="btn g" onclick="show('shop')">أوردر جديد</button></div>
+<p class="noprint" style="color:var(--mut);font-size:13px">من نافذة الطباعة اختار "حفظ كـ PDF". الأسعار غير شاملة الشحن.</p>
+</div>
+
+<script>
+const RAW=`كمبوزيت|كمبوزيت Chroma نانو هيبريد 4.5جم|168
+كمبوزيت|كمبوزيت M dental|175
+كمبوزيت|كمبوزيت روبي|175
+كمبوزيت|كمبوزيت كلارا|185
+كمبوزيت|كمبوزيت برايم دنت|185
+كمبوزيت|كمبوزيت كمبوماكس|255
+كمبوزيت|كمبوزيت ميتا|275
+كمبوزيت|كمبوزيت i.light|350
+كمبوزيت|كمبوزيت Dia fill|360
+كمبوزيت|كمبوزيت Dolgunn|375
+كمبوزيت|كمبوزيت Di.fill|450
+كمبوزيت|كمبوزيت نوڤا|465
+كمبوزيت|كمبوزيت كاريزما|525
+كمبوزيت|كمبوزيت كيرر Kerr|560
+كمبوزيت|كمبوزيت Den fill مايكرو|575
+كمبوزيت|كمبوزيت Den fill نانو|675
+كمبوزيت|كمبوزيت أيتينا itena|740
+كمبوزيت|كمبوزيت كابو يونيڤرسال|790
+كمبوزيت|كمبوزيت Voco NHT|1160
+كمبوزيت|كمبوزيت اقتصادية Medental|175
+فلوابل وبوند|فلوابل ماكس فيل / Hi.fill|105
+فلوابل وبوند|فلوابل Elite|110
+فلوابل وبوند|فلوابل روبي|175
+فلوابل وبوند|فلوابل Any|180
+فلوابل وبوند|فلوابل ألفا|180
+فلوابل وبوند|فلوابل نوڤا|230
+فلوابل وبوند|فلوابل ميتا|265
+فلوابل وبوند|فلوابل بلك فيل|335
+فلوابل وبوند|بوند كمبوماكس|225
+فلوابل وبوند|بوند تركي Clara|345
+فلوابل وبوند|بوند Meta 5ml|435
+فلوابل وبوند|بوند Any 5ml|475
+فلوابل وبوند|بوند كولتين 5ml OneCoat|650
+فلوابل وبوند|بوند Dolgunn 5ml|725
+فلوابل وبوند|بوند بيسكو الكبير|2130
+فلوابل وبوند|بوند بيسكو الصغير|450
+فلوابل وبوند|أسيد إيتش chem|20
+فلوابل وبوند|أسيد إيتش plus|45
+فلوابل وبوند|أسيد إيتش كيرر|65
+فلوابل وبوند|سيلر D.seal (طلبة)|175
+بنج|بنج أزرق|880
+بنج|بنج ارتفارما|975
+بنج|بنج أحمر|1100
+بنج|بنج إيطالي|1275
+بنج|بنج إسباني|1575
+بنج|بنج جل أو سبراي|25
+بنج|سرنجة الانسيزيا|160
+بنج|سنون بنج لونج صيني|175
+بنج|سنون بنج شورت صيني|185
+مستهلكات|جلفز أبيض|165
+مستهلكات|جلفز ألوان|160
+مستهلكات|كيس أوفر جلفز|4
+مستهلكات|علبة أوفر جلفز 200|45
+مستهلكات|جاونات|13
+مستهلكات|ماسك مصري|35
+مستهلكات|ماسك صيني|45
+مستهلكات|ساكشن مصري 100 قطعة|76
+مستهلكات|ساكشن إيطالي أصلي|125
+مستهلكات|نابكن بلاستيك|32
+مستهلكات|باكيت نابكن 100|68
+مستهلكات|نابكن هولدر|25
+مستهلكات|كيس قطن المحلة الكبير|88
+مستهلكات|باكيت قطن رول|95
+مستهلكات|كحول 1 لتر|45
+مستهلكات|كيس جبس 1 كيلو|19
+مستهلكات|معقم يد سائل|75
+مستهلكات|معقم أسطح|80
+مستهلكات|مطهر sidex (كيس)|18
+مستهلكات|فيس شيلد|55
+مستهلكات|تيبات مية وهوا ستانلس|18
+مستهلكات|كيسة تيبات مية وهوا 250|190
+مستهلكات|باوتش تعقيم 5سم|80
+مستهلكات|باوتش تعقيم 7سم|110
+مستهلكات|باوتش تعقيم 9سم|145
+مستهلكات|باوتش تعقيم 13سم|185
+مستهلكات|رول تعقيم 5سم|155
+مستهلكات|رول تعقيم 7.5سم|230
+مستهلكات|رول تعقيم 10سم|310
+مستهلكات|علبة مشارط جراحية|175
+مستهلكات|علبة سوتشرز خيوط جراحية|210
+أندو|جلاس ايونيمر صيني|65
+أندو|حشو مؤقت Galaxy|70
+أندو|حشو مؤقت T.fill|155
+أندو|D.vital|410
+أندو|علبة MTA jk 3 عبوات|125
+أندو|سيلر ميتا Adseal|775
+أندو|بيسبرا / فايلات يدوي صيني|45
+أندو|بيبربوينت عادية / تيبر|70
+أندو|جاتابركا عادية / تيبر|67
+أندو|جاتابركا ميتا|110
+أندو|كيت روتاري Aline|195
+أندو|كيت روتاري M.pro|230
+أندو|كيت روتاري Nic 4file|235
+أندو|كيت روتاري Nic 6file|255
+أندو|كيت روتاري E.flex بلو|265
+أندو|كيت روتاري فيديا الكبير|250
+أندو|كيت روتاري ام برو جولد|285
+أندو|كيت روتاري روجين 4file|328
+أندو|كيت روتاري روجين 6file|355
+أندو|إيديتا جل|65
+أندو|إيريجيشن سلاين / هيبوكلوريد|32
+أندو|كرتونة سرنجات إيريجيشن 100|125
+أندو|علبة side-vented needles|185
+أندو|زينك أوكسيد jk|35
+أندو|إيجينول jk|70
+أندو|فورماكريزول jk|70
+أندو|N Root SP 1/2G (بيوسيراميك)|410
+أندو|Well Root 1/2G|775
+أندو|Ceraseal ميتا 1/2G|975
+أندو|OneFill الكوري|1775
+أندو|MTA putty one fill 1/2جم|520
+جلاس ايونيمر|جلاس ايونيمر Restore|345
+جلاس ايونيمر|جلاس ايونيمر أمريكي Ceram|425
+جلاس ايونيمر|جلاس ايونيمر برازيلي|440
+جلاس ايونيمر|جلاس ايونيمر Micron|510
+جلاس ايونيمر|كبسولات ريڤا لايت / سيلف|125
+جلاس ايونيمر|كبسولات فيوجي 9 extra|135
+جلاس ايونيمر|حشو مؤقت إنجليزي PSP|168
+جلاس ايونيمر|تيمبريري كراون Dolgunn|440
+جلاس ايونيمر|كور Dolgunn التركي|625
+جلاس ايونيمر|شارم كور الكوري|715
+جلاس ايونيمر|ريزن سيمنت Supercem|1075
+طبعات|ألجينيت صيني Bazeen|140
+طبعات|ألجينيت IQ|158
+طبعات|ألجينيت Hygedent|175
+طبعات|ألجينيت Zetalgin|265
+طبعات|ألجينيت Cavex|445
+طبعات|رابربيز سيلاكسيل كيت صغير|710
+طبعات|رابربيز زيتابلس كيت صغير|780
+طبعات|رابربيز سيلاكسيل كيت كبير|1870
+طبعات|رابربيز زيتابلس كيت كبير|1945
+طبعات|مسدس رابربيز|310
+طبعات|إمبرشن كومباوند|125
+طبعات|ترای إمبرشن ستانلس|12
+طبعات|رابرباول + سباتيولا|25
+رابردام|شيت رابردام|8
+رابردام|كلامب باكستاني|23
+رابردام|فريم رابردام Metal|48
+رابردام|فريم رابردام Plastic|85
+رابردام|كلامب هولدر|270
+رابردام|ليكويدام|135
+رابردام|علبة شيتات Puritex / CEYFLEX|290
+رابردام|علبة شيتات Flamingo|310
+تلميع وماتريكس|معجون تلميع أسنان|55
+تلميع وماتريكس|معجون تلميع كمبوزيت|55
+تلميع وماتريكس|معجون تلميع أملجم|45
+تلميع وماتريكس|علبة فرش تلميع نايلون 100|158
+تلميع وماتريكس|رابر كب|4.5
+تلميع وماتريكس|فينيشنج ستريبس Torvm|70
+تلميع وماتريكس|فينيشنج discs|140
+تلميع وماتريكس|بيرات هاي سبيد|5.5
+تلميع وماتريكس|بير كاربيد|34
+تلميع وماتريكس|باندات سيليلويد|10
+تلميع وماتريكس|ماتريكس باند رول|55
+تلميع وماتريكس|سيكشنال ماتريكس كيت|135
+تلميع وماتريكس|سادل ماتريكس كيت|245
+تلميع وماتريكس|ويدجات خشب|135
+أدوات|ميرور هيد|9
+أدوات|بروب عادي|26
+أدوات|تويزر عادي|42
+أدوات|تويزر لوك|48
+أدوات|مقص|45
+أدوات|يد مشرط|28
+أدوات|كارفر / كوندينسر / برنشر|26
+أدوات|إكسكافيتور|28
+أدوات|ادوات كمبوزيت plastic|28
+أدوات|كيت ادوات كمبوزيت pk tomath|185
+أدوات|نيدلز هولدر|90
+أدوات|Elevator|105
+أدوات|Forceps|215
+أدوات|سكيلر / كيوريت مانيوال|28
+أدوات|تيبات ألتراسونيك|37
+أدوات|تيبات اندو بيريو|275
+أدوات|جهاز سكيلر|1950
+أدوات|هيموستوب / هيموستال|90
+أدوات|ألڤيوجل|55
+تقويم|وايرات نايطاي راوند|32
+تقويم|وايرات ستانلس راوند|32
+تقويم|علبة براكيت تقويم|75
+تقويم|حالة براكيت على كارت|75
+تقويم|كيس إيلاستيك تقويم|14
+تقويم|علبة شمع تقويم|12
+تقويم|شيت ستارس Ortho stars|55
+تقويم|Band pusher|285
+تقويم|Band remover|325
+تقويم|Bracket holder|185
+تقويم|كيت باندات التقويم|625
+كونترا|كونترا هاي سبيد future key|475
+كونترا|كونترا هاي سبيد Trend|975
+كونترا|كونترا هاي سبيد Hay|950
+كونترا|كونترا هاي سبيد K&K|1100
+كونترا|كونترا Apple|1550
+كونترا|كوكسو Coxo|1650
+كونترا|كوكسو مصر سينا|2150
+كونترا|كونترا لوسبيد xplat form|750
+كونترا|كونترا لوسبيد Being|750
+كونترا|أدابتور x plat form|750
+كونترا|بلي كونترا|75
+أجهزة (زيرو)|Unit H5|73500
+أجهزة (زيرو)|Autoclave Famous|30500
+أجهزة (زيرو)|Compressor 40L|7750
+أجهزة (زيرو)|Water distiller|2650
+أجهزة (زيرو)|Light cure (cure magic)|2900
+أجهزة (زيرو)|Rta light cure|1950
+أجهزة (زيرو)|Atls bleaching|3350
+أجهزة (زيرو)|Endo motor Y smart|4750
+أجهزة (زيرو)|Apex locator|7000
+أجهزة (زيرو)|Scaler piezo|5500
+أجهزة (زيرو)|X-ray hyper light G|28000
+أجهزة (زيرو)|Sensor xpect vision|30500
+أجهزة (زيرو)|Endo activator|5800
+أجهزة (زيرو)|ماكينة لحام ستانلس|4450`;
+const items=RAW.split("\n").map((l,i)=>{const [c,n,p]=l.split("|");return{id:i,c,n,p:+p}});
+const cats=["الكل",...new Set(items.map(i=>i.c))];
+let cat="الكل",cart={};
+try{cart=JSON.parse(localStorage.getItem("cart")||"{}")}catch(e){}
+const $=id=>document.getElementById(id);
+const fmt=n=>n.toLocaleString("ar-EG");
+function save(){try{localStorage.setItem("cart",JSON.stringify(cart))}catch(e){}}
+function show(id){["shop","cart","co","inv"].forEach(x=>{const e=$(x);if(e){x==="shop"?e.style.display=id==="shop"?"block":"none":e.classList.toggle("on",x===id)}});if(id==="cart")renderCart();window.scrollTo(0,0)}
+function tabs(){$("tabs").innerHTML=cats.map(c=>`<button class="${c===cat?"on":""}" onclick="cat='${c}';tabs();render()">${c}</button>`).join("")}
+function render(){const s=$("q").value.trim().toLowerCase();
+$("list").innerHTML=items.filter(i=>(cat==="الكل"||i.c===cat)&&i.n.toLowerCase().includes(s)).map(i=>{const q=cart[i.id]||0;
+return `<div class="it"><div class="n">${i.n}<div class="p">${fmt(i.p)} ج</div></div>${q?`<div class="q"><button onclick="ch(${i.id},-1)">−</button><b>${q}</b><button onclick="ch(${i.id},1)">+</button></div>`:`<button class="add" onclick="ch(${i.id},1)">أضف</button>`}</div>`}).join("")||"<p style='text-align:center;padding:20px;color:var(--mut)'>لا توجد نتائج مطابقة</p>";tot()}
+function ch(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];save();render();if($("cart").classList.contains("on"))renderCart()}
+function lines(){return Object.keys(cart).map(id=>({...items[id],q:cart[id]}))}
+function total(){return lines().reduce((a,l)=>a+l.p*l.q,0)}
+function tot(){$("cnt").textContent=fmt(Object.keys(cart).length);$("sum").textContent=fmt(total())}
+function renderCart(){const L=lines();$("cartbody").innerHTML=L.length?L.map(l=>`<div class="it"><div class="n">${l.n}<div class="p">${fmt(l.p*l.q)} ج</div></div><div class="q"><button onclick="ch(${l.id},-1)">−</button><b>${l.q}</b><button onclick="ch(${l.id},1)">+</button></div></div>`).join(""):"<p style='text-align:center;padding:20px;color:var(--mut)'>السلة فاضية</p>";$("ctot").textContent=fmt(total())}
+function makeInv(){
+if(!Object.keys(cart).length)return alert("السلة فاضية");
+const nm=$("nm").value.trim(),p1=$("p1").value.trim(),ad=$("ad").value.trim();
+if(!nm||!p1||!ad)return alert("اكتب الاسم ورقم موبايل والعنوان");
+$("invinfo").innerHTML=`<p>التاريخ: ${new Date().toLocaleDateString("ar-EG")}<br>الاسم: ${nm}<br>الموبايل: ${p1}${$("p2").value?" - "+$("p2").value:""}<br>العنوان: ${ad}</p>`;
+$("invt").innerHTML="<tr><th>الصنف</th><th>العدد</th><th>السعر</th><th>الإجمالي</th></tr>"+lines().map(l=>`<tr><td>${l.n}</td><td>${l.q}</td><td>${fmt(l.p)}</td><td>${fmt(l.p*l.q)}</td></tr>`).join("");
+$("invtot").textContent="الإجمالي: "+fmt(total())+" ج (بدون شحن)";show("inv")}
+function wa(){let t="أوردر جديد\n";lines().forEach(l=>t+=`- ${l.n} × ${l.q} = ${l.p*l.q}ج\n`);t+=`الإجمالي: ${total()}ج\nالاسم: ${$("nm").value}\nموبايل: ${$("p1").value} ${$("p2").value}\nالعنوان: ${$("ad").value}`;window.open("https://wa.me/?text="+encodeURIComponent(t))}
+tabs();render();
+</script>
+</body>
+</html>

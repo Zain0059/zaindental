@@ -3234,4 +3234,357 @@ body.rtl-mode #ni-psrch {
   right: 10px;
 }
 
+/* ══════════════════════════════════════════════
+   DENTAL MATERIALS MARKET (بورصة الماتريال)
+   Strictly scoped under #sh-materials to preserve app integrity
+══════════════════════════════════════════════ */
+#sh-materials {
+  --mat-bg: var(--bg);
+  --mat-card: var(--surface);
+  --mat-tx: var(--text-main);
+  --mat-mut: var(--text-muted);
+  --mat-pr: #0f8a7e;
+  --mat-pr-hover: #0c7369;
+  --mat-bd: var(--border);
+}
+
+@media (min-width: 1024px) {
+  #sh-materials {
+    width: min(780px, 100vw);
+  }
+}
+
+#sh-materials .mat-search-wrap {
+  position: sticky;
+  top: calc(56px + var(--st));
+  background: var(--mat-card);
+  padding: 12px 16px;
+  z-index: 15;
+  border-bottom: 1px solid var(--mat-bd);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+#sh-materials .mat-search-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--mat-bd);
+  border-radius: 10px;
+  background: var(--mat-bg);
+  color: var(--mat-tx);
+  font-family: inherit;
+  font-size: 14.5px;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+#sh-materials .mat-search-input:focus {
+  border-color: var(--mat-pr);
+  box-shadow: 0 0 0 3px rgba(15, 138, 126, 0.15);
+}
+
+#sh-materials .mat-tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 10px 16px;
+  background: var(--mat-card);
+  border-bottom: 1px solid var(--mat-bd);
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+#sh-materials .mat-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+#sh-materials .mat-tabs button {
+  white-space: nowrap;
+  border: 1px solid var(--mat-bd);
+  background: var(--mat-bg);
+  color: var(--mat-tx);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+#sh-materials .mat-tabs button.on {
+  background: var(--mat-pr);
+  color: #FFFFFF;
+  border-color: var(--mat-pr);
+  box-shadow: 0 2px 6px rgba(15, 138, 126, 0.25);
+}
+
+#sh-materials .mat-list {
+  padding: 14px 16px 110px;
+}
+
+#sh-materials .mat-it {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--mat-card);
+  border: 1px solid var(--mat-bd);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: border-color 0.15s ease, transform 0.1s ease;
+}
+
+#sh-materials .mat-it:hover {
+  border-color: rgba(15, 138, 126, 0.35);
+}
+
+#sh-materials .mat-it .mat-n {
+  flex: 1;
+  line-height: 1.45;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--mat-tx);
+}
+
+#sh-materials .mat-it .mat-p {
+  color: var(--mat-pr);
+  font-weight: 700;
+  font-size: 14px;
+  margin-top: 3px;
+}
+
+#sh-materials .mat-q {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--mat-bg);
+  padding: 3px;
+  border-radius: 8px;
+  border: 1px solid var(--mat-bd);
+}
+
+#sh-materials .mat-q button {
+  border: 0;
+  background: var(--mat-pr);
+  color: #FFFFFF;
+  border-radius: 6px;
+  min-width: 30px;
+  height: 30px;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+}
+
+#sh-materials .mat-q button:hover {
+  background: var(--mat-pr-hover);
+}
+
+#sh-materials .mat-q b {
+  min-width: 22px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--mat-tx);
+}
+
+#sh-materials .mat-add {
+  border: 0;
+  background: var(--mat-pr);
+  color: #FFFFFF;
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+#sh-materials .mat-add:hover {
+  background: var(--mat-pr-hover);
+}
+
+#sh-materials .mat-bar {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  left: auto;
+  width: 100%;
+  padding: 12px 18px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: var(--mat-card);
+  border-top: 1px solid var(--mat-bd);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 50;
+  box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.08);
+}
+
+@media (min-width: 1024px) {
+  #sh-materials .mat-bar {
+    width: min(780px, 100vw);
+  }
+}
+
+#sh-materials .mat-bar-info {
+  font-size: 15px;
+  color: var(--mat-tx);
+}
+
+#sh-materials .mat-bar-info b {
+  color: var(--mat-pr);
+  font-size: 17px;
+}
+
+#sh-materials .mat-btn {
+  background: var(--mat-pr);
+  color: #FFFFFF;
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 18px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+#sh-materials .mat-btn:hover {
+  background: var(--mat-pr-hover);
+}
+
+#sh-materials .mat-btn.g {
+  background: var(--mat-mut);
+}
+
+#sh-materials .mat-btn.g:hover {
+  background: #526071;
+}
+
+#sh-materials .mat-pg {
+  display: none;
+  padding: 18px;
+  max-width: 720px;
+  margin: 0 auto;
+  padding-bottom: 90px;
+}
+
+#sh-materials .mat-pg.on {
+  display: block;
+}
+
+#sh-materials .mat-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--mat-card);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 14px;
+}
+
+#sh-materials .mat-table th,
+#sh-materials .mat-table td {
+  border: 1px solid var(--mat-bd);
+  padding: 9px 12px;
+  text-align: right;
+  font-size: 13.5px;
+}
+
+#sh-materials .mat-table th {
+  background: rgba(15, 138, 126, 0.09);
+  color: var(--mat-tx);
+  font-weight: 700;
+}
+
+#sh-materials .mat-tot {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 16px 0;
+  color: var(--mat-tx);
+}
+
+#sh-materials .mat-tot span {
+  color: var(--mat-pr);
+  font-size: 21px;
+}
+
+#sh-materials label.mat-label {
+  display: block;
+  margin: 12px 0 5px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--mat-mut);
+}
+
+#sh-materials input.mat-input,
+#sh-materials textarea.mat-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--mat-bd);
+  border-radius: 8px;
+  background: var(--mat-card);
+  color: var(--mat-tx);
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+#sh-materials input.mat-input:focus,
+#sh-materials textarea.mat-textarea:focus {
+  border-color: var(--mat-pr);
+  box-shadow: 0 0 0 3px rgba(15, 138, 126, 0.12);
+}
+
+#sh-materials .mat-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+/* Print Isolation for Material Market Invoices */
+@media print {
+  body.printing-mat-invoice * {
+    visibility: hidden;
+  }
+  body.printing-mat-invoice #sh-materials,
+  body.printing-mat-invoice #sh-materials #mat-inv,
+  body.printing-mat-invoice #sh-materials #mat-inv * {
+    visibility: visible;
+  }
+  body.printing-mat-invoice #sh-materials {
+    position: fixed;
+    inset: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    background: #FFFFFF !important;
+    color: #000000 !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    z-index: 99999 !important;
+    overflow: visible !important;
+    padding: 24px !important;
+  }
+  body.printing-mat-invoice #sh-materials .sh-hdr,
+  body.printing-mat-invoice #sh-materials .mat-noprint,
+  body.printing-mat-invoice #sh-materials .mat-bar {
+    display: none !important;
+  }
+  body.printing-mat-invoice #sh-materials #mat-inv {
+    display: block !important;
+  }
+}
+
+
 
