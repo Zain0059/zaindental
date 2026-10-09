@@ -1130,7 +1130,7 @@ export async function loadServices() {
   if (!data) { el.innerHTML = `<div class="empty">${isAr() ? "فشل تحميل لائحة الخدمات" : "Failed to load services"}</div>`; return; }
 
   const cats = {};
-  data.forEach(s => { const c = s.category || (isAr() ? "أخرى" : "Other"); if (!cats[c]) cats[c] = []; cats[c].push(s); });
+  data.filter(s => !s.category || !s.category.startsWith("__")).forEach(s => { const c = s.category || (isAr() ? "أخرى" : "Other"); if (!cats[c]) cats[c] = []; cats[c].push(s); });
 
   let html = "";
   for (const [cat, svcs] of Object.entries(cats)) {

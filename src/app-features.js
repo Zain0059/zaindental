@@ -648,7 +648,7 @@ export async function recordPayment(invId) {
 // Line items & procedure catalog
 export async function loadProcs() {
   const { data } = await sb.from("procedures_catalog").select("*").order("name");
-  if (data) _procs = data;
+  if (data) _procs = data.filter(p => !p.category || !p.category.startsWith("__"));
 }
 
 export function srchNI(q) {

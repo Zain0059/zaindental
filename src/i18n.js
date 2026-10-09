@@ -51,7 +51,7 @@ export const DICT = {
     nav_expenses: "المصروفات والعهد",
     nav_materials: "بورصة الماتريال",
     materials_title: "بورصة الماتريال",
-    materials_sub: "طلب وتوريد مستلزمات وخامات طب الأسنان وحساب الفاتورة",
+    materials_sub: "توريد مستلزمات وخامات الأسنان",
     nav_more: "المزيد",
     nav_more_short: "المزيد",
 
@@ -364,7 +364,7 @@ export const DICT = {
     nav_expenses: "Expenses",
     nav_materials: "Materials Market",
     materials_title: "Dental Materials Market",
-    materials_sub: "Order dental materials & clinic supplies with real-time pricing",
+    materials_sub: "Order clinic dental supplies & materials",
     nav_more: "More",
     nav_more_short: "More",
 

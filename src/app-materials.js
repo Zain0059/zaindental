@@ -2,6 +2,9 @@
 // ZAIN DENTAL CLINIC — DENTAL MATERIALS MARKET (بورصة الماتريال)
 // ==================================================
 
+import { sb, getCurrentUser } from './app.js';
+import { broadcastCartUpdate } from './app-notifications.js';
+
 export const RAW_MATERIALS = `كمبوزيت|كمبوزيت Chroma نانو هيبريد 4.5جم|168
 كمبوزيت|كمبوزيت M dental|175
 كمبوزيت|كمبوزيت روبي|175
@@ -222,20 +225,257 @@ export const matItems = RAW_MATERIALS.split("\n").filter(Boolean).map((line, idx
 
 export const matCats = ["الكل", ...new Set(matItems.map(i => i.c))];
 
+const CLIENT_ID = 'mat_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
+
 let currentCat = "الكل";
 let cart = {};
+let lastUpdatedBy = "";
+let lastUpdatedAt = "";
+let customerDetails = {};
+let _saveDebounceTimer = null;
+let _isFetching = false;
 
+// 1. Initial immediate local cache
 try {
   cart = JSON.parse(localStorage.getItem("zd_mat_cart") || localStorage.getItem("cart") || "{}");
+  customerDetails = JSON.parse(localStorage.getItem("zd_mat_customer") || "{}");
 } catch (e) {
   cart = {};
+  customerDetails = {};
 }
 
-function saveCart() {
+function saveCartLocal() {
   try {
     localStorage.setItem("zd_mat_cart", JSON.stringify(cart));
     localStorage.setItem("cart", JSON.stringify(cart));
   } catch (e) {}
+}
+
+function getCurrentUserName() {
+  const u = getCurrentUser();
+  return u?.full_name || (u?.username ? `@${u.username}` : "عضو بالعيادة");
+}
+
+export function updateSyncStatus(customText) {
+  const el = $("mat-sync-text");
+  const cartInfoEl = $("mat-cart-last-mod");
+  const cnt = Object.keys(cart).length;
+
+  let text = customText;
+  if (!text) {
+    if (lastUpdatedBy) {
+      let timeStr = "";
+      try {
+        if (lastUpdatedAt) {
+          timeStr = new Date(lastUpdatedAt).toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" });
+        }
+      } catch (e) {}
+      text = `سلة موحدة ومشتركة للعيادة 🤝 (آخر تعديل: ${lastUpdatedBy} ${timeStr ? '· ' + timeStr : ''})`;
+    } else {
+      text = "سلة موحدة ومشتركة للعيادة 🤝 (تحديث ومزامنة لحظية للجميع)";
+    }
+  }
+
+  if (el) el.textContent = text;
+  if (cartInfoEl) {
+    cartInfoEl.textContent = lastUpdatedBy
+      ? `آخر تعديل بواسطة: ${lastUpdatedBy} · (${cnt} أصناف بالسلة)`
+      : `سلة موحدة يراها ويعدلها جميع أطباء وموظفي العيادة (${cnt} صنف)`;
+  }
+}
+
+// 2. Fetch shared cart from Supabase
+export async function fetchSharedCart(notifyUser = false) {
+  if (_isFetching) return;
+  _isFetching = true;
+  updateSyncStatus("جاري مزامنة السلة المشتركة... 🔄");
+
+  try {
+    const { data, error } = await sb.from("procedures_catalog")
+      .select("id, name, default_cost")
+      .eq("category", "__zd_shared_cart__")
+      .limit(1);
+
+    if (error) {
+      console.warn("Error fetching shared cart from Supabase:", error);
+      updateSyncStatus();
+      return;
+    }
+
+    if (data && data.length > 0 && data[0].name) {
+      try {
+        const parsed = JSON.parse(data[0].name);
+        cart = (parsed.cart && typeof parsed.cart === 'object') ? parsed.cart : {};
+        lastUpdatedBy = parsed.updated_by || "";
+        lastUpdatedAt = parsed.updated_at || "";
+
+        if (parsed.customer && typeof parsed.customer === 'object') {
+          customerDetails = { ...customerDetails, ...parsed.customer };
+          try {
+            localStorage.setItem("zd_mat_customer", JSON.stringify(customerDetails));
+          } catch (e) {}
+        }
+
+        saveCartLocal();
+        matRender();
+        matTot();
+        matRenderCart();
+        updateSyncStatus();
+
+        if (notifyUser && window.toast) {
+          window.toast("تم تحديث ومزامنة السلة المشتركة للعيادة بنجاح 🔄");
+        }
+      } catch (parseErr) {
+        console.warn("Could not parse shared cart json:", parseErr);
+        updateSyncStatus();
+      }
+    } else {
+      // First time initialization in DB
+      await initSharedRecord();
+    }
+  } catch (e) {
+    console.warn("Failed to fetch shared cart:", e);
+    updateSyncStatus();
+  } finally {
+    _isFetching = false;
+  }
+}
+
+async function initSharedRecord() {
+  try {
+    const payload = {
+      cart: cart || {},
+      customer: customerDetails || {},
+      updated_by: getCurrentUserName(),
+      updated_at: new Date().toISOString()
+    };
+    await sb.from("procedures_catalog").insert({
+      name: JSON.stringify(payload),
+      default_cost: Object.keys(cart || {}).length,
+      category: "__zd_shared_cart__"
+    });
+    updateSyncStatus();
+  } catch (e) {
+    console.warn("Failed to create initial shared cart row:", e);
+  }
+}
+
+// 3. Push cart update to Supabase + Realtime broadcast
+export function pushSharedCart(triggerBroadcast = true) {
+  saveCartLocal();
+  matTot();
+
+  const userName = getCurrentUserName();
+  const timestamp = new Date().toISOString();
+  lastUpdatedBy = userName;
+  lastUpdatedAt = timestamp;
+  updateSyncStatus("جاري حفظ التعديل ومزامنته للجميع... ⏳");
+
+  // A. Broadcast to other open tabs and devices instantly
+  if (triggerBroadcast && typeof broadcastCartUpdate === 'function') {
+    broadcastCartUpdate({
+      client_id: CLIENT_ID,
+      cart,
+      customer: customerDetails,
+      updated_by: userName,
+      updated_at: timestamp
+    });
+  }
+
+  // B. Save to Supabase (debounced 400ms for rapid clicks)
+  clearTimeout(_saveDebounceTimer);
+  _saveDebounceTimer = setTimeout(async () => {
+    try {
+      const payload = {
+        cart,
+        customer: customerDetails,
+        updated_by: userName,
+        updated_at: timestamp
+      };
+
+      const { error } = await sb.from("procedures_catalog")
+        .update({
+          name: JSON.stringify(payload),
+          default_cost: Object.keys(cart).length
+        })
+        .eq("category", "__zd_shared_cart__");
+
+      if (error) {
+        console.warn("Supabase shared cart update error:", error);
+      }
+      updateSyncStatus();
+    } catch (e) {
+      console.warn("Failed to save shared cart to Supabase:", e);
+      updateSyncStatus("تم الحفظ محلياً ⚠️");
+    }
+  }, 400);
+}
+
+// 4. Handle incoming updates from other users
+export function handleIncomingCartUpdate(payload) {
+  if (!payload || payload.client_id === CLIENT_ID) return;
+
+  if (payload.cart && typeof payload.cart === 'object') {
+    cart = payload.cart;
+    lastUpdatedBy = payload.updated_by || "عضو بالفريق";
+    lastUpdatedAt = payload.updated_at || new Date().toISOString();
+
+    if (payload.customer && typeof payload.customer === 'object') {
+      customerDetails = { ...customerDetails, ...payload.customer };
+      try {
+        localStorage.setItem("zd_mat_customer", JSON.stringify(customerDetails));
+      } catch (e) {}
+    }
+
+    saveCartLocal();
+    matRender();
+    matTot();
+    matRenderCart();
+    updateSyncStatus();
+
+    const sheet = $("sh-materials");
+    if (sheet && sheet.classList.contains("open")) {
+      if (window.toast) {
+        window.toast(`🛒 قام ${lastUpdatedBy} بتحديث سلة الماتريال المشتركة`);
+      }
+    }
+  }
+}
+
+// 5. Clear shared cart
+export function matClearCart() {
+  const count = Object.keys(cart).length;
+  if (!count) {
+    if (window.toast) window.toast("السلة فارغة بالفعل 🛒");
+    return;
+  }
+
+  const confirmed = confirm("هل أنت متأكد من رغبتك في إفراغ السلة المشتركة للعيادة بالكامل؟\nسيتم حذف الأصناف لدى جميع مستخدمي النظام.");
+  if (!confirmed) return;
+
+  cart = {};
+  pushSharedCart(true);
+  matRender();
+  matTot();
+  matRenderCart();
+
+  if (window.toast) {
+    window.toast("تم إفراغ السلة المشتركة للعيادة بنجاح 🗑️");
+  }
+}
+
+export function matClearAfterOrder() {
+  const count = Object.keys(cart).length;
+  if (count > 0) {
+    const confirmed = confirm("تم تجهيز الطلب! هل تريد إفراغ السلة المشتركة الآن للبدء في طلب جديد للعيادة؟");
+    if (confirmed) {
+      cart = {};
+      pushSharedCart(true);
+      matRender();
+      matTot();
+    }
+  }
+  matShow("shop");
 }
 
 const $ = id => document.getElementById(id);
@@ -266,7 +506,7 @@ export function matShow(viewId) {
   if (viewId === "co") {
     // Populate saved delivery data if available
     try {
-      const saved = JSON.parse(localStorage.getItem("zd_mat_customer") || "{}");
+      const saved = customerDetails.nm ? customerDetails : JSON.parse(localStorage.getItem("zd_mat_customer") || "{}");
       const nmEl = $("mat-nm");
       const p1El = $("mat-p1");
       const p2El = $("mat-p2");
@@ -278,6 +518,8 @@ export function matShow(viewId) {
     } catch (e) {}
   }
 
+  const body = $("sh-materials-body");
+  if (body) body.scrollTop = 0;
   const sheet = $("sh-materials");
   if (sheet) sheet.scrollTop = 0;
 }
@@ -352,7 +594,7 @@ export function matCh(id, delta) {
   if (cart[id] <= 0) {
     delete cart[id];
   }
-  saveCart();
+  pushSharedCart(true);
   matRender();
 
   const cartEl = $("mat-cart");
@@ -375,11 +617,21 @@ export function matTotal() {
 export function matTot() {
   const cntEl = $("mat-cnt");
   const sumEl = $("mat-sum");
+  const badgeEl = $("mat-hdr-badge");
   const totalCount = Object.keys(cart).length;
   const totalPrice = matTotal();
 
   if (cntEl) cntEl.textContent = fmt(totalCount);
   if (sumEl) sumEl.textContent = fmt(totalPrice);
+
+  if (badgeEl) {
+    if (totalCount > 0) {
+      badgeEl.textContent = fmt(totalCount);
+      badgeEl.style.display = "inline-flex";
+    } else {
+      badgeEl.style.display = "none";
+    }
+  }
 }
 
 export function matRenderCart() {
@@ -436,10 +688,12 @@ export function matMakeInv() {
     return;
   }
 
-  // Save details for future orders
+  // Save details for future orders locally and in shared clinic record
+  customerDetails = { nm, p1, p2, ad };
   try {
-    localStorage.setItem("zd_mat_customer", JSON.stringify({ nm, p1, p2, ad }));
+    localStorage.setItem("zd_mat_customer", JSON.stringify(customerDetails));
   } catch (e) {}
+  pushSharedCart(true);
 
   const invInfoEl = $("mat-invinfo");
   if (invInfoEl) {
@@ -528,13 +782,12 @@ export function initMaterialsMarket() {
   matTabs();
   matRender();
   matShow("shop");
+  fetchSharedCart();
 }
 
-// Auto init on import if DOM is ready
-if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      // Lazy init ready
-    });
-  }
+// Auto init on import and fetch shared cart in background
+if (typeof window !== 'undefined') {
+  setTimeout(() => {
+    fetchSharedCart();
+  }, 100);
 }

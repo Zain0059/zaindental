@@ -7,7 +7,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="عيادة زين لطب الأسنان">
-  <title>عيادة زين لطب الأسنان — منظومة إدارة العيادة السحابية</title>
+  <title>Zain Dental Clinic</title>
+  <meta name="description" content="A modern premium dental SaaS and dental practice management system for scheduling, patients, billing, clinical records, expenses, and AI file scanning.">
+  <meta property="og:title" content="Zain Dental Clinic">
+  <meta property="og:description" content="A modern premium dental SaaS and dental practice management system for scheduling, patients, billing, clinical records, expenses, and AI file scanning.">
   
   <!-- Web App Manifest & Mobile Android Capabilities -->
   <link rel="manifest" href="./manifest.json">
@@ -824,32 +827,49 @@
     <button class="back" onclick="window.closeSheet('materials')" title="رجوع">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
-    <div style="flex:1">
-      <div class="sh-title" data-i18n="materials_title">🦷 أوردر وبورصة ماتريال العيادة</div>
-      <div class="sh-sub" data-i18n="materials_sub">طلب وتوريد مستلزمات الأسنان، السلة، والفاتورة الفورية</div>
+    <div class="sh-hdr-title-wrap">
+      <div class="sh-title" data-i18n="materials_title">🦷 أوردر وبورصة الماتريال</div>
+      <div class="sh-sub" data-i18n="materials_sub">توريد مستلزمات وخامات الأسنان</div>
     </div>
-    <button class="sh-action-btn" onclick="window.matShow('cart')" style="display:flex;align-items:center;gap:6px">
-      <span>🛒 السلة</span>
+    <button class="mat-hdr-cart-btn" onclick="window.matShow('cart')" title="عرض السلة">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" stroke-width="2.2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      <span>السلة</span>
+      <span class="mat-cart-badge" id="mat-hdr-badge" style="display:none">0</span>
     </button>
   </div>
 
   <div id="sh-materials-body">
     <!-- View 1: Shop / Materials Catalog -->
     <div id="mat-shop">
+      <div class="mat-sync-bar" id="mat-sync-bar">
+        <div class="mat-sync-status">
+          <span class="mat-sync-dot"></span>
+          <span id="mat-sync-text">سلة موحدة ومشتركة للعيادة 🤝 (الكل يراها ويعدلها)</span>
+        </div>
+        <div class="mat-sync-actions">
+          <button type="button" class="mat-sync-btn" onclick="window.fetchSharedCart(true)" title="تحديث يدوي للسلة">🔄 تحديث</button>
+          <button type="button" class="mat-sync-btn danger" onclick="window.matClearCart()" title="إفراغ السلة">🗑️ تفريغ</button>
+        </div>
+      </div>
       <div class="mat-search-wrap">
         <input id="mat-q" class="mat-search-input" placeholder="🔍 ابحث عن صنف أو خامة (كمبوزيت، بنج، روتاري، جلفز...)" oninput="window.matRender()">
       </div>
       <div class="mat-tabs" id="mat-tabs"></div>
       <div id="mat-list" class="mat-list"></div>
-      <div class="mat-bar" id="mat-bar">
-        <div class="mat-bar-info"><b id="mat-cnt">0</b> صنف — <b id="mat-sum">0</b> ج</div>
-        <button type="button" class="mat-btn" onclick="window.matShow('cart')">السلة ←</button>
-      </div>
     </div>
 
     <!-- View 2: Cart -->
     <div id="mat-cart" class="mat-pg">
-      <h2 style="font-size:18px;margin:0 0 14px">🛒 سلة المشتريات والمستلزمات</h2>
+      <div class="mat-cart-hdr-row">
+        <div>
+          <h2 style="font-size:18px;margin:0 0 4px">🛒 سلة المشتريات والمستلزمات</h2>
+          <div id="mat-cart-last-mod" class="mat-cart-sub-shared">سلة موحدة مشتركة بين جميع أطباء وموظفي العيادة</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button type="button" class="mat-sync-btn" onclick="window.fetchSharedCart(true)" title="تحديث السلة">🔄 تحديث</button>
+          <button type="button" class="mat-sync-btn danger" onclick="window.matClearCart()" title="إفراغ السلة بالكامل">🗑️ إفراغ السلة</button>
+        </div>
+      </div>
       <div id="mat-cartbody"></div>
       <div class="mat-tot">الإجمالي: <span id="mat-ctot">0</span> ج</div>
       <div class="mat-row">
@@ -884,12 +904,17 @@
       <div class="mat-row mat-noprint">
         <button type="button" class="mat-btn" onclick="window.matPrint()">📄 تحميل PDF / طباعة</button>
         <button type="button" class="mat-btn" style="background:#25D366" onclick="window.matWa()">💬 إرسال واتساب</button>
-        <button type="button" class="mat-btn g" onclick="window.matShow('shop')">أوردر جديد</button>
+        <button type="button" class="mat-btn g" onclick="window.matClearAfterOrder()">أوردر جديد (إفراغ السلة)</button>
       </div>
       <p class="mat-noprint" style="color:var(--mat-mut);font-size:13px;margin-top:12px">
         * من نافذة الطباعة اختر "حفظ كـ PDF" (Save as PDF). الأسعار الموضحة لا تشمل مصاريف الشحن.
       </p>
     </div>
+  </div>
+
+  <div class="mat-bar" id="mat-bar">
+    <div class="mat-bar-info"><b id="mat-cnt">0</b> صنف — <b id="mat-sum">0</b> ج</div>
+    <button type="button" class="mat-btn" onclick="window.matShow('cart')">السلة ←</button>
   </div>
 </div>
 

@@ -668,6 +668,25 @@ export function broadcastNewAppointmentBooked(apptData) {
   }
 }
 
+export function broadcastCartUpdate(payload) {
+  if (_bc) {
+    try {
+      _bc.postMessage({ ...payload, event_type: 'materials_cart_update' });
+    } catch (e) {}
+  }
+  if (_realtimeChannel) {
+    try {
+      _realtimeChannel.send({
+        type: 'broadcast',
+        event: 'materials_cart_update',
+        payload
+      });
+    } catch (e) {
+      console.warn('Realtime cart broadcast error:', e);
+    }
+  }
+}
+
 export function handleIncomingNewAppointmentAlert(payload) {
   if (!payload || !payload.appointment_date) return;
 
@@ -753,6 +772,10 @@ export function initRealtimeAppointmentListeners() {
     _bc.onmessage = (event) => {
       if (event.data?.event_type === 'appointment_booked') {
         handleIncomingNewAppointmentAlert(event.data);
+      } else if (event.data?.event_type === 'materials_cart_update') {
+        if (typeof window.handleIncomingCartUpdate === 'function') {
+          window.handleIncomingCartUpdate(event.data);
+        }
       }
     };
   }
@@ -764,6 +787,11 @@ export function initRealtimeAppointmentListeners() {
       _realtimeChannel = client.channel('clinic_notifications_room')
         .on('broadcast', { event: 'new_appointment' }, ({ payload }) => {
           handleIncomingNewAppointmentAlert(payload);
+        })
+        .on('broadcast', { event: 'materials_cart_update' }, ({ payload }) => {
+          if (typeof window.handleIncomingCartUpdate === 'function') {
+            window.handleIncomingCartUpdate(payload);
+          }
         })
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'appointments' }, (payload) => {
           const newRecord = payload.new;
