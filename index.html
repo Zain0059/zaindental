@@ -852,7 +852,13 @@
         </div>
       </div>
       <div class="mat-search-wrap">
-        <input id="mat-q" class="mat-search-input" placeholder="🔍 ابحث عن صنف أو خامة (كمبوزيت، بنج، روتاري، جلفز...)" oninput="window.matRender()">
+        <div class="mat-search-row">
+          <input id="mat-q" class="mat-search-input" placeholder="🔍 ابحث عن صنف أو خامة (كمبوزيت، بنج، روتاري، جلفز...)" oninput="window.matRender()">
+          <button type="button" class="mat-btn-add-custom-icon" onclick="window.openAddCustomMatModal()" title="إضافة صنف غير موجود في القائمة للسلة">
+            <span>➕</span>
+            <span class="btn-text">صنف غير موجود</span>
+          </button>
+        </div>
       </div>
       <div class="mat-tabs" id="mat-tabs"></div>
       <div id="mat-list" class="mat-list"></div>
@@ -870,6 +876,17 @@
           <button type="button" class="mat-sync-btn danger" onclick="window.matClearCart()" title="إفراغ السلة بالكامل">🗑️ إفراغ السلة</button>
         </div>
       </div>
+
+      <div class="mat-cart-add-custom-banner">
+        <div class="mat-cac-info">
+          <b>➕ إضافة صنف أو مستلزم غير مدرج</b>
+          <span>أضف أي خامة خاصة مباشرة للسلة المشتركة بالعدد والمواصفات</span>
+        </div>
+        <button type="button" class="mat-btn-custom-add" onclick="window.openAddCustomMatModal()">
+          + إضافة صنف للسلة
+        </button>
+      </div>
+
       <div id="mat-cartbody"></div>
       <div class="mat-tot">الإجمالي: <span id="mat-ctot">0</span> ج</div>
       <div class="mat-row">
@@ -915,6 +932,69 @@
   <div class="mat-bar" id="mat-bar">
     <div class="mat-bar-info"><b id="mat-cnt">0</b> صنف — <b id="mat-sum">0</b> ج</div>
     <button type="button" class="mat-btn" onclick="window.matShow('cart')">السلة ←</button>
+  </div>
+
+  <!-- Modal: Add Custom / Unlisted Material -->
+  <div id="mat-custom-modal" class="mat-modal-overlay" style="display:none" onclick="if(event.target===this)window.closeAddCustomMatModal()">
+    <div class="mat-modal-card">
+      <div class="mat-modal-hdr">
+        <div>
+          <h3 class="mat-modal-title">➕ إضافة صنف غير موجود للسلة</h3>
+          <p class="mat-modal-sub">سيتم حفظ الصنف ومزامنته فوراً في سلة العيادة المشتركة 🤝</p>
+        </div>
+        <button type="button" class="mat-modal-close" onclick="window.closeAddCustomMatModal()" title="إغلاق">✕</button>
+      </div>
+
+      <form id="mat-custom-form" onsubmit="window.handleCustomMatSubmit(event)">
+        <div style="margin-bottom:12px">
+          <label class="mat-label" style="margin-top:0">اسم الصنف أو الخامة المطلوبة <span style="color:#ef4444">*</span></label>
+          <input id="mat-ci-name" class="mat-input" placeholder="مثال: مبرد ويدج خاص مقاس 25، حشوة سائلة A2، سرنجة بنج..." required>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <div>
+            <label class="mat-label" style="margin-top:0">السعر للقطعة (ج.م)</label>
+            <input id="mat-ci-price" class="mat-input" type="number" min="0" step="any" placeholder="0 (أو اتركه فارغاً)" inputmode="decimal">
+            <div style="font-size:11px;color:var(--mat-mut);margin-top:3px">اتركه 0 لحسابه عند التوريد</div>
+          </div>
+
+          <div>
+            <label class="mat-label" style="margin-top:0">الكمية المطلوبة <span style="color:#ef4444">*</span></label>
+            <div style="display:flex;align-items:center;gap:6px">
+              <button type="button" class="mat-ci-q-btn" onclick="window.changeCustomMatModalQty(-1)">−</button>
+              <input id="mat-ci-qty" class="mat-input" type="number" min="1" max="999" value="1" style="text-align:center;font-weight:700" required>
+              <button type="button" class="mat-ci-q-btn" onclick="window.changeCustomMatModalQty(1)">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:12px">
+          <label class="mat-label" style="margin-top:0">القسم / التصنيف</label>
+          <select id="mat-ci-cat" class="mat-input">
+            <option value="طلب خاص / غير مدرج" selected>طلب خاص / غير مدرج</option>
+            <option value="أندو">أندو</option>
+            <option value="كمبوزيت">كمبوزيت</option>
+            <option value="فلوابل وبوند">فلوابل وبوند</option>
+            <option value="تلميع وفينيشينج">تلميع وفينيشينج</option>
+            <option value="مستهلكات عامة">مستهلكات عامة</option>
+            <option value="جراحة وبنج">جراحة وبنج</option>
+            <option value="تعقيم">تعقيم</option>
+            <option value="كونترا">كونترا</option>
+            <option value="أجهزة (زيرو)">أجهزة (زيرو)</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom:18px">
+          <label class="mat-label" style="margin-top:0">ملاحظات أو مواصفات خاصة <span style="font-size:11px;color:var(--mat-mut)">(اختياري)</span></label>
+          <textarea id="mat-ci-note" class="mat-textarea" rows="2" placeholder="المقاس، اللون، كود الصنف، المورد أو الماركة المفضلة..."></textarea>
+        </div>
+
+        <div style="display:flex;gap:10px;justify-content:flex-end">
+          <button type="button" class="mat-btn g" onclick="window.closeAddCustomMatModal()">إلغاء</button>
+          <button type="submit" class="mat-btn">🛒 إضافة للسلة المشتركة</button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 

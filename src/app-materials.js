@@ -303,6 +303,7 @@ const CLIENT_ID = 'mat_' + Math.random().toString(36).substring(2, 9) + '_' + Da
 
 let currentCat = "الكل";
 let cart = {};
+let customItems = {};
 let lastUpdatedBy = "";
 let lastUpdatedAt = "";
 let customerDetails = {};
@@ -312,9 +313,11 @@ let _isFetching = false;
 // 1. Initial immediate local cache
 try {
   cart = JSON.parse(localStorage.getItem("zd_mat_cart") || localStorage.getItem("cart") || "{}");
+  customItems = JSON.parse(localStorage.getItem("zd_mat_custom_items") || "{}");
   customerDetails = JSON.parse(localStorage.getItem("zd_mat_customer") || "{}");
 } catch (e) {
   cart = {};
+  customItems = {};
   customerDetails = {};
 }
 
@@ -322,6 +325,12 @@ function saveCartLocal() {
   try {
     localStorage.setItem("zd_mat_cart", JSON.stringify(cart));
     localStorage.setItem("cart", JSON.stringify(cart));
+  } catch (e) {}
+}
+
+function saveCustomItemsLocal() {
+  try {
+    localStorage.setItem("zd_mat_custom_items", JSON.stringify(customItems));
   } catch (e) {}
 }
 
@@ -380,6 +389,10 @@ export async function fetchSharedCart(notifyUser = false) {
       try {
         const parsed = JSON.parse(data[0].name);
         cart = (parsed.cart && typeof parsed.cart === 'object') ? parsed.cart : {};
+        if (parsed.custom_items && typeof parsed.custom_items === 'object') {
+          customItems = parsed.custom_items;
+          saveCustomItemsLocal();
+        }
         lastUpdatedBy = parsed.updated_by || "";
         lastUpdatedAt = parsed.updated_at || "";
 
@@ -391,6 +404,7 @@ export async function fetchSharedCart(notifyUser = false) {
         }
 
         saveCartLocal();
+        matTabs();
         matRender();
         matTot();
         matRenderCart();
@@ -419,6 +433,7 @@ async function initSharedRecord() {
   try {
     const payload = {
       cart: cart || {},
+      custom_items: customItems || {},
       customer: customerDetails || {},
       updated_by: getCurrentUserName(),
       updated_at: new Date().toISOString()
@@ -437,6 +452,7 @@ async function initSharedRecord() {
 // 3. Push cart update to Supabase + Realtime broadcast
 export function pushSharedCart(triggerBroadcast = true) {
   saveCartLocal();
+  saveCustomItemsLocal();
   matTot();
 
   const userName = getCurrentUserName();
@@ -450,6 +466,7 @@ export function pushSharedCart(triggerBroadcast = true) {
     broadcastCartUpdate({
       client_id: CLIENT_ID,
       cart,
+      custom_items: customItems,
       customer: customerDetails,
       updated_by: userName,
       updated_at: timestamp
@@ -462,6 +479,7 @@ export function pushSharedCart(triggerBroadcast = true) {
     try {
       const payload = {
         cart,
+        custom_items: customItems,
         customer: customerDetails,
         updated_by: userName,
         updated_at: timestamp
@@ -491,6 +509,10 @@ export function handleIncomingCartUpdate(payload) {
 
   if (payload.cart && typeof payload.cart === 'object') {
     cart = payload.cart;
+    if (payload.custom_items && typeof payload.custom_items === 'object') {
+      customItems = payload.custom_items;
+      saveCustomItemsLocal();
+    }
     lastUpdatedBy = payload.updated_by || "عضو بالفريق";
     lastUpdatedAt = payload.updated_at || new Date().toISOString();
 
@@ -502,6 +524,7 @@ export function handleIncomingCartUpdate(payload) {
     }
 
     saveCartLocal();
+    matTabs();
     matRender();
     matTot();
     matRenderCart();
@@ -598,10 +621,19 @@ export function matShow(viewId) {
   if (sheet) sheet.scrollTop = 0;
 }
 
+export function getMatCategories() {
+  const cats = new Set(matItems.map(i => i.c));
+  Object.values(customItems || {}).forEach(ci => {
+    if (ci.c) cats.add(ci.c);
+  });
+  return ["الكل", ...cats];
+}
+
 export function matTabs() {
   const tabsContainer = $("mat-tabs");
   if (!tabsContainer) return;
-  tabsContainer.innerHTML = matCats.map(c => `
+  const cats = getMatCategories();
+  tabsContainer.innerHTML = cats.map(c => `
     <button type="button" class="${c === currentCat ? "on" : ""}" onclick="window.setMatCategory('${c}')">
       ${c}
     </button>
@@ -621,18 +653,33 @@ export function matRender() {
   const qEl = $("mat-q");
   const s = (qEl?.value || "").trim().toLowerCase();
 
-  const filtered = matItems.filter(i => {
+  // Combine standard catalog items + any user-added custom items
+  const customs = Object.values(customItems || {});
+  const allItems = [...matItems, ...customs];
+
+  const filtered = allItems.filter(i => {
     const matchCat = currentCat === "الكل" || i.c === currentCat;
-    const matchSearch = !s || i.n.toLowerCase().includes(s) || i.c.toLowerCase().includes(s);
+    const matchSearch = !s ||
+      (i.n && i.n.toLowerCase().includes(s)) ||
+      (i.c && i.c.toLowerCase().includes(s)) ||
+      (i.note && i.note.toLowerCase().includes(s));
     return matchCat && matchSearch;
   });
 
   if (!filtered.length) {
+    const escapedSearch = s.replace(/'/g, "\\'");
     listEl.innerHTML = `
-      <div style="text-align:center;padding:36px 16px;color:var(--mat-mut)">
-        <div style="font-size:28px;margin-bottom:8px">🔍</div>
-        <div style="font-size:15px;font-weight:600">لا توجد نتائج مطابقة لبحثك</div>
-        <div style="font-size:13px;margin-top:4px">جرب البحث بكلمة أخرى أو اختر تصنيفاً مختلفاً</div>
+      <div class="mat-empty-search-card">
+        <div style="font-size:32px;margin-bottom:8px">🔍</div>
+        <div style="font-size:16px;font-weight:700;color:var(--mat-tx)">
+          ${s ? `لم يتم العثور على "${s}" في القائمة` : "لا توجد أصناف في هذا القسم حالياً"}
+        </div>
+        <div style="font-size:13px;color:var(--mat-mut);margin:6px 0 16px">
+          ${s ? "هل تحتاج هذه الخامة للعيادة؟ يمكنك إضافتها مباشرة إلى السلة المشتركة فوراً!" : "يمكنك إضافة صنف خاص غير مدرج بالقائمة بنقرة واحدة."}
+        </div>
+        <button type="button" class="mat-btn" onclick="window.openAddCustomMatModal('${escapedSearch}')">
+          ➕ إضافة ${s ? `"${s}"` : "صنف جديد"} للسلة المشتركة
+        </button>
       </div>
     `;
     matTot();
@@ -641,20 +688,32 @@ export function matRender() {
 
   listEl.innerHTML = filtered.map(i => {
     const q = cart[i.id] || 0;
+    const isCustom = !!i.is_custom;
+    const priceDisplay = (i.p && i.p > 0)
+      ? `${fmt(i.p)} ج`
+      : `<span style="color:#d97706;font-size:12px;font-weight:700">حسب الفاتورة</span>`;
+
     return `
-      <div class="mat-it">
+      <div class="mat-it ${isCustom ? "mat-it-custom" : ""}">
         <div class="mat-n">
-          <div>${i.n}</div>
-          <div class="mat-p">${fmt(i.p)} ج <span style="font-size:12px;color:var(--mat-mut);font-weight:normal">(${i.c})</span></div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <span>${i.n}</span>
+            ${isCustom ? `<span class="mat-custom-badge">⭐ طلب خاص</span>` : ""}
+          </div>
+          <div class="mat-p">
+            ${priceDisplay}
+            <span style="font-size:12px;color:var(--mat-mut);font-weight:normal">(${i.c || "عام"})</span>
+          </div>
+          ${i.note ? `<div style="font-size:12px;color:var(--mat-mut);margin-top:2px">📝 ${i.note}</div>` : ""}
         </div>
         ${q ? `
           <div class="mat-q">
-            <button type="button" onclick="window.matCh(${i.id}, -1)">−</button>
+            <button type="button" onclick="window.matCh('${i.id}', -1)">−</button>
             <b>${q}</b>
-            <button type="button" onclick="window.matCh(${i.id}, 1)">+</button>
+            <button type="button" onclick="window.matCh('${i.id}', 1)">+</button>
           </div>
         ` : `
-          <button type="button" class="mat-add" onclick="window.matCh(${i.id}, 1)">أضف</button>
+          <button type="button" class="mat-add" onclick="window.matCh('${i.id}', 1)">أضف</button>
         `}
       </div>
     `;
@@ -677,9 +736,25 @@ export function matCh(id, delta) {
   }
 }
 
+export function matRemoveItem(id) {
+  if (cart[id] !== undefined) {
+    delete cart[id];
+    pushSharedCart(true);
+    matRender();
+    matTot();
+    matRenderCart();
+    if (window.toast) {
+      window.toast("تمت إزالة الصنف من السلة المشتركة 🗑️");
+    }
+  }
+}
+
 export function matLines() {
   return Object.keys(cart).map(id => {
-    const item = matItems[Number(id)] || matItems.find(i => String(i.id) === String(id));
+    let item = customItems[id];
+    if (!item) {
+      item = matItems.find(i => String(i.id) === String(id)) || matItems[Number(id)];
+    }
     if (!item) return null;
     return {
       ...item,
@@ -689,7 +764,7 @@ export function matLines() {
 }
 
 export function matTotal() {
-  return matLines().reduce((acc, line) => acc + ((line.p || 0) * (line.q || 0)), 0);
+  return matLines().reduce((acc, line) => acc + ((Number(line.p) || 0) * (Number(line.q) || 0)), 0);
 }
 
 export function matTot() {
@@ -723,28 +798,143 @@ export function matRenderCart() {
       <div style="text-align:center;padding:36px 16px;color:var(--mat-mut)">
         <div style="font-size:36px;margin-bottom:8px">🛒</div>
         <div style="font-size:16px;font-weight:700">السلة فارغة حالياً</div>
-        <div style="font-size:13px;margin-top:6px">قم بإضافة مستلزمات العيادة من قائمة الأصناف أولاً</div>
+        <div style="font-size:13px;margin-top:6px;margin-bottom:14px">قم بإضافة مستلزمات العيادة من قائمة الأصناف أو أضف صنفاً غير موجود</div>
+        <button type="button" class="mat-btn" onclick="window.openAddCustomMatModal()">➕ إضافة صنف غير موجود للسلة</button>
       </div>
     `;
     if (ctotEl) ctotEl.textContent = "0";
     return;
   }
 
-  cartBody.innerHTML = lines.map(line => `
-    <div class="mat-it">
-      <div class="mat-n">
-        <div>${line.n}</div>
-        <div class="mat-p">${fmt(line.p * line.q)} ج <span style="font-size:12px;color:var(--mat-mut);font-weight:normal">(${fmt(line.p)} ج × ${line.q})</span></div>
+  cartBody.innerHTML = lines.map(line => {
+    const isCustom = !!line.is_custom;
+    const hasPrice = Number(line.p) > 0;
+    const priceText = hasPrice
+      ? `${fmt(line.p * line.q)} ج <span style="font-size:12px;color:var(--mat-mut);font-weight:normal">(${fmt(line.p)} ج × ${line.q})</span>`
+      : `<span style="color:#d97706;font-size:12.5px;font-weight:700">السعر عند التوريد / حسب الفاتورة</span>`;
+
+    return `
+      <div class="mat-it ${isCustom ? "mat-it-custom" : ""}">
+        <div class="mat-n">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <span>${line.n}</span>
+            ${isCustom ? `<span class="mat-custom-badge">⭐ طلب خاص</span>` : ""}
+          </div>
+          <div class="mat-p">${priceText}</div>
+          ${line.note ? `<div style="font-size:12px;color:var(--mat-mut);margin-top:2px">📝 ${line.note}</div>` : ""}
+          ${isCustom && line.added_by ? `<div style="font-size:11px;color:var(--mat-mut);margin-top:1px">بواسطة: ${line.added_by}</div>` : ""}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="mat-q">
+            <button type="button" onclick="window.matCh('${line.id}', -1)">−</button>
+            <b>${line.q}</b>
+            <button type="button" onclick="window.matCh('${line.id}', 1)">+</button>
+          </div>
+          <button type="button" class="mat-del-btn" onclick="window.matRemoveItem('${line.id}')" title="حذف الصنف من السلة">🗑️</button>
+        </div>
       </div>
-      <div class="mat-q">
-        <button type="button" onclick="window.matCh(${line.id}, -1)">−</button>
-        <b>${line.q}</b>
-        <button type="button" onclick="window.matCh(${line.id}, 1)">+</button>
-      </div>
-    </div>
-  `).join("");
+    `;
+  }).join("");
 
   if (ctotEl) ctotEl.textContent = fmt(matTotal());
+}
+
+// --------------------------------------------------
+// Custom Unlisted Material Modal Handlers
+// --------------------------------------------------
+export function openAddCustomMatModal(prefillName = "") {
+  const modal = $("mat-custom-modal");
+  if (!modal) return;
+
+  const nameInput = $("mat-ci-name");
+  const priceInput = $("mat-ci-price");
+  const qtyInput = $("mat-ci-qty");
+  const noteInput = $("mat-ci-note");
+  const catInput = $("mat-ci-cat");
+
+  if (nameInput) nameInput.value = prefillName || "";
+  if (priceInput) priceInput.value = "";
+  if (qtyInput) qtyInput.value = "1";
+  if (noteInput) noteInput.value = "";
+  if (catInput && currentCat !== "الكل") {
+    catInput.value = currentCat;
+  }
+
+  modal.style.display = "flex";
+  setTimeout(() => {
+    if (nameInput) {
+      nameInput.focus();
+      if (prefillName) nameInput.select();
+    }
+  }, 80);
+}
+
+export function closeAddCustomMatModal() {
+  const modal = $("mat-custom-modal");
+  if (modal) modal.style.display = "none";
+}
+
+export function changeCustomMatModalQty(delta) {
+  const input = $("mat-ci-qty");
+  if (!input) return;
+  let val = parseInt(input.value || "1", 10) + delta;
+  if (isNaN(val) || val < 1) val = 1;
+  input.value = val;
+}
+
+export function handleCustomMatSubmit(e) {
+  if (e && e.preventDefault) e.preventDefault();
+
+  const name = ($("mat-ci-name")?.value || "").trim();
+  if (!name) {
+    if (window.toast) window.toast("يرجى إدخال اسم الصنف أو الخامة المطلوبة ⚠️");
+    else alert("اكتب اسم الصنف");
+    return;
+  }
+
+  const rawPrice = $("mat-ci-price")?.value;
+  const price = (rawPrice !== "" && !isNaN(Number(rawPrice)) && Number(rawPrice) >= 0)
+    ? Number(rawPrice)
+    : 0;
+
+  const rawQty = $("mat-ci-qty")?.value;
+  const qty = (!isNaN(parseInt(rawQty, 10)) && parseInt(rawQty, 10) > 0)
+    ? parseInt(rawQty, 10)
+    : 1;
+
+  const cat = ($("mat-ci-cat")?.value || "طلب خاص / غير مدرج").trim();
+  const note = ($("mat-ci-note")?.value || "").trim();
+
+  // Create unique id for the custom material
+  const customId = "c_" + Date.now() + "_" + Math.random().toString(36).substring(2, 7);
+
+  const customItem = {
+    id: customId,
+    n: name,
+    p: price,
+    c: cat,
+    note: note,
+    is_custom: true,
+    added_by: getCurrentUserName(),
+    created_at: new Date().toISOString()
+  };
+
+  customItems[customId] = customItem;
+  cart[customId] = (cart[customId] || 0) + qty;
+
+  saveCustomItemsLocal();
+  saveCartLocal();
+  pushSharedCart(true);
+
+  closeAddCustomMatModal();
+  matTabs();
+  matRender();
+  matTot();
+  matRenderCart();
+
+  if (window.toast) {
+    window.toast(`🛒 تمت إضافة "${name}" (${qty}x) إلى السلة المشتركة`);
+  }
 }
 
 export function matMakeInv() {
@@ -795,19 +985,26 @@ export function matMakeInv() {
         <tr>
           <th>الصنف</th>
           <th style="width:50px;text-align:center">العدد</th>
-          <th style="width:80px">السعر</th>
-          <th style="width:90px">الإجمالي</th>
+          <th style="width:85px">السعر</th>
+          <th style="width:95px">الإجمالي</th>
         </tr>
       </thead>
       <tbody>
-        ${lines.map(line => `
-          <tr>
-            <td><b>${line.n}</b></td>
-            <td style="text-align:center">${line.q}</td>
-            <td>${fmt(line.p)} ج</td>
-            <td><b>${fmt(line.p * line.q)} ج</b></td>
-          </tr>
-        `).join("")}
+        ${lines.map(line => {
+          const hasPrice = Number(line.p) > 0;
+          return `
+            <tr>
+              <td>
+                <b>${line.n}</b>
+                ${line.is_custom ? `<span style="display:inline-block;margin-right:6px;font-size:11px;background:#e0f2fe;color:#0369a1;padding:1px 6px;border-radius:4px;font-weight:700">طلب خاص</span>` : ""}
+                ${line.note ? `<div style="font-size:12px;color:var(--mat-mut);margin-top:2px">📝 ${line.note}</div>` : ""}
+              </td>
+              <td style="text-align:center">${line.q}</td>
+              <td>${hasPrice ? `${fmt(line.p)} ج` : "حسب الفاتورة"}</td>
+              <td><b>${hasPrice ? `${fmt(line.p * line.q)} ج` : "—"}</b></td>
+            </tr>
+          `;
+        }).join("")}
       </tbody>
     `;
   }
@@ -835,7 +1032,12 @@ export function matWa() {
   let t = "🦷 *أوردر ماتريال العيادة*\n";
   t += "━━━━━━━━━━━━━━━━━━━━\n";
   lines.forEach(line => {
-    t += `• ${line.n} × ${line.q} = ${fmt(line.p * line.q)} ج\n`;
+    const customTag = line.is_custom ? " [طلب خاص]" : "";
+    const noteStr = line.note ? ` (ملاحظة: ${line.note})` : "";
+    const priceStr = (Number(line.p) > 0)
+      ? `${fmt(line.p * line.q)} ج`
+      : "(السعر عند التوريد)";
+    t += `• ${line.n}${customTag}${noteStr} × ${line.q} = ${priceStr}\n`;
   });
   t += "━━━━━━━━━━━━━━━━━━━━\n";
   t += `💰 *الإجمالي:* ${fmt(matTotal())} ج (بدون الشحن)\n\n`;
