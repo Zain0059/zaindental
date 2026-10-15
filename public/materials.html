@@ -16,7 +16,12 @@ input,textarea,select{width:100%;padding:10px;border:1px solid var(--bd);border-
 .tabs button{white-space:nowrap;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:16px;padding:6px 12px;font:inherit;cursor:pointer}
 .tabs button.on{background:var(--pr);color:#fff;border-color:var(--pr)}
 #list{padding:10px 12px 90px}
-.it{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px;margin-bottom:8px}
+.it{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px;margin-bottom:8px}
+.thumb-wrap{flex-shrink:0;width:48px;height:48px;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative;background:var(--bg);border:1px solid var(--bd);box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+.thumb-img{width:100%;height:100%;object-fit:cover}
+.cat-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;padding:2px;box-sizing:border-box;text-align:center}
+.cat-placeholder svg{width:22px;height:22px;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.25))}
+.cat-tag{font-size:7.5px;font-weight:700;line-height:1;margin-top:2px;letter-spacing:-0.2px;text-shadow:0 1px 2px rgba(0,0,0,0.35);max-width:44px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .it .n{flex:1;line-height:1.5}.it .p{color:var(--pr);font-weight:700}
 .q{display:flex;align-items:center;gap:6px}
 .q button,.add{border:0;background:var(--pr);color:#fff;border-radius:8px;min-width:34px;height:34px;font:inherit;font-size:18px;cursor:pointer}
@@ -92,7 +97,7 @@ const RAW=`كمبوزيت|كمبوزيت Chroma نانو هيبريد 4.5جم|16
 فلوابل وبوند|فلوابل ألفا|180
 فلوابل وبوند|فلوابل نوڤا|230
 فلوابل وبوند|فلوابل ميتا|265
-فلوابل وبوند|فلوابل بلك فيل|335
+فلوابل وبوند|فلوابل بلك فيل|325
 فلوابل وبوند|بوند كمبوماكس|225
 فلوابل وبوند|بوند تركي Clara|345
 فلوابل وبوند|بوند Meta 5ml|435
@@ -108,14 +113,14 @@ const RAW=`كمبوزيت|كمبوزيت Chroma نانو هيبريد 4.5جم|16
 بنج|بنج أزرق|880
 بنج|بنج ارتفارما|975
 بنج|بنج أحمر|1100
-بنج|بنج إيطالي|1275
-بنج|بنج إسباني|1575
+بنج|بنج إيطالي|1270
+بنج|بنج إسباني|1570
 بنج|بنج جل أو سبراي|25
 بنج|سرنجة الانسيزيا|160
 بنج|سنون بنج لونج صيني|175
 بنج|سنون بنج شورت صيني|185
-مستهلكات|جلفز أبيض|165
-مستهلكات|جلفز ألوان|160
+مستهلكات|جلفز أبيض|167
+مستهلكات|جلفز ألوان|167
 مستهلكات|كيس أوفر جلفز|4
 مستهلكات|علبة أوفر جلفز 200|45
 مستهلكات|جاونات|13
@@ -145,12 +150,17 @@ const RAW=`كمبوزيت|كمبوزيت Chroma نانو هيبريد 4.5جم|16
 مستهلكات|رول تعقيم 10سم|310
 مستهلكات|علبة مشارط جراحية|175
 مستهلكات|علبة سوتشرز خيوط جراحية|210
+أندو|كالسيوم هيدروكسيد لايت كيور Biner LC|255
+أندو|كالسيوم هيدروكسيد ديكال إنجليزي (Caviline) 2-Tube system|325
+أندو|زيكال إنجليزي TubliCem|225
 أندو|جلاس ايونيمر صيني|65
+أندو|جلاس ايونيمر إنجليزي|150
 أندو|حشو مؤقت Galaxy|70
 أندو|حشو مؤقت T.fill|155
 أندو|D.vital|410
 أندو|علبة MTA jk 3 عبوات|125
 أندو|سيلر ميتا Adseal|775
+أندو|إيريجيشن (بيتادين / سلاين / هيدروجين بيروكسيد / صوديوم كلوريد / كلورهيكسيدين)|25
 أندو|بيسبرا / فايلات يدوي صيني|45
 أندو|بيبربوينت عادية / تيبر|70
 أندو|جاتابركا عادية / تيبر|67
@@ -241,7 +251,7 @@ const RAW=`كمبوزيت|كمبوزيت Chroma نانو هيبريد 4.5جم|16
 أدوات|جهاز سكيلر|1950
 أدوات|هيموستوب / هيموستال|90
 أدوات|ألڤيوجل|55
-تقويم|وايرات نايطاي راوند|32
+تقويم|وايرات نايطاي راوند|27
 تقويم|وايرات ستانلس راوند|32
 تقويم|علبة براكيت تقويم|75
 تقويم|حالة براكيت على كارت|75
@@ -277,23 +287,61 @@ const RAW=`كمبوزيت|كمبوزيت Chroma نانو هيبريد 4.5جم|16
 أجهزة (زيرو)|Sensor xpect vision|30500
 أجهزة (زيرو)|Endo activator|5800
 أجهزة (زيرو)|ماكينة لحام ستانلس|4450`;
-const items=RAW.split("\n").map((l,i)=>{const [c,n,p]=l.split("|");return{id:i,c,n,p:+p}});
+const items=RAW.split("\n").filter(Boolean).map((l,i)=>{const [c,n,p,img]=l.split("|");return{id:i,c:(c||"").trim(),n:(n||"").trim(),p:+p||0,img:(img||"").trim()}});
 const cats=["الكل",...new Set(items.map(i=>i.c))];
 let cat="الكل",cart={};
 try{cart=JSON.parse(localStorage.getItem("cart")||"{}")}catch(e){}
 const $=id=>document.getElementById(id);
 const fmt=n=>n.toLocaleString("ar-EG");
+
+function getVisual(c="",n=""){
+  c=c.toLowerCase();n=n.toLowerCase();
+  if(c.includes("كمبوزيت")||n.includes("كمبوزيت")) return {grad:"linear-gradient(135deg,#0284c7,#0369a1)",tag:n.includes("chroma")?"Chroma":"كمبوزيت",svg:`<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="8" width="14" height="14" rx="2" fill="rgba(255,255,255,0.2)"/><path d="M16 2v6M12 2h8M14 22l-4 6h-2l3-6"/><circle cx="23" cy="7" r="2" fill="#facc15" stroke="none"/></svg>`};
+  if(c.includes("فلوابل")||c.includes("بوند")||n.includes("فلوابل")||n.includes("بوند")) return {grad:n.includes("بوند")?"linear-gradient(135deg,#b45309,#78350f)":"linear-gradient(135deg,#d97706,#92400e)",tag:n.includes("بوند")?"بوند":"فلوابل",svg:`<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="11" width="11" height="15" rx="2" fill="rgba(255,255,255,0.2)"/><path d="M10 11V6h5v5M22 8l4 4-7 12-3-1 6-15z" fill="rgba(255,255,255,0.25)"/></svg>`};
+  if(c.includes("بنج")||n.includes("بنج")||n.includes("سنون")||n.includes("سيرنج")) {
+    let g="linear-gradient(135deg,#059669,#065f46)",t="بنج";
+    if(n.includes("أزرق")||n.includes("ازرق")){g="linear-gradient(135deg,#2563eb,#1e40af)";t="أزرق"}
+    else if(n.includes("أحمر")||n.includes("احمر")){g="linear-gradient(135deg,#dc2626,#991b1b)";t="أحمر"}
+    else if(n.includes("ارتفارما")){g="linear-gradient(135deg,#0d9488,#115e59)";t="ارتفارما"}
+    else if(n.includes("سنون")){g="linear-gradient(135deg,#475569,#334155)";t="سنون"}
+    return {grad:g,tag:t,svg:`<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="11" y="8" width="10" height="17" rx="2" fill="rgba(255,255,255,0.25)"/><line x1="16" y1="2" x2="16" y2="8"/><line x1="11" y1="12" x2="21" y2="12" stroke="#6ee7b7"/></svg>`};
+  }
+  if(c.includes("أندو")||c.includes("اندو")||n.includes("روتاري")||n.includes("فايل")||n.includes("جاتابركا")||n.includes("سيلر")){
+    let g="linear-gradient(135deg,#e11d48,#881337)",t="أندو";
+    if(n.includes("روتاري"))t="روتاري";else if(n.includes("جاتابركا"))t="جاتابركا";else if(n.includes("سيلر"))t="سيلر";
+    return {grad:g,tag:t,svg:`<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="13" y="3" width="6" height="7" rx="1.5" fill="#facc15" stroke="#facc15"/><path d="M16 10v18M13 13l6 2M13 17l6 2M13 21l6 2"/></svg>`};
+  }
+  if(c.includes("جلاس")||n.includes("جلاس")) return {grad:"linear-gradient(135deg,#8b5cf6,#5b21b6)",tag:"جلاس",svg:`<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="10" width="11" height="16" rx="2" fill="rgba(255,255,255,0.25)"/><path d="M22 8l4 14"/></svg>`};
+  if(c.includes("طبعات")||n.includes("الجنيت")||n.includes("تراي")) return {grad:"linear-gradient(135deg,#0891b2,#155e75)",tag:n.includes("الجنيت")?"ألجنيت":"طبعات",svg:`<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 18c0-7 5-13 11-13s11 6 11 13c0 3-2 5-5 5-3 0-4-2-6-2s-3 2-6 2c-3 0-5-2-5-5z" fill="rgba(255,255,255,0.2)"/></svg>`};
+  if(c.includes("رابردام")) return {grad:"linear-gradient(135deg,#0d9488,#134e4a)",tag:"رابردام",svg:`<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="6" width="20" height="20" rx="3" fill="rgba(255,255,255,0.15)"/><circle cx="16" cy="16" r="4" fill="rgba(0,0,0,0.25)" stroke="#5eead4"/></svg>`};
+  if(c.includes("تلميع")||c.includes("ماتريكس")) return {grad:"linear-gradient(135deg,#ec4899,#9d174d)",tag:n.includes("ماتريكس")?"ماتريكس":"تلميع",svg:`<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="16" cy="16" r="10" fill="rgba(255,255,255,0.25)"/><line x1="16" y1="16" x2="24" y2="24" stroke-width="2.2"/></svg>`};
+  if(c.includes("تقويم")||n.includes("وايرات")) return {grad:"linear-gradient(135deg,#ea580c,#9a3412)",tag:n.includes("وايرات")?"واير":"تقويم",svg:`<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="10" width="14" height="12" rx="2" fill="rgba(255,255,255,0.25)"/><line x1="3" y1="16" x2="29" y2="16" stroke="#fdba74" stroke-width="2.5"/></svg>`};
+  if(c.includes("كونترا")||n.includes("بيرات")) return {grad:"linear-gradient(135deg,#ca8a04,#713f12)",tag:n.includes("بيرات")?"بيرات":"كونترا",svg:`<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 7h8v9l-4 8h-3l-1-17z" fill="rgba(255,255,255,0.25)"/><line x1="16" y1="24" x2="16" y2="30" stroke-width="2.2" stroke="#fff"/></svg>`};
+  if(c.includes("أجهزة")) return {grad:"linear-gradient(135deg,#2563eb,#1e3a8a)",tag:"أجهزة",svg:`<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="11" y="11" width="10" height="17" rx="3" fill="rgba(255,255,255,0.25)"/><path d="M16 11V4l4-2"/></svg>`};
+  let g="linear-gradient(135deg,#6366f1,#3730a3)",t="مستهلكات";
+  if(n.includes("جلفز"))t="جلفز";else if(n.includes("ماسك"))t="ماسك";else if(n.includes("ساكشن"))t="ساكشن";else if(n.includes("قطن"))t="قطن";
+  return {grad:g,tag:t,svg:`<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 14c0-3 2-5 5-5h10c3 0 5 2 5 5v3c0 3-2 5-5 5H11c-3 0-5-2-5-5v-3z" fill="rgba(255,255,255,0.2)"/></svg>`};
+}
+
+function renderThumb(item){
+  const v=getVisual(item.c,item.n);
+  if(item.img&&item.img.startsWith("http")){
+    return `<div class="thumb-wrap"><img src="${item.img}" alt="${item.n}" class="thumb-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="cat-placeholder" style="background:${v.grad};display:none">${v.svg}<span class="cat-tag">${v.tag}</span></div></div>`;
+  }
+  return `<div class="thumb-wrap"><div class="cat-placeholder" style="background:${v.grad}">${v.svg}<span class="cat-tag">${v.tag}</span></div></div>`;
+}
+
 function save(){try{localStorage.setItem("cart",JSON.stringify(cart))}catch(e){}}
 function show(id){["shop","cart","co","inv"].forEach(x=>{const e=$(x);if(e){x==="shop"?e.style.display=id==="shop"?"block":"none":e.classList.toggle("on",x===id)}});if(id==="cart")renderCart();window.scrollTo(0,0)}
 function tabs(){$("tabs").innerHTML=cats.map(c=>`<button class="${c===cat?"on":""}" onclick="cat='${c}';tabs();render()">${c}</button>`).join("")}
 function render(){const s=$("q").value.trim().toLowerCase();
 $("list").innerHTML=items.filter(i=>(cat==="الكل"||i.c===cat)&&i.n.toLowerCase().includes(s)).map(i=>{const q=cart[i.id]||0;
-return `<div class="it"><div class="n">${i.n}<div class="p">${fmt(i.p)} ج</div></div>${q?`<div class="q"><button onclick="ch(${i.id},-1)">−</button><b>${q}</b><button onclick="ch(${i.id},1)">+</button></div>`:`<button class="add" onclick="ch(${i.id},1)">أضف</button>`}</div>`}).join("")||"<p style='text-align:center;padding:20px;color:var(--mut)'>لا توجد نتائج مطابقة</p>";tot()}
+return `<div class="it">${renderThumb(i)}<div class="n">${i.n}<div class="p">${fmt(i.p)} ج</div></div>${q?`<div class="q"><button onclick="ch(${i.id},-1)">−</button><b>${q}</b><button onclick="ch(${i.id},1)">+</button></div>`:`<button class="add" onclick="ch(${i.id},1)">أضف</button>`}</div>`}).join("")||"<p style='text-align:center;padding:20px;color:var(--mut)'>لا توجد نتائج مطابقة</p>";tot()}
 function ch(id,d){cart[id]=(cart[id]||0)+d;if(cart[id]<=0)delete cart[id];save();render();if($("cart").classList.contains("on"))renderCart()}
 function lines(){return Object.keys(cart).map(id=>({...items[id],q:cart[id]}))}
 function total(){return lines().reduce((a,l)=>a+l.p*l.q,0)}
 function tot(){$("cnt").textContent=fmt(Object.keys(cart).length);$("sum").textContent=fmt(total())}
-function renderCart(){const L=lines();$("cartbody").innerHTML=L.length?L.map(l=>`<div class="it"><div class="n">${l.n}<div class="p">${fmt(l.p*l.q)} ج</div></div><div class="q"><button onclick="ch(${l.id},-1)">−</button><b>${l.q}</b><button onclick="ch(${l.id},1)">+</button></div></div>`).join(""):"<p style='text-align:center;padding:20px;color:var(--mut)'>السلة فاضية</p>";$("ctot").textContent=fmt(total())}
+function renderCart(){const L=lines();$("cartbody").innerHTML=L.length?L.map(l=>`<div class="it">${renderThumb(l)}<div class="n">${l.n}<div class="p">${fmt(l.p*l.q)} ج</div></div><div class="q"><button onclick="ch(${l.id},-1)">−</button><b>${l.q}</b><button onclick="ch(${l.id},1)">+</button></div></div>`).join(""):"<p style='text-align:center;padding:20px;color:var(--mut)'>السلة فاضية</p>";$("ctot").textContent=fmt(total())}
 function makeInv(){
 if(!Object.keys(cart).length)return alert("السلة فاضية");
 const nm=$("nm").value.trim(),p1=$("p1").value.trim(),ad=$("ad").value.trim();

@@ -984,6 +984,11 @@
           </select>
         </div>
 
+        <div style="margin-bottom:12px">
+          <label class="mat-label" style="margin-top:0">رابط صورة الصنف <span style="font-size:11px;color:var(--mat-mut)">(اختياري)</span></label>
+          <input id="mat-ci-img" class="mat-input" type="url" placeholder="https://example.com/item-photo.jpg">
+        </div>
+
         <div style="margin-bottom:18px">
           <label class="mat-label" style="margin-top:0">ملاحظات أو مواصفات خاصة <span style="font-size:11px;color:var(--mat-mut)">(اختياري)</span></label>
           <textarea id="mat-ci-note" class="mat-textarea" rows="2" placeholder="المقاس، اللون، كود الصنف، المورد أو الماركة المفضلة..."></textarea>
@@ -994,6 +999,13 @@
           <button type="submit" class="mat-btn">🛒 إضافة للسلة المشتركة</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Modal: Dental Material Item Quick Preview -->
+  <div id="mat-preview-modal" class="mat-modal-overlay" style="display:none" onclick="if(event.target===this)window.closeMatPreviewModal()">
+    <div class="mat-modal-card" id="mat-preview-card" style="max-width:400px">
+      <!-- Populated dynamically by window.previewMatItem -->
     </div>
   </div>
 </div>

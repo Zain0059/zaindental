@@ -45,7 +45,7 @@ export const RAW_MATERIALS = `كمبوزيت|كمبوزيت Chroma النانو 
 فلوابل وبوند|فلوابل نوڤا|230
 فلوابل وبوند|فلوابل سبايدنت Spident|265
 فلوابل وبوند|فلوابل ميتا Meta|265
-فلوابل وبوند|فلوابل بلك فيل Bulk fill|335
+فلوابل وبوند|فلوابل بلك فيل Bulk fill|325
 فلوابل وبوند|كبسولات فلوابل بلك فيل Dentsply Sirona|155
 فلوابل وبوند|بوند كمبوماكس|225
 فلوابل وبوند|بوند تركي Clara|345
@@ -57,7 +57,7 @@ export const RAW_MATERIALS = `كمبوزيت|كمبوزيت Chroma النانو 
 فلوابل وبوند|بوند توكوياما 1مللي يونيفرسال Tokuyama|665
 فلوابل وبوند|بوند Dolgunn 5ml تركي يونيفرسال|725
 فلوابل وبوند|بوند ألترا Ultra 6 ml|775
-فلوابل وبوند|بوند بيسكو الكبير خالص الأصلي|2135
+فلوابل وبوند|بوند بيسكو الكبير خالص الأصلي|2130
 فلوابل وبوند|أسيد إيتش Dentaleen 5gm|25
 فلوابل وبوند|أسيد إيتش chem|20
 فلوابل وبوند|أسيد إيتش plus|45
@@ -67,14 +67,14 @@ export const RAW_MATERIALS = `كمبوزيت|كمبوزيت Chroma النانو 
 بنج|بنج أزرق|880
 بنج|بنج أرتفارما|975
 بنج|بنج أحمر|1100
-بنج|بنج إيطالي|1275
-بنج|بنج إسباني|1575
+بنج|بنج إيطالي|1270
+بنج|بنج إسباني|1570
 بنج|بنج جل أو سبراي|25
 بنج|سيرنج الأنسيزيا|160
 بنج|سنون بنج لونج صيني|175
 بنج|سنون بنج شورت صيني|185
-مستهلكات|جلفزات أبيض|166
-مستهلكات|جلفزات ألوان|157
+مستهلكات|جلفزات أبيض|167
+مستهلكات|جلفزات ألوان|167
 مستهلكات|جلفزات لاتيكس ماليزي درجة أولى|157
 مستهلكات|كيس الأوفر جلڤز|4
 مستهلكات|علبة الأوفر جلڤز|45
@@ -110,6 +110,9 @@ export const RAW_MATERIALS = `كمبوزيت|كمبوزيت Chroma النانو 
 مستهلكات|رولات تعقيم 10سم|310
 مستهلكات|علبة المشارط الجراحية|175
 مستهلكات|علبة السوتشرز الخيوط الجراحية|210
+أندو|كالسيوم هيدروكسيد لايت كيور Biner LC|255
+أندو|كالسيوم هيدروكسيد ديكال إنجليزي (Caviline) 2 Tube system|325
+أندو|زيكال إنجليزي TubliCem|225
 أندو|حشو مؤقت Galaxy|70
 أندو|حشو مؤقت أكروتيمب Acrotemp|85
 أندو|حشو مؤقت T.fill|155
@@ -136,7 +139,7 @@ export const RAW_MATERIALS = `كمبوزيت|كمبوزيت Chroma النانو 
 أندو|علبة side-vented needle (100)|180
 أندو|قطعة side-vented needle|4.5
 أندو|إيديتا جل|65
-أندو|إيريجيشن سلاين / هيبوكلوريد|32
+أندو|إيريجيشن (بيتادين / سلاين / هيدروجين بيروكسيد / صوديوم كلوريد / كلورهيكسيدين)|25
 أندو|زينك أوكسيد jk|35
 أندو|إيجينول jk|70
 أندو|فورماكريزول jk|70
@@ -153,7 +156,7 @@ export const RAW_MATERIALS = `كمبوزيت|كمبوزيت Chroma النانو 
 أندو|فايلات D فايندر ماني Mani D-Finders مقاس 15 (أصلي)|235
 أندو|سبريدر مانيوال|50
 أندو|بيبربوينت عادية / تيبر|70
-أندو|جاتابركا عادية / تيبر|70
+أندو|جاتابركا عادية / تيبر|67
 أندو|جاتابركا ميتا عادية|110
 أندو|جاتابركا ميتا تيبر|110
 أندو|كيت فايلات روتاري Aline|195
@@ -169,6 +172,7 @@ export const RAW_MATERIALS = `كمبوزيت|كمبوزيت Chroma النانو 
 أندو|كيت فايلات روتاري روجين 4file|328
 أندو|كيت فايلات روتاري روجين 6file|355
 جلاس ايونيمر|جلاس ايونيمر صيني|65
+جلاس ايونيمر|جلاس ايونيمر إنجليزي|150
 جلاس ايونيمر|جلاس ايونيمر Restore|345
 جلاس ايونيمر|جلاس ايونيمر أمريكي Ceram|425
 جلاس ايونيمر|جلاس ايونيمر برازيلي|440
@@ -253,7 +257,7 @@ export const RAW_MATERIALS = `كمبوزيت|كمبوزيت Chroma النانو 
 أدوات|ألڤيوجل|55
 أدوات|جهاز سكيلر|1950
 تقويم|كيت كمبوزيت ماستر دنت للتقويم بالبوند|1360
-تقويم|وايرات نايطاي راوند|32
+تقويم|وايرات نايطاي راوند|27
 تقويم|وايرات ستانلس راوند|32
 تقويم|علبة براكيت تقويم|75
 تقويم|حالة براكيت على كارت|75
@@ -293,11 +297,328 @@ export const RAW_MATERIALS = `كمبوزيت|كمبوزيت Chroma النانو 
 أجهزة (زيرو)|Rta light cure|1950`;
 
 export const matItems = RAW_MATERIALS.split("\n").filter(Boolean).map((line, idx) => {
-  const [c, n, p] = line.split("|");
-  return { id: idx, c: (c || "").trim(), n: (n || "").trim(), p: Number(p) || 0 };
+  const parts = line.split("|");
+  const c = (parts[0] || "").trim();
+  const n = (parts[1] || "").trim();
+  const p = Number(parts[2]) || 0;
+  const img = (parts[3] || "").trim();
+  return { id: idx, c, n, p, img };
 });
 
 export const matCats = ["الكل", ...new Set(matItems.map(i => i.c))];
+
+// Professional Category Visuals and Dental SVG Placeholders
+export function getCategoryVisualConfig(category = "", itemName = "") {
+  const c = (category || "").toLowerCase();
+  const n = (itemName || "").toLowerCase();
+
+  // 1. Composite (كمبوزيت)
+  if (c.includes("كمبوزيت") || n.includes("كمبوزيت")) {
+    let badge = "كمبوزيت";
+    if (n.includes("chroma") || n.includes("شروما")) badge = "Chroma";
+    else if (n.includes("kerr") || n.includes("كيرر")) badge = "Kerr";
+    else if (n.includes("voco") || n.includes("فوكو")) badge = "Voco";
+    else if (n.includes("den fill")) badge = "DenFill";
+    return {
+      gradient: "linear-gradient(135deg, #0284c7 0%, #0369a1 100%)",
+      badgeText: badge,
+      svg: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="8" width="14" height="14" rx="2.5" fill="rgba(255,255,255,0.2)"/>
+        <path d="M16 2v6M12 2h8M14 22l-4 6h-2l3-6M13 12h6M13 15h4M13 18h5"/>
+        <circle cx="23" cy="7" r="2" fill="#facc15" stroke="none"/>
+      </svg>`
+    };
+  }
+
+  // 2. Flowable & Bond (فلوابل وبوند)
+  if (c.includes("فلوابل") || c.includes("بوند") || n.includes("فلوابل") || n.includes("بوند")) {
+    const isBond = n.includes("بوند");
+    return {
+      gradient: isBond
+        ? "linear-gradient(135deg, #b45309 0%, #78350f 100%)"
+        : "linear-gradient(135deg, #d97706 0%, #92400e 100%)",
+      badgeText: isBond ? "بوند لاصق" : "فلوابل",
+      svg: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="7" y="11" width="11" height="15" rx="2" fill="rgba(255,255,255,0.2)"/>
+        <path d="M10 11V6h5v5M11 6V4h3v2"/>
+        <path d="M22 8l4 4-7 12-3-1 6-15z" fill="rgba(255,255,255,0.25)"/>
+        <circle cx="25" cy="27" r="1.5" fill="#fef08a" stroke="none"/>
+      </svg>`
+    };
+  }
+
+  // 3. Anesthesia (بنج وتخدير)
+  if (c.includes("بنج") || n.includes("بنج") || n.includes("انسيزيا") || n.includes("سنون بنج")) {
+    let grad = "linear-gradient(135deg, #059669 0%, #065f46 100%)";
+    let badge = "بنج وتخدير";
+    if (n.includes("أزرق") || n.includes("ازرق")) {
+      grad = "linear-gradient(135deg, #2563eb 0%, #1e40af 100%)";
+      badge = "بنج أزرق";
+    } else if (n.includes("أحمر") || n.includes("احمر")) {
+      grad = "linear-gradient(135deg, #dc2626 0%, #991b1b 100%)";
+      badge = "بنج أحمر";
+    } else if (n.includes("ارتفارما")) {
+      grad = "linear-gradient(135deg, #0d9488 0%, #115e59 100%)";
+      badge = "ارتفارما";
+    } else if (n.includes("ايطالي") || n.includes("إيطالي")) {
+      grad = "linear-gradient(135deg, #0284c7 0%, #0369a1 100%)";
+      badge = "إيطالي";
+    } else if (n.includes("اسباني") || n.includes("إسباني")) {
+      grad = "linear-gradient(135deg, #ea580c 0%, #9a3412 100%)";
+      badge = "إسباني";
+    } else if (n.includes("سنون") || n.includes("نيدل")) {
+      grad = "linear-gradient(135deg, #475569 0%, #334155 100%)";
+      badge = "سنون بنج";
+    } else if (n.includes("سيرنج")) {
+      grad = "linear-gradient(135deg, #64748b 0%, #334155 100%)";
+      badge = "سيرنج بنج";
+    } else if (n.includes("جل") || n.includes("سبراي")) {
+      badge = "سبراي/جل";
+    }
+    return {
+      gradient: grad,
+      badgeText: badge,
+      svg: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="11" y="8" width="10" height="17" rx="2" fill="rgba(255,255,255,0.25)"/>
+        <line x1="16" y1="2" x2="16" y2="8"/>
+        <line x1="13" y1="8" x2="19" y2="8"/>
+        <line x1="11" y1="12" x2="21" y2="12" stroke="#6ee7b7"/>
+        <circle cx="16" cy="20" r="2.5" fill="rgba(255,255,255,0.4)" stroke="none"/>
+        <line x1="12" y1="25" x2="20" y2="25"/>
+      </svg>`
+    };
+  }
+
+  // 4. Endodontics (أندو وعلاج جذور)
+  if (c.includes("أندو") || c.includes("اندو") || n.includes("روتاري") || n.includes("فايل") || n.includes("جاتابركا") || n.includes("بيبربوينت") || n.includes("سيلر") || n.includes("mta")) {
+    let grad = "linear-gradient(135deg, #e11d48 0%, #881337 100%)";
+    let badge = "أندو وجذور";
+    if (n.includes("روتاري")) badge = "روتاري";
+    else if (n.includes("جاتابركا")) {
+      badge = "جاتابركا";
+      grad = "linear-gradient(135deg, #f43f5e 0%, #be123c 100%)";
+    } else if (n.includes("بيبر")) {
+      badge = "بيبر بوينت";
+      grad = "linear-gradient(135deg, #0284c7 0%, #0369a1 100%)";
+    } else if (n.includes("سيلر")) {
+      badge = "سيلر";
+      grad = "linear-gradient(135deg, #d97706 0%, #92400e 100%)";
+    } else if (n.includes("mta") || n.includes("ام تي ايه")) {
+      badge = "MTA";
+      grad = "linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%)";
+    } else if (n.includes("مؤقت") || n.includes("galaxy") || n.includes("acrotemp")) {
+      badge = "حشو مؤقت";
+      grad = "linear-gradient(135deg, #059669 0%, #065f46 100%)";
+    } else if (n.includes("كالسيوم") || n.includes("biner") || n.includes("caviline") || n.includes("ديكال")) {
+      badge = "CaOH";
+      grad = "linear-gradient(135deg, #0891b2 0%, #155e75 100%)";
+    }
+    return {
+      gradient: grad,
+      badgeText: badge,
+      svg: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="13" y="3" width="6" height="7" rx="1.5" fill="#facc15" stroke="#facc15"/>
+        <path d="M16 10v18M13 13l6 2M13 17l6 2M13 21l6 2M14 25l4 1.5"/>
+        <circle cx="16" cy="29" r="1" fill="#fff" stroke="none"/>
+      </svg>`
+    };
+  }
+
+  // 5. Glass Ionomer (جلاس ايونيمر)
+  if (c.includes("جلاس") || n.includes("جلاس") || n.includes("ايونيمر")) {
+    return {
+      gradient: "linear-gradient(135deg, #8b5cf6 0%, #5b21b6 100%)",
+      badgeText: "جلاس ايونيمر",
+      svg: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="7" y="10" width="11" height="16" rx="2" fill="rgba(255,255,255,0.25)"/>
+        <rect x="9" y="5" width="7" height="5" rx="1"/>
+        <path d="M22 8l4 14M20 22h6"/>
+        <circle cx="12" cy="18" r="2" fill="#c4b5fd" stroke="none"/>
+      </svg>`
+    };
+  }
+
+  // 6. Impressions (طبعات)
+  if (c.includes("طبعات") || n.includes("ألجنيت") || n.includes("الجنيت") || n.includes("تراي") || n.includes("إمبرشن") || n.includes("طبعة")) {
+    let badge = "طبعات";
+    if (n.includes("الجنيت") || n.includes("ألجنيت")) badge = "ألجنيت";
+    else if (n.includes("تراي")) badge = "تراي معدن";
+    else if (n.includes("باول") || n.includes("سباتيولا")) badge = "باول خلط";
+    return {
+      gradient: "linear-gradient(135deg, #0891b2 0%, #155e75 100%)",
+      badgeText: badge,
+      svg: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 18c0-7 5-13 11-13s11 6 11 13c0 3-2 5-5 5-3 0-4-2-6-2s-3 2-6 2c-3 0-5-2-5-5z" fill="rgba(255,255,255,0.2)"/>
+        <path d="M16 23v6M13 29h6"/>
+        <circle cx="11" cy="14" r="1.5" fill="#fff"/>
+        <circle cx="16" cy="11" r="1.5" fill="#fff"/>
+        <circle cx="21" cy="14" r="1.5" fill="#fff"/>
+      </svg>`
+    };
+  }
+
+  // 7. Rubber Dam (رابردام)
+  if (c.includes("رابردام") || n.includes("رابردام") || n.includes("كلامب") || n.includes("بانش")) {
+    return {
+      gradient: "linear-gradient(135deg, #0d9488 0%, #134e4a 100%)",
+      badgeText: "عزل رابردام",
+      svg: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="6" y="6" width="20" height="20" rx="3" fill="rgba(255,255,255,0.15)"/>
+        <circle cx="16" cy="16" r="4" fill="rgba(0,0,0,0.25)" stroke="#5eead4"/>
+        <path d="M13 16h6M16 13v6"/>
+      </svg>`
+    };
+  }
+
+  // 8. Polishing & Matrix (تلميع وماتريكس)
+  if (c.includes("تلميع") || c.includes("ماتريكس") || n.includes("تلميع") || n.includes("ماتريكس") || n.includes("ستريبس") || n.includes("رينج")) {
+    let badge = "تلميع وفينيش";
+    if (n.includes("ماتريكس") || n.includes("رينج") || n.includes("ويدج")) badge = "ماتريكس";
+    return {
+      gradient: "linear-gradient(135deg, #ec4899 0%, #9d174d 100%)",
+      badgeText: badge,
+      svg: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="16" cy="16" r="10" fill="rgba(255,255,255,0.25)"/>
+        <circle cx="16" cy="16" r="4" fill="rgba(0,0,0,0.2)"/>
+        <line x1="16" y1="16" x2="24" y2="24" stroke-width="2.2"/>
+        <path d="M9 11l4-4M19 25l4-4"/>
+      </svg>`
+    };
+  }
+
+  // 9. Instruments (أدوات)
+  if (c.includes("أدوات") || c.includes("ادوات") || n.includes("ملقط") || n.includes("ميرور") || n.includes("بروب") || n.includes("سكالبيل")) {
+    return {
+      gradient: "linear-gradient(135deg, #475569 0%, #0f172a 100%)",
+      badgeText: "أدوات عيادة",
+      svg: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="5" fill="rgba(255,255,255,0.25)"/>
+        <line x1="15" y1="15" x2="27" y2="27"/>
+        <path d="M21 5c2 4 4 5 7 5"/>
+        <line x1="21" y1="5" x2="8" y2="26"/>
+      </svg>`
+    };
+  }
+
+  // 10. Orthodontics (تقويم)
+  if (c.includes("تقويم") || n.includes("تقويم") || n.includes("وايرات") || n.includes("براكت")) {
+    let badge = "تقويم أسنان";
+    if (n.includes("وايرات") || n.includes("واير")) badge = "واير تقويم";
+    return {
+      gradient: "linear-gradient(135deg, #ea580c 0%, #9a3412 100%)",
+      badgeText: badge,
+      svg: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="10" width="14" height="12" rx="2" fill="rgba(255,255,255,0.25)"/>
+        <line x1="3" y1="16" x2="29" y2="16" stroke="#fdba74" stroke-width="2.5"/>
+        <path d="M11 7v18M21 7v18"/>
+        <circle cx="16" cy="16" r="2" fill="#fff" stroke="none"/>
+      </svg>`
+    };
+  }
+
+  // 11. Contra & Burs (كونترا)
+  if (c.includes("كونترا") || n.includes("كونترا") || n.includes("بيرات") || n.includes("توربين") || n.includes("بير")) {
+    let badge = "كونترا وتوربين";
+    if (n.includes("بيرات") || n.includes("بير")) badge = "بيرات ألماظ";
+    return {
+      gradient: "linear-gradient(135deg, #ca8a04 0%, #713f12 100%)",
+      badgeText: badge,
+      svg: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 7h8v9l-4 8h-3l-1-17z" fill="rgba(255,255,255,0.25)"/>
+        <circle cx="16" cy="6" r="2" fill="#fef08a"/>
+        <line x1="16" y1="24" x2="16" y2="30" stroke-width="2.2" stroke="#fff"/>
+        <polygon points="14,28 16,31 18,28" fill="#fff"/>
+      </svg>`
+    };
+  }
+
+  // 12. Equipment & Devices (أجهزة زيرو)
+  if (c.includes("أجهزة") || c.includes("اجهزة") || n.includes("لايت كيور") || n.includes("أوتوكلاف") || n.includes("يونيت")) {
+    return {
+      gradient: "linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%)",
+      badgeText: "أجهزة طبية",
+      svg: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="11" y="11" width="10" height="17" rx="3" fill="rgba(255,255,255,0.25)"/>
+        <path d="M16 11V4l4-2"/>
+        <circle cx="16" cy="18" r="2" fill="#60a5fa" stroke="none"/>
+        <path d="M21 2l3 3M19 6l3 2" stroke="#93c5fd"/>
+      </svg>`
+    };
+  }
+
+  // 13. Disposables / Consumables (مستهلكات)
+  if (c.includes("مستهلكات") || n.includes("جلفز") || n.includes("ماسك") || n.includes("ساكشن") || n.includes("قطن") || n.includes("كحول") || n.includes("شاش") || n.includes("نابكن")) {
+    let badge = "مستهلكات";
+    let grad = "linear-gradient(135deg, #6366f1 0%, #3730a3 100%)";
+    if (n.includes("جلفز")) badge = "جلفزات";
+    else if (n.includes("ماسك")) {
+      badge = "ماسكات";
+      grad = "linear-gradient(135deg, #0284c7 0%, #0369a1 100%)";
+    } else if (n.includes("ساكشن")) {
+      badge = "ساكشن";
+      grad = "linear-gradient(135deg, #06b6d4 0%, #0e7490 100%)";
+    } else if (n.includes("قطن")) {
+      badge = "قطن رول";
+      grad = "linear-gradient(135deg, #64748b 0%, #475569 100%)";
+    } else if (n.includes("كحول")) {
+      badge = "كحول طبي";
+      grad = "linear-gradient(135deg, #0d9488 0%, #115e59 100%)";
+    } else if (n.includes("نابكن")) {
+      badge = "نابكن";
+      grad = "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)";
+    }
+    return {
+      gradient: grad,
+      badgeText: badge,
+      svg: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 14c0-3 2-5 5-5h10c3 0 5 2 5 5v3c0 3-2 5-5 5H11c-3 0-5-2-5-5v-3z" fill="rgba(255,255,255,0.2)"/>
+        <path d="M6 15c-3 0-4 1.5-4 3.5S3.5 22 6 22M26 15c3 0 4 1.5 4 3.5S28.5 22 26 22"/>
+        <line x1="10" y1="14" x2="22" y2="14"/>
+        <line x1="10" y1="17" x2="22" y2="17"/>
+      </svg>`
+    };
+  }
+
+  // 14. Default / Custom Fallback
+  return {
+    gradient: "linear-gradient(135deg, #0f8a7e 0%, #064e46 100%)",
+    badgeText: category ? category.substring(0, 10) : "خامة طبية",
+    svg: `<svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 12c0-5 3.5-7 8-7s8 2 8 7c0 4-1 9-3 14-1.5 3.5-3 3-5 0-1-1.5-1-1.5-2 0-2 3-3.5 3.5-5 0-2-5-3-10-3-14z" fill="rgba(255,255,255,0.25)"/>
+      <path d="M23 7l2-2M25 9l2-2" stroke="#fef08a"/>
+    </svg>`
+  };
+}
+
+// Render modern thumbnail with image or crisp category placeholder
+export function renderMatThumb(item, size = "md") {
+  const config = getCategoryVisualConfig(item.c, item.n);
+  const hasImg = item.img && (typeof item.img === 'string') && item.img.trim().startsWith('http');
+  const safeName = (item.n || '').replace(/"/g, '&quot;');
+  const safeId = String(item.id);
+
+  if (hasImg) {
+    const safeImg = item.img.replace(/"/g, '&quot;');
+    return `
+      <div class="mat-thumb-wrap ${size === 'sm' ? 'mat-thumb-cart' : ''}" onclick="window.previewMatItem('${safeId}', event)" title="معاينة وتكبير: ${safeName}">
+        <img src="${safeImg}" alt="${safeName}" class="mat-thumb-img" loading="lazy" onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='flex';" />
+        <div class="mat-cat-placeholder" style="background:${config.gradient};display:none">
+          ${config.svg}
+          ${size !== 'sm' ? `<span class="mat-cat-tag">${config.badgeText}</span>` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="mat-thumb-wrap ${size === 'sm' ? 'mat-thumb-cart' : ''}" onclick="window.previewMatItem('${safeId}', event)" title="معاينة وتكبير: ${safeName}">
+      <div class="mat-cat-placeholder" style="background:${config.gradient}">
+        ${config.svg}
+        ${size !== 'sm' ? `<span class="mat-cat-tag">${config.badgeText}</span>` : ''}
+      </div>
+    </div>
+  `;
+}
 
 const CLIENT_ID = 'mat_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
 
@@ -695,6 +1016,7 @@ export function matRender() {
 
     return `
       <div class="mat-it ${isCustom ? "mat-it-custom" : ""}">
+        ${renderMatThumb(i, 'md')}
         <div class="mat-n">
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
             <span>${i.n}</span>
@@ -815,6 +1137,7 @@ export function matRenderCart() {
 
     return `
       <div class="mat-it ${isCustom ? "mat-it-custom" : ""}">
+        ${renderMatThumb(line, 'sm')}
         <div class="mat-n">
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
             <span>${line.n}</span>
@@ -851,11 +1174,13 @@ export function openAddCustomMatModal(prefillName = "") {
   const qtyInput = $("mat-ci-qty");
   const noteInput = $("mat-ci-note");
   const catInput = $("mat-ci-cat");
+  const imgInput = $("mat-ci-img");
 
   if (nameInput) nameInput.value = prefillName || "";
   if (priceInput) priceInput.value = "";
   if (qtyInput) qtyInput.value = "1";
   if (noteInput) noteInput.value = "";
+  if (imgInput) imgInput.value = "";
   if (catInput && currentCat !== "الكل") {
     catInput.value = currentCat;
   }
@@ -871,6 +1196,87 @@ export function openAddCustomMatModal(prefillName = "") {
 
 export function closeAddCustomMatModal() {
   const modal = $("mat-custom-modal");
+  if (modal) modal.style.display = "none";
+}
+
+// Material Item Quick Preview Modal
+export function previewMatItem(id, event) {
+  if (event && event.stopPropagation) {
+    event.stopPropagation();
+  }
+
+  let item = customItems[id];
+  if (!item) {
+    item = matItems.find(i => String(i.id) === String(id)) || matItems[Number(id)];
+  }
+  if (!item) return;
+
+  const config = getCategoryVisualConfig(item.c, item.n);
+  const q = cart[item.id] || 0;
+  const isCustom = !!item.is_custom;
+  const hasPrice = Number(item.p) > 0;
+  const hasImg = item.img && (typeof item.img === 'string') && item.img.trim().startsWith('http');
+  const safeName = (item.n || '').replace(/"/g, '&quot;');
+  const safeId = String(item.id);
+
+  const modal = $("mat-preview-modal");
+  const card = $("mat-preview-card");
+  if (!modal || !card) return;
+
+  card.innerHTML = `
+    <div class="mat-modal-hdr" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:12px;font-weight:700;padding:4px 12px;border-radius:12px;background:${config.gradient};color:#fff;box-shadow:0 2px 6px rgba(0,0,0,0.15)">
+          ${item.c || "عام"}
+        </span>
+        ${isCustom ? `<span class="mat-custom-badge">⭐ طلب خاص</span>` : ""}
+      </div>
+      <button type="button" class="mat-modal-close" onclick="window.closeMatPreviewModal()" title="إغلاق">✕</button>
+    </div>
+
+    <div class="mat-preview-modal-body">
+      <div class="mat-preview-hero-thumb" style="background:${config.gradient}">
+        ${hasImg
+          ? `<img src="${item.img.replace(/"/g, '&quot;')}" alt="${safeName}" onerror="this.parentElement.innerHTML = '${config.svg.replace(/'/g, "\\'")}';" />`
+          : config.svg
+        }
+      </div>
+
+      <h3 style="font-size:17px;font-weight:700;margin:0 0 6px;color:var(--mat-tx);line-height:1.4">
+        ${item.n}
+      </h3>
+
+      <div style="font-size:19px;font-weight:800;color:var(--mat-pr);margin-bottom:12px">
+        ${hasPrice ? `${fmt(item.p)} ج.م` : `<span style="color:#d97706;font-size:14px">السعر عند التوريد / حسب الفاتورة</span>`}
+      </div>
+
+      ${item.note ? `<div style="background:var(--mat-bg);border:1px solid var(--mat-bd);border-radius:10px;padding:8px 12px;font-size:13px;color:var(--mat-mut);margin-bottom:14px;width:100%">📝 ${item.note}</div>` : ""}
+      ${isCustom && item.added_by ? `<div style="font-size:12px;color:var(--mat-mut);margin-bottom:12px">أضيف بواسطة: <b>${item.added_by}</b></div>` : ""}
+
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;width:100%;margin-top:10px">
+        <div class="mat-q" style="padding:6px;border-radius:10px">
+          <button type="button" onclick="window.matCh('${safeId}', -1); window.previewMatItem('${safeId}')" style="min-width:38px;height:38px;font-size:20px">−</button>
+          <b style="min-width:36px;font-size:16px">${q}</b>
+          <button type="button" onclick="window.matCh('${safeId}', 1); window.previewMatItem('${safeId}')" style="min-width:38px;height:38px;font-size:20px">+</button>
+        </div>
+        ${q === 0 ? `
+          <button type="button" class="mat-btn" onclick="window.matCh('${safeId}', 1); window.previewMatItem('${safeId}')" style="flex:1">
+            🛒 أضف للسلة
+          </button>
+        ` : `
+          <button type="button" class="mat-btn" onclick="window.closeMatPreviewModal(); window.matShow('cart')" style="flex:1">
+            عرض السلة (${q}) ←
+          </button>
+        `}
+      </div>
+    </div>
+  `;
+
+  modal.style.display = "flex";
+}
+
+export function closeMatPreviewModal() {
+  const modal = $("mat-preview-modal");
   if (modal) modal.style.display = "none";
 }
 
@@ -904,6 +1310,7 @@ export function handleCustomMatSubmit(e) {
 
   const cat = ($("mat-ci-cat")?.value || "طلب خاص / غير مدرج").trim();
   const note = ($("mat-ci-note")?.value || "").trim();
+  const img = ($("mat-ci-img")?.value || "").trim();
 
   // Create unique id for the custom material
   const customId = "c_" + Date.now() + "_" + Math.random().toString(36).substring(2, 7);
@@ -914,6 +1321,7 @@ export function handleCustomMatSubmit(e) {
     p: price,
     c: cat,
     note: note,
+    img: img,
     is_custom: true,
     added_by: getCurrentUserName(),
     created_at: new Date().toISOString()
