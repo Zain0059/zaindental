@@ -4,7 +4,6 @@ import {
 } from './app.js';
 import { t, isAr, applyLangToDOM } from './i18n.js';
 import { sw, openSheet, closeSheet } from './app-handlers.js';
-import { broadcastNewAppointmentBooked } from './app-notifications.js';
 
 let _editPatId = null, _editInvId = null, _editTxId = null, _editStfId = null, _editSvcId = null, _editExpId = null;
 let _niPatId = null, _naPatId = null, _clPatId = null, _invFilter = "all";
@@ -870,12 +869,6 @@ export async function submitAppt() {
 
   if (!error) {
     toast(isAr() ? "تم حجز الموعد بنجاح ✓" : "Appointment booked successfully ✓");
-    // Broadcast notification to other users in real-time
-    try {
-      broadcastNewAppointmentBooked(createdAppt || apptRecord);
-    } catch (e) {
-      console.warn("Broadcast error:", e);
-    }
     closeSheet("new-appt");
     _naPatId = null;
     _naMode = "existing";

@@ -3,7 +3,21 @@
 // ==================================================
 
 import { sb, getCurrentUser } from './app.js';
-import { broadcastCartUpdate } from './app-notifications.js';
+
+let _matBc = null;
+try {
+  if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+    _matBc = new BroadcastChannel('zd_clinic_materials_bus');
+  }
+} catch (e) {}
+
+export function broadcastCartUpdate(payload) {
+  if (_matBc) {
+    try {
+      _matBc.postMessage({ ...payload, event_type: 'materials_cart_update' });
+    } catch (e) {}
+  }
+}
 
 export const RAW_MATERIALS = `كمبوزيت|كمبوزيت Chroma النانو هيبريد (4.5جم سرنجة)|168
 كمبوزيت|كمبوزيت M dental|175

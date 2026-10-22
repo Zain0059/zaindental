@@ -2,12 +2,19 @@ import * as app from './app.js';
 import * as handlers from './app-handlers.js';
 import * as features from './app-features.js';
 import * as clinicalMore from './app-clinical-more.js';
-import * as notifications from './app-notifications.js';
 import * as materials from './app-materials.js';
 import * as i18n from './i18n.js';
 
+// Clean up legacy notification storage keys
+try {
+  localStorage.removeItem('zd_notifications_v1');
+  localStorage.removeItem('zd_notifications_settings_v2');
+  localStorage.removeItem('zd_notifications_settings_v1');
+  localStorage.removeItem('zd_notif_3pm_date');
+} catch (e) {}
+
 // Bind all functions to window for instant inline compatibility
-const allModules = { ...app, ...handlers, ...features, ...clinicalMore, ...notifications, ...materials, ...i18n };
+const allModules = { ...app, ...handlers, ...features, ...clinicalMore, ...materials, ...i18n };
 Object.keys(allModules).forEach(key => {
   window[key] = allModules[key];
 });

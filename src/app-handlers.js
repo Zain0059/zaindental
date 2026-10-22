@@ -122,9 +122,6 @@ export function showApp() {
   if (sbExpenses) sbExpenses.style.display = isAdminUser ? "flex" : "none";
 
   loadProcs();
-  if (typeof window.initNotificationSystem === 'function') {
-    window.initNotificationSystem();
-  }
   sw("sched");
 }
 
