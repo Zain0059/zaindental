@@ -969,6 +969,32 @@
       <!-- Populated dynamically by window.previewMatItem -->
     </div>
   </div>
+
+  <!-- Modal: Add / Edit Note for Cart Item -->
+  <div id="mat-note-modal" class="mat-modal-overlay" style="display:none" onclick="if(event.target===this)window.closeMatNoteModal()">
+    <div class="mat-modal-card" style="max-width:420px">
+      <div class="mat-modal-hdr">
+        <div>
+          <h3 class="mat-modal-title">📝 ملاحظة على الصنف</h3>
+          <p class="mat-modal-sub" id="mat-note-modal-item-name">إضافة ملاحظة أو مواصفات خاصة للصنف في الفاتورة</p>
+        </div>
+        <button type="button" class="mat-modal-close" onclick="window.closeMatNoteModal()" title="إغلاق">✕</button>
+      </div>
+
+      <form id="mat-note-form" onsubmit="window.saveMatItemNote(event)">
+        <input type="hidden" id="mat-note-item-id" value="">
+        <div style="margin-bottom:14px">
+          <label class="mat-label" style="margin-top:0">نص الملاحظة (ستظهر في الفاتورة والواتساب)</label>
+          <textarea id="mat-note-text" class="mat-textarea" rows="3" placeholder="مثال: مقاس 25، لون A2، يرجى التأكد من تاريخ الصلاحية..."></textarea>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button type="button" class="mat-btn g" onclick="window.closeMatNoteModal()">إلغاء</button>
+          <button type="button" class="mat-btn" style="background:#ef4444" id="mat-note-del-btn" onclick="window.deleteMatItemNote()">حذف الملاحظة</button>
+          <button type="submit" class="mat-btn">💾 حفظ الملاحظة</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 <div id="toast"></div>

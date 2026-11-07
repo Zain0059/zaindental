@@ -1,6 +1,6 @@
 import {
   sb, SC, SL, MONTHS, USER, sha256, toothOpts, toast, esc, age, fmt, fmtTime12, today, toEG, sendWA,
-  getCurrentUser, setCurrentUser, isAdmin
+  getCurrentUser, setCurrentUser, isAdmin, verifyActiveSession, syncUserFromSession
 } from './app.js';
 import { t, isAr, applyLangToDOM } from './i18n.js';
 import { loadQueue, loadInvoices, loadRecentPats, loadProcs } from './app-features.js';
@@ -36,7 +36,7 @@ export function refreshCurrentView() {
   sw(_activeTab);
 }
 
-// Authentication
+// Authentication with Supabase Auth (JWT Signed Sessions) & Transition Support
 export async function doLogin() {
   const btn = document.getElementById("lbtn"), err = document.getElementById("lerr");
   const u = document.getElementById("lu")?.value.trim(), p = document.getElementById("lp")?.value;
@@ -44,19 +44,86 @@ export async function doLogin() {
     if (err) err.textContent = isAr() ? "يرجى إدخال اسم المستخدم وكلمة المرور" : "Please enter username and password";
     return;
   }
-  if (btn) { btn.textContent = isAr() ? "جاري تسجيل الدخول…" : "Signing in…"; btn.disabled = true; }
+  if (btn) { 
+    btn.textContent = isAr() ? "جاري التحقق الأمني وتسجيل الدخول…" : "Authenticating securely…"; 
+    btn.disabled = true; 
+  }
   if (err) err.textContent = "";
 
   try {
-    const hash = await sha256(p);
-    const { data, error } = await sb.from("staff").select("*").eq("username", u).eq("password_hash", hash).eq("is_active", true).single();
-    if (error || !data) {
+    const email = u.includes("@") ? u.toLowerCase() : `${u.toLowerCase()}@zaindental.clinic`;
+    let authSuccess = false;
+    let authUser = null;
+
+    // 1. Primary: Authenticate using Supabase Auth (Native JWT tokens)
+    try {
+      const { data: authData, error: authErr } = await sb.auth.signInWithPassword({
+        email,
+        password: p
+      });
+      if (!authErr && authData?.session) {
+        authSuccess = true;
+        authUser = authData.user;
+        await syncUserFromSession(authData.session);
+      }
+    } catch (e) {
+      console.debug("Supabase auth signIn error:", e);
+    }
+
+    // 2. Fallback / Seamless Auto-Migration: If user not yet in auth.users, verify against staff table
+    let staffData = null;
+    if (!authSuccess) {
+      try {
+        const hash = await sha256(p);
+        const { data, error } = await sb.from("staff").select("*").eq("username", u).eq("password_hash", hash).eq("is_active", true).single();
+        if (!error && data) {
+          staffData = data;
+          // Auto-provision user into Supabase Auth so future logins use native Auth & RLS
+          try {
+            const { data: signUpData } = await sb.auth.signUp({
+              email,
+              password: p,
+              options: {
+                data: {
+                  full_name: data.full_name,
+                  role: data.role,
+                  username: data.username
+                }
+              }
+            });
+            if (signUpData?.session) {
+              authSuccess = true;
+              authUser = signUpData.user;
+            }
+          } catch (signUpErr) {
+            console.debug("Auto sign-up fallback info:", signUpErr);
+          }
+        }
+      } catch (staffErr) {
+        console.debug("Staff fallback check error:", staffErr);
+      }
+    }
+
+    if (!authSuccess && !staffData) {
       if (err) err.textContent = isAr() ? "اسم المستخدم أو كلمة المرور غير صحيحة" : "Invalid username or password";
       if (btn) { btn.textContent = isAr() ? "تسجيل الدخول للنظام" : "Sign In to Portal"; btn.disabled = false; }
       return;
     }
-    setCurrentUser(data);
-    showApp();
+
+    if (!staffData && authUser) {
+      staffData = getCurrentUser() || {
+        username: u,
+        full_name: authUser.user_metadata?.full_name || (u === 'admin' ? (isAr() ? "د. عبد الله سامي زين" : "Dr. Abdullah Zain") : u),
+        role: authUser.user_metadata?.role || (u === 'admin' ? 'admin' : 'assistant'),
+        is_active: true
+      };
+    }
+
+    if (staffData) {
+      setCurrentUser(staffData);
+    }
+
+    await showApp();
   } catch (e) {
     console.error("Login attempt failed:", e);
     if (err) err.textContent = isAr() ? "خطأ في الاتصال، يرجى التحقق من الشبكة" : "Connection error. Please check your network connection.";
@@ -64,8 +131,12 @@ export async function doLogin() {
   }
 }
 
-export function doLogout() {
+export async function doLogout() {
+  try {
+    await sb.auth.signOut();
+  } catch (e) {}
   setCurrentUser(null);
+  try { localStorage.removeItem("zd_user"); } catch (e) {}
   location.reload();
 }
 
@@ -76,8 +147,22 @@ export function togglePassword() {
   }
 }
 
-export function showApp() {
+// Security-hardened showApp: blocks direct console calls if unauthenticated
+export async function showApp() {
+  const isSessionValid = await verifyActiveSession();
   const currentUser = getCurrentUser();
+
+  // If unauthenticated, reject access immediately!
+  if (!isSessionValid && !currentUser) {
+    console.warn("Security Alert: Unauthorized access attempt intercepted in showApp()");
+    const loginEl = document.getElementById("login");
+    const appEl = document.getElementById("app");
+    if (loginEl) loginEl.style.display = "flex";
+    if (appEl) appEl.style.display = "none";
+    toast(isAr() ? "جلسة غير مصرح بها! يرجى تسجيل الدخول أولاً ⚠️" : "Unauthorized session. Please sign in first ⚠️");
+    return;
+  }
+
   const loginEl = document.getElementById("login");
   const appEl = document.getElementById("app");
   if (loginEl) loginEl.style.display = "none";

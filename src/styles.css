@@ -2865,6 +2865,9 @@ body.rtl-mode #ni-psrch {
   box-sizing: border-box;
   width: 100%;
   max-width: 100%;
+  direction: rtl;
+  text-align: right;
+  letter-spacing: normal !important;
 }
 
 #sh-materials .mat-it:hover {
@@ -2874,12 +2877,22 @@ body.rtl-mode #ni-psrch {
 #sh-materials .mat-it .mat-n {
   flex: 1 1 auto;
   min-width: 0;
-  line-height: 1.45;
+  line-height: 1.6;
   font-size: 14.5px;
   font-weight: 600;
   color: var(--mat-tx);
-  word-break: break-word;
+  word-break: normal !important;
   overflow-wrap: break-word;
+  white-space: normal;
+  letter-spacing: normal !important;
+  font-family: 'Cairo', 'Tajawal', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  direction: rtl;
+  text-align: right;
+}
+
+#sh-materials .mat-it .mat-n span {
+  letter-spacing: normal !important;
+  font-family: inherit;
 }
 
 #sh-materials .mat-it .mat-p {
@@ -3249,6 +3262,127 @@ body.rtl-mode #ni-psrch {
 #sh-materials .mat-del-btn:hover {
   background: rgba(239, 68, 68, 0.1);
   border-color: #ef4444;
+}
+
+#sh-materials .mat-note-btn {
+  background: rgba(15, 138, 126, 0.08);
+  border: 1px solid rgba(15, 138, 126, 0.3);
+  color: var(--mat-pr);
+  border-radius: 8px;
+  padding: 5px 9px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1.2;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+#sh-materials .mat-note-btn:hover {
+  background: var(--mat-pr);
+  color: #FFFFFF;
+  border-color: var(--mat-pr);
+}
+
+#sh-materials .mat-note-btn.has-note {
+  background: #fef3c7;
+  border-color: #f59e0b;
+  color: #b45309;
+}
+
+#sh-materials .mat-note-btn.has-note:hover {
+  background: #f59e0b;
+  color: #FFFFFF;
+}
+
+#sh-materials .mat-item-note-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  color: #92400e;
+  border-radius: 6px;
+  padding: 4px 9px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 5px;
+  cursor: pointer;
+  max-width: 100%;
+  word-break: normal !important;
+  overflow-wrap: break-word;
+  letter-spacing: normal !important;
+  font-family: inherit;
+  line-height: 1.45;
+}
+
+#sh-materials .mat-item-note-pill:hover {
+  background: #fde68a;
+}
+
+/* Cart-Specific Item Card Layout */
+#sh-materials #mat-cartbody .mat-it,
+#sh-materials .mat-cart-it {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--mat-card);
+  border: 1px solid var(--mat-bd);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  width: 100%;
+  box-sizing: border-box;
+  direction: rtl;
+  text-align: right;
+  letter-spacing: normal !important;
+}
+
+#sh-materials .mat-it-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#sh-materials .mat-it-main .mat-thumb-wrap {
+  flex-shrink: 0;
+}
+
+#sh-materials .mat-it-main .mat-n {
+  flex: 1 1 0%;
+  min-width: 0;
+  width: 100%;
+  line-height: 1.6;
+  letter-spacing: normal !important;
+  word-break: normal !important;
+  overflow-wrap: break-word;
+}
+
+#sh-materials .mat-it-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(15, 138, 126, 0.18);
+  box-sizing: border-box;
+  flex-wrap: wrap;
+}
+
+#sh-materials .mat-it-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 #sh-materials .mat-empty-search-card {

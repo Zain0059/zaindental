@@ -13,26 +13,76 @@ try {
   localStorage.removeItem('zd_notif_3pm_date');
 } catch (e) {}
 
-// Bind all functions to window for instant inline compatibility
+// Sensitive internal variables and setters that must NOT be exposed on window
+const SENSITIVE_EXCLUSIONS = new Set([
+  'setCurrentUser',
+  'USER',
+  '_editPatId',
+  '_editInvId',
+  '_editTxId',
+  '_editStfId',
+  '_editSvcId',
+  '_editExpId',
+  '_niPatId',
+  '_naPatId',
+  '_clPatId',
+  '_invFilter',
+  '_niItems',
+  '_procs',
+  '_naMode',
+  '_tmrs',
+  '_allInvoices',
+  '_invToday',
+  '_editInvItems',
+  '_editInvOrigItems',
+  '_scanImgB64',
+  '_scanImgMime',
+  '_scanImg2B64',
+  '_scanImg2Mime',
+  'sha256'
+]);
+
+// Bind only safe UI action handlers to window for inline HTML template compatibility
 const allModules = { ...app, ...handlers, ...features, ...clinicalMore, ...materials, ...i18n };
 Object.keys(allModules).forEach(key => {
-  window[key] = allModules[key];
+  if (!SENSITIVE_EXCLUSIONS.has(key)) {
+    window[key] = allModules[key];
+  }
 });
 
-// Setup on DOM Ready
-document.addEventListener("DOMContentLoaded", () => {
+// Setup on DOM Ready with cryptographic session verification
+document.addEventListener("DOMContentLoaded", async () => {
   // Apply Language & Direction
   i18n.applyLangToDOM();
 
   const lp = document.getElementById("lp");
   if (lp) {
     lp.addEventListener("keydown", e => {
-      if (e.key === "Enter") window.doLogin();
+      if (e.key === "Enter") handlers.doLogin();
     });
   }
 
-  // If already authenticated, show app
-  if (app.USER) {
-    handlers.showApp();
+  // Verify authentic Supabase Auth session on app bootstrap
+  try {
+    const { data: { session } } = await app.sb.auth.getSession();
+    if (session?.user) {
+      // Verified JWT session exists in browser storage
+      await app.syncUserFromSession(session);
+      await handlers.showApp();
+    } else if (app.getCurrentUser()) {
+      await handlers.showApp();
+    } else {
+      // Ensure login screen is visible and protected app view is completely hidden
+      const loginEl = document.getElementById("login");
+      const appEl = document.getElementById("app");
+      if (loginEl) loginEl.style.display = "flex";
+      if (appEl) appEl.style.display = "none";
+    }
+  } catch (e) {
+    console.debug("Bootstrap session check error:", e);
+    const loginEl = document.getElementById("login");
+    const appEl = document.getElementById("app");
+    if (loginEl) loginEl.style.display = "flex";
+    if (appEl) appEl.style.display = "none";
   }
 });

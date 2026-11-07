@@ -19,296 +19,399 @@ export function broadcastCartUpdate(payload) {
   }
 }
 
-export const RAW_MATERIALS = `كمبوزيت|كمبوزيت Chroma النانو هيبريد (4.5جم سرنجة)|168
-كمبوزيت|كمبوزيت M dental|175
-كمبوزيت|كمبوزيت اقتصادية Medental|175
-كمبوزيت|كمبوزيت روبي|175
-كمبوزيت|كمبوزيت كلارا|185
-كمبوزيت|كمبوزيت برايم دنت|185
-كمبوزيت|كمبوزيت كمبوماكس|255
-كمبوزيت|كمبوزيت ميتا|275
-كمبوزيت|كمبوزيت i.light|350
-كمبوزيت|كمبوزيت Dia fill|360
-كمبوزيت|كمبوزيت Dolgunn|375
-كمبوزيت|كمبوزيت Di.fill|450
-كمبوزيت|كمبوزيت Cavex|475
-كمبوزيت|كمبوزيت نوڤا|465
-كمبوزيت|كمبوزيت كولتين NG|465
-كمبوزيت|كمبوزيت كاريزما|525
-كمبوزيت|كمبوزيت كيرر Kerr|560
-كمبوزيت|كمبوزيت Den fill مايكرو كوري أصلي|575
-كمبوزيت|كمبوزيت Den fill نانو كوري أصلي|675
-كمبوزيت|كمبوزيت أيتينا itena|740
-كمبوزيت|كمبوزيت كابو يونيڤرسال|790
-كمبوزيت|كمبوزيت كولتين Everglow|825
-كمبوزيت|كمبوزيت شوفو Shofu|865
-كمبوزيت|كمبوزيت ألفا توكوياما|895
-كمبوزيت|كمبوزيت Voco NHT|1160
-كمبوزيت|كمبوزيت تيترك أن سيرام|1245
-كمبوزيت|كيت كمبوزيت كيرر Kerr|2825
-فلوابل وبوند|فلوابل Hi.fill أو Max fill|105
-فلوابل وبوند|فلوابل ماكس فيل Max fill|105
-فلوابل وبوند|فلوابل Hi.fill|105
-فلوابل وبوند|فلوابل Elite|110
-فلوابل وبوند|فلوابل روبي|175
-فلوابل وبوند|فلوابل ألفا|180
-فلوابل وبوند|فلوابل Any|180
-فلوابل وبوند|فلوابل Te.com|190
-فلوابل وبوند|فلوابل D.fill|220
-فلوابل وبوند|فلوابل Dia fill|255
-فلوابل وبوند|فلوابل نوڤا|230
-فلوابل وبوند|فلوابل سبايدنت Spident|265
-فلوابل وبوند|فلوابل ميتا Meta|265
-فلوابل وبوند|فلوابل بلك فيل Bulk fill|325
-فلوابل وبوند|كبسولات فلوابل بلك فيل Dentsply Sirona|155
-فلوابل وبوند|بوند كمبوماكس|225
-فلوابل وبوند|بوند تركي Clara|345
-فلوابل وبوند|بوند Meta 5ml كوري توتال إيتش|435
-فلوابل وبوند|بوند Any 5ml كوري توتال إيتش|475
-فلوابل وبوند|بوند بيسكو الصغير|450
-فلوابل وبوند|بوند فليبرو Flibro|640
-فلوابل وبوند|بوند كولتين 5ml OneCoat|650
-فلوابل وبوند|بوند توكوياما 1مللي يونيفرسال Tokuyama|665
-فلوابل وبوند|بوند Dolgunn 5ml تركي يونيفرسال|725
-فلوابل وبوند|بوند ألترا Ultra 6 ml|775
-فلوابل وبوند|بوند بيسكو الكبير خالص الأصلي|2130
-فلوابل وبوند|أسيد إيتش Dentaleen 5gm|25
-فلوابل وبوند|أسيد إيتش chem|20
-فلوابل وبوند|أسيد إيتش plus|45
-فلوابل وبوند|أسيد إيتش كيرر|65
-فلوابل وبوند|تيبات الأسيد إيتش أو الفلوابل|1
-فلوابل وبوند|فرش البوند الكبيرة|28
-بنج|بنج أزرق|880
-بنج|بنج أرتفارما|975
-بنج|بنج أحمر|1100
-بنج|بنج إيطالي|1270
-بنج|بنج إسباني|1570
-بنج|بنج جل أو سبراي|25
-بنج|سيرنج الأنسيزيا|160
-بنج|سنون بنج لونج صيني|175
-بنج|سنون بنج شورت صيني|185
-مستهلكات|جلفزات أبيض|167
-مستهلكات|جلفزات ألوان|167
-مستهلكات|جلفزات لاتيكس ماليزي درجة أولى|157
-مستهلكات|كيس الأوفر جلڤز|4
-مستهلكات|علبة الأوفر جلڤز|45
-مستهلكات|علبة أوفر جلفز 200 فردي|45
-مستهلكات|الجاونات|13
-مستهلكات|كيس 1 كيلو جبس|19
-مستهلكات|1 لتر كحول|45
-مستهلكات|معقم يد سائل|75
-مستهلكات|معقم أسطح|80
-مستهلكات|مطهر sidex (كيس)|18
-مستهلكات|فيس شيلد|55
-مستهلكات|ماسكات مصري|35
-مستهلكات|ماسكات صيني|45
-مستهلكات|عمود الكبايات|22
-مستهلكات|كيسة الساكشن المصري درجة أولى 100 قطعة|76
-مستهلكات|الساكشن الإيطالي الأصلي|125
-مستهلكات|النابكن البلاستيك|32
-مستهلكات|باكيت النابكن 100|68
-مستهلكات|عبوة الشاش المعقم الكبيرة (قطن + شاش)|38
-مستهلكات|النابكن هولدر|25
-مستهلكات|كيسة قطن المحلة الكبيرة|87
-مستهلكات|كيس القطن المحلة الكبير|88
-مستهلكات|باكيت القطن رول|95
-مستهلكات|تيبات المية والهوا ستانلس أوتوكلافابل|18
-مستهلكات|كيسة تيبات المية والهوا كبيرة (250 قطعة)|190
-مستهلكات|ورق عض كربون صيني مستورد Articulating papers (12 مجموعة)|110
-مستهلكات|علبة باوتشات تعقيم 5سم|80
-مستهلكات|علبة باوتشات تعقيم 7سم|110
-مستهلكات|علبة باوتشات تعقيم 9سم|145
-مستهلكات|علبة باوتشات تعقيم 13سم|185
-مستهلكات|رولات تعقيم 5سم|155
-مستهلكات|رولات تعقيم 7.5سم|230
-مستهلكات|رولات تعقيم 10سم|310
-مستهلكات|علبة المشارط الجراحية|175
-مستهلكات|علبة السوتشرز الخيوط الجراحية|210
-أندو|كالسيوم هيدروكسيد لايت كيور Biner LC|255
-أندو|كالسيوم هيدروكسيد ديكال إنجليزي (Caviline) 2 Tube system|325
-أندو|زيكال إنجليزي TubliCem|225
-أندو|حشو مؤقت Galaxy|70
-أندو|حشو مؤقت أكروتيمب Acrotemp|85
-أندو|حشو مؤقت T.fill|155
-أندو|D.vital (pulp devitalizer)|410
-أندو|علبة MTA jk (3 عبوات)|125
-أندو|MTA putty one fill 1/2جم|520
-أندو|سيلر D.seal (حجم الطلبة)|175
-أندو|سيلر D.seal (حجم كبير)|375
-أندو|بيست أو بيكس شركة plus|135
-أندو|سيلر زيكال أوتوميكس Xical Automix|560
-أندو|سيلر Vioseal spident|685
-أندو|سيلر Anyseal|695
-أندو|سيلر ميتا أديسيل Adseal|775
-أندو|سيلر ديابروسيل Diaproseal|1175
-أندو|ميتابكس أو ميتابيست كوري Metapaste / Metabex|525
-أندو|كالسيبيكس Calcipex أو كالسيبيست Calcipaste|135
-أندو|N Root SP 1/2G (بيوسيراميك)|410
-أندو|Well Root 1/2G|775
-أندو|Ceraseal ميتا 1/2G|975
-أندو|OneFill الكوري|1775
-أندو|كرتونة سرنجات إيريجيشن 100 قطعة 3سم|125
-أندو|كرتونة نيدلز إيريجيشن 3سم لوك|125
-أندو|علبة Side-vented needles|185
-أندو|علبة side-vented needle (100)|180
-أندو|قطعة side-vented needle|4.5
-أندو|إيديتا جل|65
-أندو|إيريجيشن (بيتادين / سلاين / هيدروجين بيروكسيد / صوديوم كلوريد / كلورهيكسيدين)|25
-أندو|زينك أوكسيد jk|35
-أندو|إيجينول jk|70
-أندو|فورماكريزول jk|70
-أندو|فايلات مانيوال صيني|45
-أندو|فايلات مانيوال لونج|55
-أندو|فايلات K ماني Mani مقاس 8 (أصلي)|220
-أندو|فايلات K ماني Mani مقاس 10 (أصلي)|220
-أندو|فايلات K ماني Mani مقاس 15 (أصلي)|185
-أندو|فايلات K ماني Mani مقاسات مشكلة Assorted (15-40) ستاندرد (أصلي)|185
-أندو|فايلات K ماني Mani مقاسات مشكلة Assorted لونج Long 25/31mm (أصلي)|210
-أندو|فايلات H ماني Mani مقاسات مشكلة Assorted (15-40) (أصلي)|185
-أندو|فايلات D فايندر ماني Mani D-Finders مقاس 8 (أصلي)|250
-أندو|فايلات D فايندر ماني Mani D-Finders مقاس 10 (أصلي)|250
-أندو|فايلات D فايندر ماني Mani D-Finders مقاس 15 (أصلي)|235
-أندو|سبريدر مانيوال|50
-أندو|بيبربوينت عادية / تيبر|70
-أندو|جاتابركا عادية / تيبر|67
-أندو|جاتابركا ميتا عادية|110
-أندو|جاتابركا ميتا تيبر|110
-أندو|كيت فايلات روتاري Aline|195
-أندو|كيت فايلات روتاري M.pro|230
-أندو|كيت فايلات روتاري Nic 4file|235
-أندو|كيت فايلات روتاري Nic 6file|255
-أندو|كيت فايلات روتاري فيديا الكبير|250
-أندو|كيت فايلات روتاري E.flex جولد|255
-أندو|كيت فايلات روتاري E.flex بلو|265
-أندو|فايلات روتاري فانتا بلو|273
-أندو|كيت فايلات بيبسي جولد|275
-أندو|كيت فايلات روتاري ام برو جولد|285
-أندو|كيت فايلات روتاري روجين 4file|328
-أندو|كيت فايلات روتاري روجين 6file|355
-جلاس ايونيمر|جلاس ايونيمر صيني|65
-جلاس ايونيمر|جلاس ايونيمر إنجليزي|150
-جلاس ايونيمر|جلاس ايونيمر Restore|345
-جلاس ايونيمر|جلاس ايونيمر أمريكي Ceram|425
-جلاس ايونيمر|جلاس ايونيمر برازيلي|440
-جلاس ايونيمر|جلاس ايونيمر Micron|510
-جلاس ايونيمر|كبسولات ريڤا لايت / سيلف|125
-جلاس ايونيمر|كبسولات فيوجي 9 extra|135
-جلاس ايونيمر|حشو مؤقت إنجليزي PSP|168
-جلاس ايونيمر|تيمبريري كراون Dolgunn|440
-جلاس ايونيمر|كور Dolgunn التركي|625
-جلاس ايونيمر|شارم كور الكوري|715
-جلاس ايونيمر|ريزن سيمنت Supercem|1075
-طبعات|ألجينيت صيني نوع كويس|140
-طبعات|ألجينيت IQ|158
-طبعات|ألجينيت Hygedent|175
-طبعات|ألجينيت Zetalgin|265
-طبعات|ألجينيت Cavex|445
-طبعات|إمبرشن كومباوند|125
-طبعات|جرين ستيك Green stick|125
-طبعات|تراي الإمبرشن الستانلس النضيفة|12
-طبعات|الرابرباول + السباتيولا|25
-طبعات|رابربيز سيلاكسيل كيت صغير|710
-طبعات|رابربيز زيتابلس كيت صغير|780
-طبعات|رابربيز سيلاكسيل كيت كبير|1870
-طبعات|رابربيز زيتابلس كيت كبير|1945
-طبعات|مسدس رابربيز|310
-رابردام|شيت رابردام|8
-رابردام|كلامب باكستاني|23
-رابردام|فريم رابردام Metal|48
-رابردام|فريم رابردام Plastic|85
-رابردام|كلامب هولدر|270
-رابردام|ليكويدام|135
-رابردام|علبة شيتات Puritex / CEYFLEX|290
-رابردام|علبة شيتات Flamingo|310
-تلميع وماتريكس|بيرات هاي سبيد صيني درجة أولى مستوردة|5.5
-تلميع وماتريكس|بيرات الهاي سبيد|5.5
-تلميع وماتريكس|بير كاربيد|34
-تلميع وماتريكس|اللونج شانك بير|25
-تلميع وماتريكس|بيرات التلميع البيضا الهاي سبيد|18
-تلميع وماتريكس|فرش التلميع الكتان|5.5
-تلميع وماتريكس|فرش التلميع النايلون فردي|2.5
-تلميع وماتريكس|علبة فرش التلميع النيلون 100 حبة|158
-تلميع وماتريكس|رابر كب التلميع Rubber Cup|4.5
-تلميع وماتريكس|معجون تلميع الأسنان|55
-تلميع وماتريكس|كبسولة معجون تلميع أسنان (تكفي لحالة واحدة)|8
-تلميع وماتريكس|معجون تلميع حشوات الكمبوزيت Aluminium oxide|55
-تلميع وماتريكس|معجون تلميع حشوات الأملجم|45
-تلميع وماتريكس|الفينيشبنج ستريبس Torvm|70
-تلميع وماتريكس|الفينيشينج discs|140
-تلميع وماتريكس|كيت كيندا الفينيشينج الصيني|150
-تلميع وماتريكس|الويدجات الخشب|135
-تلميع وماتريكس|ويدجات بلاستيك|145
-تلميع وماتريكس|كيسة الباندات توفليمير المقطعة|6
-تلميع وماتريكس|التوفليمير ماتريكس|80
-تلميع وماتريكس|ماتريكس باند رول|55
-تلميع وماتريكس|الباندات السيليلويد celliloid strips|10
-تلميع وماتريكس|رينج مستورد حجم كبير|145
-تلميع وماتريكس|ريزن رينج Resin Rings|135
-تلميع وماتريكس|سيكشنال ماتريكس كيت|135
-تلميع وماتريكس|الspoon matrix أو الTwin matrix|185
-تلميع وماتريكس|الSaddle matrix refill|210
-تلميع وماتريكس|سادل ماتريكس كيت|245
-أدوات|تيبات الالتراسونيك الاندو بيريو E22 ومثيلاتها|275
-أدوات|تيبات ألتراسونيك عادية|37
-أدوات|الsilicone sleeves بتاعت الروتاري|135
-أدوات|السينسور سليڤز|125
-أدوات|السليڤز بتاعت الكاميرا|125
-أدوات|ميرور هيد|9
-أدوات|بروب عادي|26
-أدوات|تويزر عادي|42
-أدوات|تويزر لوك|48
-أدوات|مقص|45
-أدوات|يد مشرط|28
-أدوات|كارفر / كوندينسر / برنشر|26
-أدوات|إكسكافيتور|28
-أدوات|ادوات كمبوزيت plastic|28
-أدوات|كيت ادوات كمبوزيت pk tomath|185
-أدوات|نيدلز هولدر|90
-أدوات|Elevator|105
-أدوات|Forceps|215
-أدوات|سكيلر / كيوريت مانيوال|28
-أدوات|هيموستوب / هيموستال|90
-أدوات|ألڤيوجل|55
-أدوات|جهاز سكيلر|1950
-تقويم|كيت كمبوزيت ماستر دنت للتقويم بالبوند|1360
-تقويم|وايرات نايطاي راوند|27
-تقويم|وايرات ستانلس راوند|32
-تقويم|علبة براكيت تقويم|75
-تقويم|حالة براكيت على كارت|75
-تقويم|كيس إيلاستيك تقويم|14
-تقويم|علبة شمع تقويم|12
-تقويم|شيت ستارس Ortho stars|55
-تقويم|Band pusher|285
-تقويم|Band remover|325
-تقويم|Bracket holder|185
-تقويم|كيت باندات التقويم|625
-كونترا|زيت الكونترا|105
-كونترا|بلي كونترا|75
-كونترا|كونترا هاي سبيد future key|475
-كونترا|كونترا هاي سبيد Being|750
-كونترا|كونترا لوسبيد xplat form|750
-كونترا|أدابتور x plat form|750
-كونترا|كونترا هاي سبيد Hay|950
-كونترا|كونترا هاي سبيد Trend|975
-كونترا|كونترا هاي سبيد K&K|1100
-كونترا|كونترا Apple|1550
-كونترا|كوكسو Coxo|1650
-كونترا|كوكسو مصر سينا|2150
-أجهزة (زيرو)|عرض تجهيز أجهزة العيادة كاملة|136000
-أجهزة (زيرو)|Unit H5|73500
-أجهزة (زيرو)|Autoclave Famous|30500
-أجهزة (زيرو)|Sensor xpect vision|30500
-أجهزة (زيرو)|X-ray hyper light G|28000
-أجهزة (زيرو)|Compressor 40L|7750
-أجهزة (زيرو)|Apex locator|7000
-أجهزة (زيرو)|Endo activator|5800
-أجهزة (زيرو)|Scaler piezo|5500
-أجهزة (زيرو)|Endo motor Y smart|4750
-أجهزة (زيرو)|ماكينة لحام ستانلس|4450
-أجهزة (زيرو)|Atls bleaching|3350
-أجهزة (زيرو)|Light cure (cure magic)|2900
-أجهزة (زيرو)|Water distiller|2650
-أجهزة (زيرو)|Rta light cure|1950`;
+export const RAW_MATERIALS = `Anesthesia (بنج وتخدير)|Dental Anesthesia Blue (Articaine 4% w/ Epinephrine 1:100,000)|877.5||بنج أزرق 877.5ج
+Anesthesia (بنج وتخدير)|Artipharma Dental Anesthesia (Articaine / Epinephrine)|977.5||بنج أرتفارما 977.5ج
+Anesthesia (بنج وتخدير)|Dental Anesthesia Red Strip (Mepivacaine 3% Plain)|275||شريط البنج الأحمر 275ج
+Anesthesia (بنج وتخدير)|Italian Dental Anesthesia (Pierrel / Orabloc)|1200||بنج إيطالي 1200ج
+Anesthesia (بنج وتخدير)|Spanish Dental Anesthesia (Inibsa)|1557.5||بنج إسباني 1557.5ج
+Anesthesia (بنج وتخدير)|Topical Anesthetic Gel / Spray 25g|25||بنج جل أو سبراي 25ج
+Anesthesia (بنج وتخدير)|Dental Cartridge Aspirating Syringe|162||سيرنج الأنسيزيا 162ج
+Anesthesia (بنج وتخدير)|Dental Injection Needles Long (Chinese 100 pcs)|175||سنون بنج لونج صيني 175ج
+Anesthesia (بنج وتخدير)|Dental Injection Needles Short (Chinese 100 pcs)|185||سنون بنج شورت صيني 185ج
+Composite (كمبوزيت)|Composite Chroma Nano-Hybrid Syringe 4.5g|165||كمبوزيت Chroma النانو هيبريد (4.5 جم) 165ج
+Composite (كمبوزيت)|Composite M Dental Syringe 4g|175||كمبوزيت M dental بـ 175ج
+Composite (كمبوزيت)|Composite Ruby Syringe 4g|175||كمبوزيت روبي 175ج
+Composite (كمبوزيت)|Composite Clara Syringe 4g|185||كمبوزيت كلارا 185ج
+Composite (كمبوزيت)|Composite Prime-Dent Syringe 4g|185||كمبوزيت برايم دنت 185ج
+Composite (كمبوزيت)|Composite Compomax Syringe (+ Free Bond Brushes)|210||كمبوزيت كمبوماكس (+ فرش بوند هدية) 210ج
+Composite (كمبوزيت)|Composite Meta Syringe 4g|275||كمبوزيت ميتا 275ج
+Composite (كمبوزيت)|Composite i.light Syringe 4g|350||كمبوزيت i.light بـ 350ج
+Composite (كمبوزيت)|Composite DiaFil (DiaDent) Syringe 4g|360||كمبوزيت Dia fill بـ 360ج
+Composite (كمبوزيت)|Composite Dolgunn Syringe 4g|375||كمبوزيت Dolgunn بـ 375ج
+Composite (كمبوزيت)|Composite Italian Di.fill Syringe 4g|450||كمبوزيت D.fill إيطالي 450ج
+Composite (كمبوزيت)|Composite Nova Syringe 4g|465||كمبوزيت نوڤا 465ج
+Composite (كمبوزيت)|Composite Coltene Brilliant NG Syringe 4g|465||كمبوزيت كولتين NG بـ 465ج
+Composite (كمبوزيت)|Composite Es.Com Syringe 4g|480||كمبوزيت Es.Com بـ 480ج
+Composite (كمبوزيت)|Composite Charisma Classic (Kulzer) Syringe 4g|525||كمبوزيت كاريزما 525ج
+Composite (كمبوزيت)|Composite Kerr Herculite Précis Syringe 4g|560||كمبوزيت كيرر kerr بـ 560ج
+Composite (كمبوزيت)|Composite DenFil Micro-Hybrid (Vericom Korea)|575||كمبوزيت Den fill مايكرو كوري أصلي 575ج
+Composite (كمبوزيت)|Composite Cavex Syringe 4g|580||كمبوزيت Cavex بـ 580ج
+Composite (كمبوزيت)|Composite DenFil Nano-Hybrid (Vericom Korea)|675||كمبوزيت Den fill نانو كوري أصلي 675ج
+Composite (كمبوزيت)|Composite Composan (PROMEDICA Germany)|670||كمبوزيت كمبوزان Composan بـ 670ج
+Composite (كمبوزيت)|Composite Itena Syringe 4g|740||كمبوزيت أيتينا itena بـ 740ج
+Composite (كمبوزيت)|Composite KaVo Universal Syringe 4g|765||كمبوزيت كابو يونيڤرسال 765ج
+Composite (كمبوزيت)|Composite Coltene EverGlow Syringe 3g|825||كمبوزيت كولتين Everglow بـ 825ج
+Composite (كمبوزيت)|Composite VOCO Polofil / Grandio NHT Syringe|1160||كمبوزيت Voco NHT بـ 1160ج
+Composite (كمبوزيت)|Composite Tetric N-Ceram (Ivoclar) Syringe 3.5g|1240||كمبوزيت تيترك إن سيرام 1240ج
+Composite (كمبوزيت)|Composite Tokuyama Omnichroma Syringe|1375||كمبوزيت توكوياما اومنيكروما 1375ج
+Composite (كمبوزيت)|Composite Tokuyama Omnichroma Blocker Syringe|1375||كمبوزيت توكوياما بلوكر 1375ج
+Composite (كمبوزيت)|Master-Dent Orthodontic Light-Cure Bonding Kit|1360||كيت كمبوزيت ماستر دنت للتقويم بالبوند 1360ج
+Composite (كمبوزيت)|Kerr Composite Restorative Master Kit|2825||كيت كمبوزيت كيرر kerr بـ 2825ج
+Composite (كمبوزيت)|Composite Compules (Dentsply Sirona)|160||كبسولات كمبوزيت دنت سبلاي 160ج
+Flowable & Bond (فلوابل وبوند)|Flowable Composite Hi.fill Syringe 2g|110||فلوابل Hi.fill بـ 110ج
+Flowable & Bond (فلوابل وبوند)|Flowable Composite Max Fill Syringe 2g|115||فلوابل ماكس فيل Max fill بـ 115ج
+Flowable & Bond (فلوابل وبوند)|Flowable Composite Elite Syringe 2g|125||فلوابل elite بـ 125ج
+Flowable & Bond (فلوابل وبوند)|Flowable Composite Ruby Syringe 2g|175||فلوابل روبي 175ج
+Flowable & Bond (فلوابل وبوند)|Flowable Composite Alpha Syringe 2g|185||فلوابل ألفا 185ج
+Flowable & Bond (فلوابل وبوند)|Flowable Composite Te.com Syringe 2g|210||فلوابل Te.com بـ 210ج
+Flowable & Bond (فلوابل وبوند)|Flowable Composite Di.fill Syringe 2g|215||فلوابل D.fill بـ 215ج
+Flowable & Bond (فلوابل وبوند)|Flowable Composite Nova Syringe 2g|230||فلوابل نوڤا 230ج
+Flowable & Bond (فلوابل وبوند)|Flowable Composite DiaFil Flow (DiaDent)|255||فلوابل Dia fill بـ 255ج
+Flowable & Bond (فلوابل وبوند)|Flowable Composite Spident EsFlow Syringe|265||فلوابل سبايدنت 265ج
+Flowable & Bond (فلوابل وبوند)|Flowable Composite Meta Nexcomp Flow|280||فلوابل ميتا 280ج
+Flowable & Bond (فلوابل وبوند)|Flowable Composite Any-Flow Syringe 2g|285||فلوابل Any بـ 285ج
+Flowable & Bond (فلوابل وبوند)|Flowable Composite Coltene Brilliant Flow|295||فلوابل كولتين 295ج
+Flowable & Bond (فلوابل وبوند)|Flowable Composite Bulk Fill Any Syringe|325||فلوابل بلك فيل any بـ 325ج
+Flowable & Bond (فلوابل وبوند)|Flowable Composite Bulk Fill Syringe|335||فلوابل بلك فيل 335ج
+Flowable & Bond (فلوابل وبوند)|Flowable Bulk Fill Compules (Dentsply Sirona)|155||كبسولات فلوابل بلك فيل Dentsply Sirona بـ 155ج
+Flowable & Bond (فلوابل وبوند)|Compomax Dental Adhesive Bond|225||بوند كمبوماكس 225ج
+Flowable & Bond (فلوابل وبوند)|Clara Dental Adhesive Bond 5ml (Turkey)|345||بوند تركي Clara بـ 345ج
+Flowable & Bond (فلوابل وبوند)|Meta P&Bond Total-Etch 5ml (Korea)|435||بوند Meta 5ml الكوري التوتال إيتش 435ج
+Flowable & Bond (فلوابل وبوند)|Any-Bond Total-Etch 5ml (Korea)|475||بوند Any 5ml الكوري التوتال إيتش 475ج
+Flowable & Bond (فلوابل وبوند)|Bisco All-Bond Universal (Small Bottle)|450||بوند بيسكو الصغير 450ج
+Flowable & Bond (فلوابل وبوند)|Flibro Universal Adhesive Bond|645||بوند فليبرو Flibro بـ 645ج
+Flowable & Bond (فلوابل وبوند)|Coltene One Coat 7 Universal Bond 5ml|650||بوند كولتين 5ml OneCoat بـ 650ج
+Flowable & Bond (فلوابل وبوند)|Tokuyama Universal Bond Quick 1ml|665||توكوياما 1 مللي يونيفرسال 665ج
+Flowable & Bond (فلوابل وبوند)|Ultra Dental Adhesive Bond 6ml|875||بوند ألترا Ultra 6 ml بـ 875ج
+Flowable & Bond (فلوابل وبوند)|Kerr OptiBond Universal Adhesive 5ml|1625||بوند كيرر 5 مللي يونيڤرسال 1625ج
+Flowable & Bond (فلوابل وبوند)|Bisco All-Bond Universal Jumbo Size (Original Large)|2150||بوند بيسكو الكبير خالص الأصلي 2150ج
+Flowable & Bond (فلوابل وبوند)|Z-Prime Plus Metal / Zirconia Primer (Egyptian)|275||الـ z.prime r مصري 275ج
+Flowable & Bond (فلوابل وبوند)|Universal Dental Primer (Egyptian)|245||الـ primer مصري 245ج
+Flowable & Bond (فلوابل وبوند)|Dentaleen Phosphoric Acid Etchant Gel 5gm|45||أسيد إيتش Dentaleen 5gm بـ 45ج
+Flowable & Bond (فلوابل وبوند)|Chem Dental Etch Gel|25||أسيد إيتش chem بـ 25ج
+Flowable & Bond (فلوابل وبوند)|Plus Dental Etch Gel|45||أسيد إيتش plus بـ 45ج
+Flowable & Bond (فلوابل وبوند)|Kerr Gel Etchant 37.5%|65||أسيد إيتش كيرر 65ج
+Flowable & Bond (فلوابل وبوند)|Meta Dental Etchant Gel|98||إيتش ميتا 98ج
+Flowable & Bond (فلوابل وبوند)|Acid Etch & Flowable Applicator Dispensing Tips (Single)|1||تيبات الأسيد إيتش أو الفلوابل 1ج
+Flowable & Bond (فلوابل وبوند)|Microbrush Bond Applicators (Large Pack)|28||فرش البوند 28ج
+Endodontics (علاج جذور وأندو)|Biner LC Light-Cured Calcium Hydroxide Base/Liner|255||الكالسيوم هيدروكسيد لايت كيور Biner LC بـ 255ج
+Endodontics (علاج جذور وأندو)|Caviline Calcium Hydroxide Paste (2-Tube System)|325||كالسيوم هيدروكسيد ديكال إنجليزي Caviline بـ 325ج
+Endodontics (علاج جذور وأندو)|TubliCem Zinc Oxide Eugenol Root Canal Sealer|225||زيكال إنجليزي TubliCem بـ 225ج
+Endodontics (علاج جذور وأندو)|Galaxy Temporary Cavity Filling|75||الحشو المؤقت Galaxy بـ 75ج
+Endodontics (علاج جذور وأندو)|Acrotemp Temporary Cavity Filling|85||الحشو المؤقت أكروتيمب 85ج
+Endodontics (علاج جذور وأندو)|T-Fill Temporary Cavity Filling|155||حشو مؤقت T.fill بـ 155ج
+Endodontics (علاج جذور وأندو)|PSP English Temporary Cavity Filling|168||حشو مؤقت إنجليزي PSP بـ 168ج
+Endodontics (علاج جذور وأندو)|Orafil-G Temporary Cavity Filling (India)|185||حشو مؤقت هندي orafill بـ 185ج
+Endodontics (علاج جذور وأندو)|D.Vital Pulp Devitalizer (Non-Arsenic Paste)|410||الـ D.vital (pulp devitalizer) بـ 410ج
+Endodontics (علاج جذور وأندو)|MTA jk Mineral Trioxide Aggregate (3 Vials Pack)|125||علبة MTA jk (3 عبوات) 125ج
+Endodontics (علاج جذور وأندو)|MTA Single Dose Vial|30||عبوة MTA بـ 30ج
+Endodontics (علاج جذور وأندو)|One-Fill MTA Bioceramic Putty 0.5g Syringe (Korea)|520||سرنجة MTA putty نصف جرام one fill كوري 520ج
+Endodontics (علاج جذور وأندو)|D-Seal Root Canal Sealer (Student Size)|175||سيلر D.seal حجم الطلبة 175ج
+Endodontics (علاج جذور وأندو)|D-Seal Root Canal Sealer (Large Size)|375||سيلر D.seal الحجم الكبير 375ج
+Endodontics (علاج جذور وأندو)|Plus Paste / Apex Root Canal Filling Material|135||بيست أو بيكس شركة plus بـ 135ج
+Endodontics (علاج جذور وأندو)|Han-Seal Resin Root Canal Sealer|495||سيلر Han Seal بـ 495ج
+Endodontics (علاج جذور وأندو)|Xical Automix Root Canal Sealer|560||سيلر زيكال أوتوميكس 560ج
+Endodontics (علاج جذور وأندو)|Vioseal Root Canal Sealer (Spident)|685||سيلر Vioseal spident بـ 685ج
+Endodontics (علاج جذور وأندو)|Any-Seal Epoxy Root Canal Sealer|695||سيلر Anyseal بـ 695ج
+Endodontics (علاج جذور وأندو)|Meta Adseal Resin Root Canal Sealer|795||سيلر ميتا أديسيل Adseal بـ 795ج
+Endodontics (علاج جذور وأندو)|Diaproseal Root Canal Sealer (DiaDent)|1385||سيلر ديابروسيل Diaproseal بـ 1385ج
+Endodontics (علاج جذور وأندو)|Metapaste / Metabex (Korea)|525||ميتابكس أو ميتابيست كوري 525ج
+Endodontics (علاج جذور وأندو)|Calcipex / Calcipaste Calcium Hydroxide Paste|135||كالسيبيكس Calcipex أو كالسيبيست 135ج
+Endodontics (علاج جذور وأندو)|N-Root SP Bioceramic Sealer 0.5g|435||بيوسيراميك سيلر N Root SP 0.5g بـ 435ج
+Endodontics (علاج جذور وأندو)|Well-Root ST Bioceramic Sealer 0.5g|775||بيوسيراميك سيلر Well Root 0.5g بـ 775ج
+Endodontics (علاج جذور وأندو)|N-Root SP Bioceramic Sealer 2g|1525||بيوسيراميك سيلر N Root SP 2g بـ 1525ج
+Endodontics (علاج جذور وأندو)|One-Fill Bioceramic Sealer 2g (Korea)|1775||بيوسيراميك سيلر كوري OneFill 2g بـ 1775ج
+Endodontics (علاج جذور وأندو)|Ceraseal Bioceramic Sealer 0.5g (Meta Biomed)|975||بيوسيراميك سيلر Ceraseal ميتا 0.5g بـ 975ج
+Endodontics (علاج جذور وأندو)|Ceraseal Bioceramic Sealer 2g (Meta Biomed)|1825||بيوسيراميك سيلر Ceraseal ميتا 2g بـ 1825ج
+Endodontics (علاج جذور وأندو)|Irrigation Syringes 3ml Lock (Carton 100 pcs)|125||كرتونة سرنجات إيريجيشن 100 قطعة 3سم 125ج
+Endodontics (علاج جذور وأندو)|Irrigation Needles 3ml Luer Lock (Carton 100 pcs)|125||كرتونة نيدلز إيريجيشن 3سم لوك 125ج
+Endodontics (علاج جذور وأندو)|Side-Vented Endodontic Irrigation Needles Box (100 pcs)|185||علبة side-vented needles بـ 185ج
+Endodontics (علاج جذور وأندو)|Side-Vented Endodontic Irrigation Needle (Single)|4||قطعة side-vented needle بـ 4ج
+Endodontics (علاج جذور وأندو)|Endodontic Irrigation Solution (Betadine / Saline / H2O2 / NaCl / CHX)|27||إيريجيشن بيتادين أو سلاين أو هيدروجين بيروكسيد 27ج
+Endodontics (علاج جذور وأندو)|Saline / Sodium Hypochlorite / Chlorhexidine Irrigation|32||إيريجيشن سلاين أو صوديوم هيبوكلوريد أو كلورهيكسيدين 32ج
+Endodontics (علاج جذور وأندو)|EDTA Gel 17% (Root Canal Lubricant)|75||أيديتا جل 75ج
+Endodontics (علاج جذور وأندو)|EDTA Solution 17% (Root Canal Chelation)|75||أيديتا سوليوشن 75ج
+Endodontics (علاج جذور وأندو)|Formocresol jk|70||فورماكريزول jk بـ 70ج
+Endodontics (علاج جذور وأندو)|Zinc Oxide Powder jk|35||زينك أوكسيد jk بـ 35ج
+Endodontics (علاج جذور وأندو)|Eugenol Liquid jk|70||إيجينول jk بـ 70ج
+Endodontics (علاج جذور وأندو)|Calcium Oxide jk|45||كالسيوم أوكسيد jk بـ 45ج
+Endodontics (علاج جذور وأندو)|Fluoride Varnish jk Bottle|75||عبوة فلورايد ڤارنش Varnish jk بـ 75ج
+Endodontics (علاج جذور وأندو)|Fluoride Varnish Sticks Applicators|85||ڤارنش ستيك 85ج
+Endodontics (علاج جذور وأندو)|Gutta Percha Solvent Carven (Egyptian)|65||جاتابركا سولڤنت Carven مصري 65ج
+Endodontics (علاج جذور وأندو)|Endo Ice Spray (Pulp Vitality Tester)|725||إندو آيس Endo Ice بـ 725ج
+Endodontics (علاج جذور وأندو)|Endo Ring / Finger Ruler (Standard / Ring)|35||مسطرة إندو Endo Ruler خاتم أو عادية 35ج
+Endodontics (علاج جذور وأندو)|Bur & File Holder Box (Rootex)|125||علبة البيرات والفايل هولدر Rootex بـ 125ج
+Endodontics (علاج جذور وأندو)|Citizen Magnetic Bur Holder Block|45||البيرهولدر Citizen بـ 45ج
+Endodontics (علاج جذور وأندو)|Endodontic Metal Posts Key / Wrench|35||مفتاح البوست الميتال 35ج
+Endodontics (علاج جذور وأندو)|Metal Post Kit with Key (Chinese 240 pcs)|925||كيت الميتال بوست الصيني بالكي (240 قطعة) 925ج
+Endodontics (علاج جذور وأندو)|Crown Cutter / Transmetal Carbide Bur|75||كراون كتر Crown cutter أو Transmetal burr بـ 75ج
+Endodontics (علاج جذور وأندو)|Zincenol Cavity Liner & Base (Egyptian)|125||الزينكنول المصري 125ج
+Endodontics (علاج جذور وأندو)|Zincenol Powder & Liquid (Indian)|550||الزينكنول الهندي 550ج
+Endodontics (علاج جذور وأندو)|Manual Endodontic Files (Chinese Standard)|45||فايلات مانيوال صيني 45ج
+Endodontics (علاج جذور وأندو)|Manual Endodontic Files (Long 28/31mm)|55||فايلات مانيوال لونج 55ج
+Endodontics (علاج جذور وأندو)|Manual Endodontic Spreaders|50||سبريدر مانيوال 50ج
+Endodontics (علاج جذور وأندو)|NIC High Quality Manual Files|55||مانيوال NIC كوالتي عالي 55ج
+Endodontics (علاج جذور وأندو)|Mani K-Files Original Japan (Standard Assorted)|168||فايلات ماني الأصلي 168ج
+Endodontics (علاج جذور وأندو)|Mani K-Files Size 08 (Original Japan)|220||فايلات K ماني مقاس 8 أصلي 220ج
+Endodontics (علاج جذور وأندو)|Mani K-Files Size 10 (Original Japan)|220||فايلات K ماني مقاس 10 أصلي 220ج
+Endodontics (علاج جذور وأندو)|Mani K-Files Size 15 (Original Japan)|185||فايلات K ماني مقاس 15 أصلي 185ج
+Endodontics (علاج جذور وأندو)|Mani K-Files Assorted 15-40 Standard 21/25mm|185||فايلات K ماني مشكل 15-40 ستاندرد أصلي 185ج
+Endodontics (علاج جذور وأندو)|Mani K-Files Assorted Long 28/31mm|210||فايلات K ماني مشكل لونج أصلي 210ج
+Endodontics (علاج جذور وأندو)|Mani H-Files Assorted 15-40 (Original Japan)|185||فايلات H ماني مشكل 15-40 أصلي 185ج
+Endodontics (علاج جذور وأندو)|Mani D-Finders Size 08 (Original Japan)|250||فايلات D فايندر ماني مقاس 8 أصلي 250ج
+Endodontics (علاج جذور وأندو)|Mani D-Finders Size 10 (Original Japan)|250||فايلات D فايندر ماني مقاس 10 أصلي 250ج
+Endodontics (علاج جذور وأندو)|Mani D-Finders Size 15 (Original Japan)|235||فايلات D فايندر ماني مقاس 15 أصلي 235ج
+Endodontics (علاج جذور وأندو)|Absorbent Paper Points (Standard & Tapered)|70||بيبربوينت عادية وتيبر 70ج
+Endodontics (علاج جذور وأندو)|Gutta Percha Points (Standard & Tapered)|70||جاتابركا عادية وتيبر 70ج
+Endodontics (علاج جذور وأندو)|Meta Gutta Percha Points (Standard)|110||جاتابركا ميتا العادية 110ج
+Endodontics (علاج جذور وأندو)|Meta Gutta Percha Points (Tapered 4% / 6%)|110||جاتابركا ميتا التيبر 110ج
+Endodontics (علاج جذور وأندو)|Meta Gutta Percha Points Tapered (Sizes 30/4, 35/4, 40/4)|138||جاتابركا ميتا تيبر مقاسات (30/4 - 35/4 - 40/4) 138ج
+Endodontics (علاج جذور وأندو)|Aline Rotary Endodontic Files Kit|195||كيت فايلات روتاري Aline بـ 195ج
+Endodontics (علاج جذور وأندو)|Flex Sani Rotary Endodontic Files Kit|195||كيت فايلات روتاري Flex sani بـ 195ج
+Endodontics (علاج جذور وأندو)|M-Pro Rotary Endodontic Files Kit|235||كيت فايلات روتاري M.pro بـ 235ج
+Endodontics (علاج جذور وأندو)|NIC Rotary Endodontic Files Kit (4 Files)|235||كيت فايلات روتاري Nic 4file بـ 235ج
+Endodontics (علاج جذور وأندو)|NIC Rotary Endodontic Files Kit (6 Files)|255||كيت فايلات روتاري Nic 6file بـ 255ج
+Endodontics (علاج جذور وأندو)|E-Flex Rotary Files Kit (Blue Heat-Treated)|265||كيت فايلات روتاري E.flex بلو 265ج
+Endodontics (علاج جذور وأندو)|E-Flex Rotary Files Kit (Gold Heat-Treated)|265||كيت فايلات روتاري E.flex جولد 265ج
+Endodontics (علاج جذور وأندو)|Fanta Blue Rotary Endodontic Files Kit|275||فايلات روتاري فانتا بلو 275ج
+Endodontics (علاج جذور وأندو)|Vedia Large Rotary Endodontic Files Kit|275||كيت فايلات روتاري ڤيديا الكبير 275ج
+Endodontics (علاج جذور وأندو)|Pepsi Gold Rotary Endodontic Files Kit|285||كيت فايلات بيبسي جولد 285ج
+Endodontics (علاج جذور وأندو)|M-Pro Gold Rotary Files Kit (Assorted)|285||كيت فايلات روتاري ام برو جولد (أسورتد) 285ج
+Endodontics (علاج جذور وأندو)|M-Pro Gold Rotary Files (Refill Pack)|305||فايلات روتاري ام برو جولد (ريفل) 305ج
+Endodontics (علاج جذور وأندو)|Rogin Rotary Endodontic Files Kit (4 Files)|335||كيت فايلات روتاري روجين 4file بـ 335ج
+Endodontics (علاج جذور وأندو)|Rogin Rotary Endodontic Files Kit (6 Files)|435||كيت فايلات روتاري روجين 6file بـ 435ج
+Glass Ionomer (جلاس وسيمانت)|Chinese Glass Ionomer Cement (Exp Year-End)|70||جلاس ايونيمر صيني (إكسباير آخر السنة) 70ج
+Glass Ionomer (جلاس وسيمانت)|English Glass Ionomer Cement (Exp Year-End Promo)|125||جلاس ايونيمر إنجليزي (عرض إكسباير آخر السنة) 125ج
+Glass Ionomer (جلاس وسيمانت)|Restore Glass Ionomer Restorative Cement|345||جلاس ايونيمر Restore Glass بـ 345ج
+Glass Ionomer (جلاس وسيمانت)|Ceram American Glass Ionomer Cement|425||جلاس ايونيمر أمريكي Ceram بـ 425ج
+Glass Ionomer (جلاس وسيمانت)|Brazil Glass Ionomer Cement|440||جلاس ايونيمر برازيلي Brazil بـ 440ج
+Glass Ionomer (جلاس وسيمانت)|Micron 1 / Micron 2 Glass Ionomer Cement|510||جلاس ايونيمر ميكرون Micron 1 / 2 بـ 510ج
+Glass Ionomer (جلاس وسيمانت)|Adhesor Carbofin Zinc Polycarboxylate Cement (Czech)|710||زينك بولي كربوكسيليت التشيكي Adhesor Carbofin بـ 710ج
+Glass Ionomer (جلاس وسيمانت)|Riva Light Cure / Self Cure Glass Ionomer Capsules|125||كبسولات ريڤا لايت / سيلف 125ج
+Glass Ionomer (جلاس وسيمانت)|GC Fuji IX GP Extra Glass Ionomer Capsules|135||كبسولات فيوجي 9 إكسترا Fuji 9 extra بـ 135ج
+Glass Ionomer (جلاس وسيمانت)|BMS Blue Glass Ionomer Cement (Large Pack Italy)|1550||جلاس ايونيمر BMS الأزرق الحجم الكبير 1550ج
+Glass Ionomer (جلاس وسيمانت)|Kromoglass Yellow Glass Ionomer (Large Pack)|1550||جلاس ايونيمر كومروجلاس الأصفر الحجم الكبير 1550ج
+Glass Ionomer (جلاس وسيمانت)|Medifil Glass Ionomer Restorative|1630||الميديفل Medifil بـ 1630ج
+Glass Ionomer (جلاس وسيمانت)|Medicem Glass Ionomer Luting Cement|1775||الميديسيم Medicem بـ 1775ج
+Glass Ionomer (جلاس وسيمانت)|CharmCore Dual-Cure Core Build-up (Korea)|715||شارم كور الكوري Charm Core بـ 715ج
+Glass Ionomer (جلاس وسيمانت)|Dolgunn Core Build-Up Composite (Turkey)|625||Dolgunn Core التركي بـ 625ج
+Glass Ionomer (جلاس وسيمانت)|Han-Core Dual-Cure Core Build-up|655||هان كور Han Core بـ 655ج
+Glass Ionomer (جلاس وسيمانت)|Any-Core Core Build-Up Material (Korea)|605||Any-Core الكوري بـ 605ج
+Glass Ionomer (جلاس وسيمانت)|NexoCore Dual-Cure Core Build-up (Meta Korea)|710||Nexocore بتاع ميتا الكوري بـ 710ج
+Glass Ionomer (جلاس وسيمانت)|Dolgunn Temporary Crown & Bridge Material|440||تيمبريري كراون Dolgunn بـ 440ج
+Glass Ionomer (جلاس وسيمانت)|Dolgunn Temporary Crown & Bridge Material (Large Cartridge)|1175||تمبري كراون دولجان كبير 1175ج
+Glass Ionomer (جلاس وسيمانت)|Cavex Non-Eugenol Temporary Cement|700||تيمبريري سيمنت كافكس Cavex بـ 700ج
+Glass Ionomer (جلاس وسيمانت)|SuperCem Dual-Cure Resin Cement|1075||ريزن سيمنت Supercem بـ 1075ج
+Glass Ionomer (جلاس وسيمانت)|Amalgam Alloy Spill 2 (Capsules)|2625||أملجم سبيل 2 بـ 2625ج
+Impression (طبعات ومقاسات)|Chinese Dental Alginate High Grade (Large Pack)|135||ألجنيت صيني أنضف نوع وأكبر حجم 135ج
+Impression (طبعات ومقاسات)|Chinese Quality Dental Alginate Pack|140||كيس ألجنيت صيني نوع كويس 140ج
+Impression (طبعات ومقاسات)|IQ Dental Alginate Powder|162||ألجنيت IQ بـ 162ج
+Impression (طبعات ومقاسات)|Hygedent Chromatic Alginate|175||ألجنيت Hygedent بـ 175ج
+Impression (طبعات ومقاسات)|BMS Italian Dental Alginate|175||ألجنيت BMS إيطالي 175ج
+Impression (طبعات ومقاسات)|Zhermack Zetalgin Alginate Powder|265||ألجنيت Zetalgin بـ 265ج
+Impression (طبعات ومقاسات)|Alginplus Extra Fast Setting Alginate|265||ألجنيت alginplus extra fast بـ 265ج
+Impression (طبعات ومقاسات)|Biokalgin Dental Alginate Powder|365||ألجنيت Biokalgin بـ 365ج
+Impression (طبعات ومقاسات)|Zhermack Tropicalgin Chromatic Alginate|425||ألجنيت تروبيكالجين Tropicalgin بـ 425ج
+Impression (طبعات ومقاسات)|Cavex CA37 Dental Alginate|445||ألجنيت Cavex بـ 445ج
+Impression (طبعات ومقاسات)|Stainless Steel Impression Trays (Standard Clean)|12||تراي إمبرشن ستانلس النضيفة ستاندرد 12ج
+Impression (طبعات ومقاسات)|Colored Plastic Impression Trays (Standard)|15||تراي بلاستيك ألوان ستاندرد 15ج
+Impression (طبعات ومقاسات)|Rubber Mixing Bowl + Alginate Spatula Set|25||الرابرباول + السباتيولا للألجنيت 25ج
+Impression (طبعات ومقاسات)|C-Silicone Ceylaxil Small Kit (Putty + Light + Catalyst)|710||كيت رابربيز سيلاكسيل صغيرة 710ج
+Impression (طبعات ومقاسات)|Zhermack ZetaPlus C-Silicone Small Kit|780||كيت رابربيز زيتابلس صغيرة 780ج
+Impression (طبعات ومقاسات)|Ceylaxil Putty Tub (890g)|890||بطي رابربيز سيلاكسيل 890ج
+Impression (طبعات ومقاسات)|ZetaPlus Putty Tub (910g)|910||بطي رابربيز زيتابلس 910ج
+Impression (طبعات ومقاسات)|ZetaPlus Indurent Gel Catalyst (Large Tube)|500||كاتاليست زيتابلس كبيرة 500ج
+Impression (طبعات ومقاسات)|ZetaPlus Oranwash Light Body (Large Tube)|550||لايت زيتابلس كبيرة 550ج
+Impression (طبعات ومقاسات)|Addition Mac A-Silicone Large Kit|1250||كيت رابربيز Addition Mac كبيرة 1250ج
+Impression (طبعات ومقاسات)|Impression Material Dispenser Gun (1:1 / 2:1)|310||مسدس رابربيز 310ج
+Impression (طبعات ومقاسات)|Ceylaxil C-Silicone Large Impression Kit|1870||كيت رابربيز سيلاكسيل كبيرة 1870ج
+Impression (طبعات ومقاسات)|ZetaPlus C-Silicone Large Impression Kit|1945||كيت رابربيز زيتابلس كبيرة 1945ج
+Impression (طبعات ومقاسات)|Red Dental Impression Compound Cakes|125||إمبرشن كومباوند 125ج
+Impression (طبعات ومقاسات)|Kerr Green Stick Impression Compound Tracing Sticks|125||جرين ستيك Green stick بـ 125ج
+Impression (طبعات ومقاسات)|Pink Baseplate Modeling Wax (Large Box)|190||علبة pink Wax كبيرة 190ج
+Impression (طبعات ومقاسات)|Dental Gas Blowtorch + Free Butane Gas Canister|135||التورش + الغاز هدية 135ج
+Rubber Dam (عزل ورابردام)|Rubber Dam Sheet (Single Sheet)|8||شيت رابردام فردي 8ج
+Rubber Dam (عزل ورابردام)|Imported Pakistani Rubber Dam Clamp|23||كلامب باكستاني مستورد 23ج
+Rubber Dam (عزل ورابردام)|Citizen Dental Cheek / Lip Retractor|25||ريتراكتور Citizen بـ 25ج
+Rubber Dam (عزل ورابردام)|Rubber Dam Paper Template|8||رابردام تمبلت ورق 8ج
+Rubber Dam (عزل ورابردام)|Rubber Dam Metal Template|48||رابردام تمبلت معدن 48ج
+Rubber Dam (عزل ورابردام)|Metal Rubber Dam Frame|48||فريم رابردام Metal بـ 48ج
+Rubber Dam (عزل ورابردام)|Plastic Radiolucent Rubber Dam Frame|85||فريم رابردام Plastic بـ 85ج
+Rubber Dam (عزل ورابردام)|Dental Floss (Waxed)|30||دنتال فلوس 30ج
+Rubber Dam (عزل ورابردام)|Gingival Retraction Cord (000/00/0/1/2)|95||ريتراكشن كورد 95ج
+Rubber Dam (عزل ورابردام)|Retraction Cord Applicator Instrument|28||كورد أبليكيتور Cord applicator بـ 28ج
+Rubber Dam (عزل ورابردام)|Liquid Dam Light-Cured Gingival Barrier Syringe|148||ليكويدام Liquid Dam بـ 148ج
+Rubber Dam (عزل ورابردام)|Rubber Dam Clamp Forceps (Holder)|270||كلامب هولدر Clamp holder بـ 270ج
+Rubber Dam (عزل ورابردام)|Ivory Rubber Dam Hole Puncher|370||رابردام بانشر Puncher بـ 370ج
+Rubber Dam (عزل ورابردام)|Puritex / Ceyflex Rubber Dam Sheets Box|290||علبة شيتات رابردام Puritex أو CEYFLEX بـ 290ج
+Rubber Dam (عزل ورابردام)|Flamingo Rubber Dam Sheets Box (36 pcs)|310||علبة شيتات رابردام Flamingo بـ 310ج
+Rubber Dam (عزل ورابردام)|Sanctuary Rubber Dam Sheets Box|335||علبة شيتات رابردام Sanctuary بـ 335ج
+Rubber Dam (عزل ورابردام)|Sanctuary Silk Blue Powder-Free Rubber Dam Sheets|460||علبة شيتات رابردام Sanctuary Silk Blue بـ 460ج
+Finishing & Matrix (تلميع وماتريكس)|High-Speed Diamond Burs (Imported Chinese 1st Grade)|5.5||بيرات هاي سبيد صيني درجة أولى 5.5ج
+Finishing & Matrix (تلميع وماتريكس)|High-Speed Carbide Burs|35||بيرات كاربيد 35ج
+Finishing & Matrix (تلميع وماتريكس)|Endo-Z Tungsten Carbide Bur|38||بيرات إندو Z بـ 38ج
+Finishing & Matrix (تلميع وماتريكس)|Surgical Carbide Burs (Heavy Duty Extra Strong)|38||بيرات سيرجيكال متينة 38ج
+Finishing & Matrix (تلميع وماتريكس)|Long Shank Surgical Burs|25||لونج شانك بير 25ج
+Finishing & Matrix (تلميع وماتريكس)|Short Shank Carbide Burs|25||شورت شانك بير 25ج
+Finishing & Matrix (تلميع وماتريكس)|White Arkansas Polishing Stones (High Speed)|18||بيرات تلميع بيضا هاي سبيد 18ج
+Finishing & Matrix (تلميع وماتريكس)|Linen Felt Polishing Wheels / Brushes|5.5||فرش تلميع كتان 5.5ج
+Finishing & Matrix (تلميع وماتريكس)|Nylon Polishing Brushes (Single)|2.5||فرش تلميع نايلون فردي 2.5ج
+Finishing & Matrix (تلميع وماتريكس)|Nylon Prophy Polishing Brushes Box (100 pcs)|165||علبة فرش تلميع نايلون 100 حبة 165ج
+Finishing & Matrix (تلميع وماتريكس)|Prophylaxis Rubber Polishing Cups|4.5||رابر كب تلميع Rubber Cup بـ 4.5ج
+Finishing & Matrix (تلميع وماتريكس)|Dental Prophylaxis Polishing Paste Tube|75||معجون تلميع أسنان 75ج
+Finishing & Matrix (تلميع وماتريكس)|Prophy Polishing Paste Single Capsule|8||كبسولة معجون تلميع أسنان 8ج
+Finishing & Matrix (تلميع وماتريكس)|Composite Polishing Paste (Aluminium Oxide)|55||معجون تلميع حشوات الكمبوزيت 55ج
+Finishing & Matrix (تلميع وماتريكس)|TOR VM Composite Finishing Strips|70||فينيشينج ستريبس Torvm بـ 70ج
+Finishing & Matrix (تلميع وماتريكس)|Flexible Finishing & Polishing Discs (Tor VM / Shofu style)|145||فينيشينج discs بـ 145ج
+Finishing & Matrix (تلميع وماتريكس)|Kenda Chinese Silicone Polishing Kit|155||كيت كيندا فينيشينج صيني 155ج
+Finishing & Matrix (تلميع وماتريكس)|Wooden Interdental Wedges Box|135||ويدجات خشب 135ج
+Finishing & Matrix (تلميع وماتريكس)|Russian Wooden Interdental Wedges Box|145||ويدجات خشب روسي 145ج
+Finishing & Matrix (تلميع وماتريكس)|Diamond Plastic Interdental Wedges Box|145||ويدجات بلاستيك دايموند 145ج
+Finishing & Matrix (تلميع وماتريكس)|Pre-Cut Tofflemire Matrix Bands Pack|6||كيسة باندات توفليمير مقطعة 6ج
+Finishing & Matrix (تلميع وماتريكس)|Tofflemire Matrix Retainer (Stainless Steel)|80||توفليمير ماتريكس 80ج
+Finishing & Matrix (تلميع وماتريكس)|Stainless Steel Matrix Band Roll (50m)|55||ماتريكس باند رول 55ج
+Finishing & Matrix (تلميع وماتريكس)|Celluloid Transparent Mylar Strips Pack|10||باندات سيليلويد celliloid strips بـ 10ج
+Finishing & Matrix (تلميع وماتريكس)|Sectional Matrix System Starter Kit|155||سيكشنال ماتريكس كيت 155ج
+Finishing & Matrix (تلميع وماتريكس)|Saddle Contoured Metal Matrix Kit|265||سادل ماتريكس كيت 265ج
+Finishing & Matrix (تلميع وماتريكس)|Chinese Resin Matrix Clamping Rings (Pair)|135||ريزن رينج Resin Rings صيني 135ج
+Finishing & Matrix (تلميع وماتريكس)|Dr. Ring Sectional Matrix Clamping Ring|375||رينج Dr Ringe بـ 375ج
+Finishing & Matrix (تلميع وماتريكس)|Spoon Matrix / Twin Matrix System Kit|185||سبون ماتريكس Spoon matrix أو Twin matrix بـ 185ج
+Finishing & Matrix (تلميع وماتريكس)|Saddle Matrix Bands Refill Pack|210||ريفيل سادل ماتريكس Saddle matrix refill بـ 210ج
+Finishing & Matrix (تلميع وماتريكس)|Large Imported Matrix Separator Ring|145||رينج مستورد حجم كبير 145ج
+Finishing & Matrix (تلميع وماتريكس)|Articulating Carbon Papers (Imported Box 12 booklets)|110||ورق عض كربون صيني Articulating papers بـ 110ج
+Instruments (أدوات وجراحة)|Plastic Composite Placement Instrument|28||أدوات كمبوزيت بلاستيك 28ج
+Instruments (أدوات وجراحة)|Dream Titanium Composite Instrument|32||أدوات كمبوزيت نوع Dream بـ 32ج
+Instruments (أدوات وجراحة)|PK Thomas Composite Sculpting Instrument Kit|185||كيت أدوات كمبوزيت PK Thomas بـ 185ج
+Instruments (أدوات وجراحة)|Dental Spoon Excavator|28||إكسكافيتور Excavator بـ 28ج
+Instruments (أدوات وجراحة)|Composite Applicator / Spatula Instrument|28||كمبوزيت أبليكيتور 28ج
+Instruments (أدوات وجراحة)|Dental Cement Spatula + Glass Slab Set|35||سيمنت سباتيولا + Glass slab بـ 35ج
+Instruments (أدوات وجراحة)|Mouth Mirror Head (Rhodium / Plane)|9||هيد ميرور 9ج
+Instruments (أدوات وجراحة)|Mouth Mirror Stainless Steel Handle|22||ميرور هاندل 22ج
+Instruments (أدوات وجراحة)|Mega Mouth Mirror Head|90||ميرور ميجا Mega بـ 90ج
+Instruments (أدوات وجراحة)|Relax Rhodium Front Surface Mirror|120||ميرور ريلاكس Relax بـ 120ج
+Instruments (أدوات وجراحة)|Autoclavable Plastic Mirror Handle|18||يد ميرور بلاستيك أوتوكلافابل 18ج
+Instruments (أدوات وجراحة)|Autoclavable Stainless Steel Mirror Handle|27||يد ميرور ميتال أوتوكلافابل 27ج
+Instruments (أدوات وجراحة)|Intraoral Photography Contrast Mirrors Set (3 pcs)|185||مجموعة مرايات تصوير حشوات وتقويم 3 قطع 185ج
+Instruments (أدوات وجراحة)|Standard Dental Diagnostic Probe|26||بروب عادي 26ج
+Instruments (أدوات وجراحة)|Endodontic Explorer Probe|30||بروب إندو 30ج
+Instruments (أدوات وجراحة)|Graduated Periodontal Probe (WHO / Williams)|35||بروب بيريو graduated بـ 35ج
+Instruments (أدوات وجراحة)|Dental Carver / Condenser / Burnisher|26||كارفر أو كوندينسر أو بيرنشر 26ج
+Instruments (أدوات وجراحة)|College Diagnostic Tweezers|42||تويزر عادي 42ج
+Instruments (أدوات وجراحة)|Locking College Tweezers|48||تويزر لوك 48ج
+Instruments (أدوات وجراحة)|Surgical Scissors (Curved / Straight)|45||مقص جراحي 45ج
+Instruments (أدوات وجراحة)|Scalpel Handle No. 3 / No. 4|28||يد مشرط 28ج
+Instruments (أدوات وجراحة)|Surgical Bone File|95||بون فايل Bone file بـ 95ج
+Instruments (أدوات وجراحة)|Surgical Bone Curette (Lucas)|95||بون كيوريت Bone Curette بـ 95ج
+Instruments (أدوات وجراحة)|Needle Holder / Mosquito Hemostatic Forceps|90||نيدلز هولدر أو موسكيتو 90ج
+Instruments (أدوات وجراحة)|Dental Root Elevator|110||إليفيتور Elevator بـ 110ج
+Instruments (أدوات وجراحة)|Dental Extraction Forceps|225||فورسيبس Forceps بـ 225ج
+Instruments (أدوات وجراحة)|Manual Periodontal Scaler / Universal Curette|28||سكيلر أو كيوريت مانيوال للبيريو 28ج
+Instruments (أدوات وجراحة)|EZ.Cure Local Periodontal Treatment Solution|135||EZ.Cure علاج لثة موضعي 135ج
+Instruments (أدوات وجراحة)|Ultrasonic Scaler Tips (Standard)|38||تيبات ألتراسونيك 38ج
+Instruments (أدوات وجراحة)|Ultrasonic Endo-Perio Tips (E22 & similar)|275||تيبات ألتراسونيك إندو بيريو E22 بـ 275ج
+Instruments (أدوات وجراحة)|Ultrasonic Scaler Tip Torque Wrench|135||مفتاح سكيلر 135ج
+Instruments (أدوات وجراحة)|Surgical Hemostatic Gelatin Sponge (Gelfoam)|110||جيل فوم Gelfoam بـ 110ج
+Instruments (أدوات وجراحة)|Large Sterile Gelfoam Sheet (Sponge)|100||جيل فوم القطعة الكبيرة 100ج
+Instruments (أدوات وجراحة)|Alveogyl Dry Socket Alveolar Dressing Paste|55||ألڤيوجل Alveogyl للـ Dry socket بـ 55ج
+Instruments (أدوات وجراحة)|Hemostop / Hemostal Topical Hemostatic Liquid|90||هيموستوب أو هيموستال 90ج
+Instruments (أدوات وجراحة)|Rotary Handpiece Silicone Protective Sleeves|135||سيليكون سليڤز روتاري 135ج
+Instruments (أدوات وجراحة)|Digital X-Ray Sensor Protective Sleeves (100 pcs)|125||سينسور سليڤز 125ج
+Instruments (أدوات وجراحة)|Intraoral Camera Protective Sleeves (100 pcs)|125||كاميرا سليڤز 125ج
+Orthodontics (تقويم أسنان)|Orthodontic Molar Bands Kit|625||كيت باندات التقويم 625ج
+Orthodontics (تقويم أسنان)|Orthodontic Cleaning Brushes|50||فرش التقويم 50ج
+Orthodontics (تقويم أسنان)|Orthodontic Band Remover Pliers|325||باند ريموفر Band remover بـ 325ج
+Orthodontics (تقويم أسنان)|Orthodontic Band Pusher Instrument|285||باند بوشر Band pusher بـ 285ج
+Orthodontics (تقويم أسنان)|Orthodontic Band Seater / Setter|265||باند سيتر Band setter بـ 265ج
+Orthodontics (تقويم أسنان)|Orthodontic Bracket Tweezers / Holder|185||براكت هولدر Bracket holder بـ 185ج
+Orthodontics (تقويم أسنان)|Orthodontic Bracket Positioner / Gauge|335||براكت بوزيشن ريموفال 335ج
+Orthodontics (تقويم أسنان)|Mathieu Needle Holder Pliers for Orthodontics|375||ماثيو تقويم Mathio بـ 375ج
+Orthodontics (تقويم أسنان)|Nickel-Titanium (NiTi) Round Archwires|32||وايرات نايطاي راوند 32ج
+Orthodontics (تقويم أسنان)|Stainless Steel Round Archwires|32||وايرات ستانلس راوند 32ج
+Orthodontics (تقويم أسنان)|Rectangular / Square Orthodontic Archwires|35||وايرات مضلعة 35ج
+Orthodontics (تقويم أسنان)|First Molar Buccal Tubes (Bondable / Weldable)|25||بكال تيوب Buccal tube 6 بـ 25ج
+Orthodontics (تقويم أسنان)|Orthodontic Relief Wax Pack|12||علبة شمع التقويم 12ج
+Orthodontics (تقويم أسنان)|Ortho Stars Elastic Ligatures Ties Sheet|55||شيت سترس Ortho stars بـ 55ج
+Orthodontics (تقويم أسنان)|Orthodontic Intermaxillary Elastics Pack|14||كيس إيلاستيك تقويم 14ج
+Orthodontics (تقويم أسنان)|Orthodontic Open Coil Spring (NiTi)|35||أوبن كويل سبرنج 35ج
+Orthodontics (تقويم أسنان)|Orthodontic Elastomeric Power Chain (Spool)|85||باور تشين تقويم Power chain بـ 85ج
+Orthodontics (تقويم أسنان)|Orthodontic Ligature O-Ties (Small Ring 40 sticks)|45||كيس أوطاي تقويم حلقة صغيرة (40 قطعة) 45ج
+Orthodontics (تقويم أسنان)|Orthodontic Ligature O-Ties (Wide Ring 40 sticks)|125||كيس أوطاي تقويم حلقة واسعة (40 قطعة) 125ج
+Orthodontics (تقويم أسنان)|Orthodontic Brackets Set on Typodont Card|75||حالة براكيت تقويم على كارت 75ج
+Orthodontics (تقويم أسنان)|OrthoClassic First-Grade Orthodontic Brackets Box|85||علبة براكيت تقويم أورثوكلاسيك 85ج
+Handpieces (كونترات وصيانة)|Future Key High-Speed Dental Handpiece|475||كونترا هاي سبيد فيوتشر Future key بـ 475ج
+Handpieces (كونترات وصيانة)|Trend High-Speed Dental Handpiece|975||كونترا هاي سبيد Trend بـ 975ج
+Handpieces (كونترات وصيانة)|Being Push Button High-Speed Handpiece|1300||كونترا هاي سبيد Being push button بـ 1300ج
+Handpieces (كونترات وصيانة)|Apple High-Speed Dental Handpiece (LED)|1550||كونترا Apple ليد بـ 1550ج
+Handpieces (كونترات وصيانة)|Coxo Pro High-Speed Dental Handpiece|2150||كونترا كوكسو Coxo pro بـ 2150ج
+Handpieces (كونترات وصيانة)|Coxo Egypt Sinai High-Speed Handpiece|2750||كونترا كوكسو مصر سينا بـ 2750ج
+Handpieces (كونترات وصيانة)|Dental Handpiece Ball Bearings|75||بلي كونترا 75ج
+Handpieces (كونترات وصيانة)|Dental Handpiece Spindle Shaft|185||عمود كونترا 185ج
+Handpieces (كونترات وصيانة)|Dental Handpiece Turbine Cartridge|240||كارتلدج كونترا 240ج
+Handpieces (كونترات وصيانة)|X-Platform Low-Speed Air Motor Handpiece|750||كونترا لوسبيد xplat form بـ 750ج
+Handpieces (كونترات وصيانة)|Being Low-Speed Contra Angle Handpiece|750||كونترا لوسبيد Being بـ 750ج
+Handpieces (كونترات وصيانة)|X-Platform Handpiece Quick Coupler Adapter|750||أدابتور x plat form بـ 750ج
+Handpieces (كونترات وصيانة)|Apple Handpiece Coupler Adapter|1285||أدابتور أبل Apple بـ 1285ج
+Handpieces (كونترات وصيانة)|Coxo Handpiece Coupler Adapter|1450||أدابتور كوكسو Coxo بـ 1450ج
+Handpieces (كونترات وصيانة)|Digital Sensor Silicone Protective Cover|135||كفر سينسور 135ج
+Handpieces (كونترات وصيانة)|Dental Handpiece Lubricant Spray Oil 410 (UK)|410||زيت كونترا إنجليزي Oil 410 بـ 410ج
+Handpieces (كونترات وصيانة)|Dental Handpiece Lubricant Spray Oil|135||زيت كونترا 135ج
+Clinic Equipment (أجهزة عيادات)|Dental Clinic Full Equipment Package (Zero)|136000||عرض تجهيز أجهزة العيادة كاملة زيرو 136000ج
+Clinic Equipment (أجهزة عيادات)|Dental Unit H5 Full Chair System|73500||يونيت H5 زيرو 73500ج
+Clinic Equipment (أجهزة عيادات)|Autoclave Famous Class B Vacuum Sterilizer|30500||أوتوكلاف Famous كلاس B بـ 30500ج
+Clinic Equipment (أجهزة عيادات)|Digital X-Ray Sensor (Xpect Vision CMOS)|30500||سينسور أشعة Xpect vision بـ 30500ج
+Clinic Equipment (أجهزة عيادات)|Portable Handheld X-Ray Unit (HyperLight G)|28000||جهاز أشعة محمول HyperLight G بـ 28000ج
+Clinic Equipment (أجهزة عيادات)|Dental Oil-Free Air Compressor 40L|7750||كمبروسر 40 لتر بدون زيت 7750ج
+Clinic Equipment (أجهزة عيادات)|Intraoral Camera System with LCD Screen & Arm|7250||كاميرا فموية بالشاشة والحامل 7250ج
+Clinic Equipment (أجهزة عيادات)|Apex Locator High Precision Root Canal Finder|7000||جهاز أبيكس لوكيتور Apex بـ 7000ج
+Clinic Equipment (أجهزة عيادات)|Eighteeth Endo Activator Ultrasonic Handpiece|5800||جهاز إندو أكتيفيتور Eighteeth بـ 5800ج
+Clinic Equipment (أجهزة عيادات)|Piezoelectric Ultrasonic Scaler Unit|5500||جهاز سكيلر بيزو Scaler piezo بـ 5500ج
+Clinic Equipment (أجهزة عيادات)|Wireless Endo Motor (Y-Smart Reciprocating)|4750||إندو موتور Y-Smart لاسلكي 4750ج
+Clinic Equipment (أجهزة عيادات)|Stainless Steel Pouch Sealing Machine|4450||ماكينة لحام ستانلس باوتشات 4450ج
+Clinic Equipment (أجهزة عيادات)|Dental Amalgamator (iMax Digital Capsule Mixer)|4100||أملجميتور i.max بـ 4100ج
+Clinic Equipment (أجهزة عيادات)|Atlas LED Dental Teeth Whitening Bleaching Unit|3350||جهاز تبييض أسنان أطلس Atlas بـ 3350ج
+Clinic Equipment (أجهزة عيادات)|LED Light Curing Unit (Cure Magic 1-Sec)|2900||جهاز لايت كيور Cure magic ثانية واحدة 2900ج
+Clinic Equipment (أجهزة عيادات)|Stainless Steel Water Distiller Machine|2650||جهاز تقطير مياه ستانلس 2650ج
+Clinic Equipment (أجهزة عيادات)|RTA High Power LED Curing Light|1950||جهاز لايت كيور RTA بـ 1950ج
+Disposables (مستهلكات وتعقيم)|Medical Latex Examination Gloves - White (Box 100 pcs)|187||جلفزات فحص لاتكس أبيض (علبة 100) 187ج
+Disposables (مستهلكات وتعقيم)|Medical Examination Gloves - Colors (Box 100 pcs)|182||جلفزات فحص ألوان نايتريل/لاتكس (علبة 100) 182ج
+Disposables (مستهلكات وتعقيم)|Malaysian First-Grade Latex Examination Gloves|157||جلفزات لاتكس ماليزي درجة أولى 157ج
+Disposables (مستهلكات وتعقيم)|Overshoes Box (Shoe Covers 100 pcs)|45||علبة أوفر جلفز (100 فردي) 45ج
+Disposables (مستهلكات وتعقيم)|Overshoes Bag - Light Weight|5.5||كيس أوفر جلفز خفيف 5.5ج
+Disposables (مستهلكات وتعقيم)|Overshoes Bag - Medium Weight|8.5||كيس أوفر جلفز وسط 8.5ج
+Disposables (مستهلكات وتعقيم)|Overshoes Bag - Heavy Duty|15.5||كيس أوفر جلفز تقيل 15.5ج
+Disposables (مستهلكات وتعقيم)|Surgical Isolation Gowns|13||جاونات عزل جراحية 13ج
+Disposables (مستهلكات وتعقيم)|Dental Plaster / Stone Bag 1kg|20||كيس 1 كيلو جبس 20ج
+Disposables (مستهلكات وتعقيم)|Ethyl Alcohol 70% (1 Liter)|45||1 لتر كحول 70% بـ 45ج
+Disposables (مستهلكات وتعقيم)|Liquid Hand Sanitizer / Disinfectant (1L)|75||معقم يد سائل 1 لتر 75ج
+Disposables (مستهلكات وتعقيم)|Surface Disinfectant Spray|80||معقم أسطح 80ج
+Disposables (مستهلكات وتعقيم)|Sidex / Lesoformin Disinfectant Sachet (Makes 5L)|18||مطهر Sidex / Lesoformin (كيس 5 لتر) 18ج
+Disposables (مستهلكات وتعقيم)|Surgical Face Masks Egyptian (Box 50 pcs)|33||ماسكات مصري علبة 33ج
+Disposables (مستهلكات وتعقيم)|Surgical Face Masks Chinese (Box 50 pcs)|45||ماسكات صيني علبة 45ج
+Disposables (مستهلكات وتعقيم)|Protective Medical Face Shield Visor|55||فيس شيلد طبي واقي 55ج
+Disposables (مستهلكات وتعقيم)|Dental Plastic Cups Column (50 pcs)|25||عمود كبايات بلاستيك 25ج
+Disposables (مستهلكات وتعقيم)|Plastic Suction Tips Egyptian (Grade 1 - 100 pcs)|78||كيسة ساكشن مصري درجة أولى 100 قطعة 78ج
+Disposables (مستهلكات وتعقيم)|Surgical Suction Tips Italian (Original 100 pcs)|125||ساكشن إيطالي أصلي 100 قطعة 125ج
+Disposables (مستهلكات وتعقيم)|Dental Plastic Bibs / Napkins|32||نابكن بلاستيك 32ج
+Disposables (مستهلكات وتعقيم)|Dental Napkins Pack (100 pcs)|68||باكيت نابكن 100 قطعة 68ج
+Disposables (مستهلكات وتعقيم)|Sterile Gauze & Cotton Large Pack|38||عبوة شاش معقم كبيرة (قطن + شاش) 38ج
+Disposables (مستهلكات وتعقيم)|Dental Napkin Holder Clip Chain|25||نابكن هولدر 25ج
+Disposables (مستهلكات وتعقيم)|Dental Cotton Rolls Pack (95 pcs)|95||باكيت قطن رول 95ج
+Disposables (مستهلكات وتعقيم)|El-Mahalla Medical Cotton Large Bag|90||كيسة قطن المحلة الكبيرة 90ج
+Disposables (مستهلكات وتعقيم)|Autoclavable Air-Water Syringe Tips (Stainless Steel)|22||تيبات مية وهوا ستانلس أوتوكلافابل 22ج
+Disposables (مستهلكات وتعقيم)|Air-Water Syringe Tips Large Pack (250 pcs)|185||كيسة تيبات مية وهوا كبيرة (250 قطعة) 185ج
+Disposables (مستهلكات وتعقيم)|Large Imported Barrier Wrap Film|155||رابنج فيلم مستورد حجم كبير 155ج
+Disposables (مستهلكات وتعقيم)|Egyptian Medical Barrier Wrap Grade 1|135||رابنج فيلم مصري درجة أولى 135ج
+Disposables (مستهلكات وتعقيم)|Sterilization Pouches 5cm Box|80||علبة باوتشات تعقيم 5 سم 80ج
+Disposables (مستهلكات وتعقيم)|Sterilization Pouches 7cm Box|125||علبة باوتشات تعقيم 7 سم 125ج
+Disposables (مستهلكات وتعقيم)|Sterilization Pouches 9cm Box|145||علبة باوتشات تعقيم 9 سم 145ج
+Disposables (مستهلكات وتعقيم)|Sterilization Pouches 13cm Box|185||علبة باوتشات تعقيم 13 سم 185ج
+Disposables (مستهلكات وتعقيم)|Sterilization Reel Roll 5cm|170||رول تعقيم 5 سم 170ج
+Disposables (مستهلكات وتعقيم)|Sterilization Reel Roll 7.5cm|248||رول تعقيم 7.5 سم 248ج
+Disposables (مستهلكات وتعقيم)|Sterilization Reel Roll 10cm|330||رول تعقيم 10 سم 330ج
+Disposables (مستهلكات وتعقيم)|Surgical Scalpel Blades Box (100 pcs)|175||علبة مشارط جراحية (100 مشرط) 175ج
+Disposables (مستهلكات وتعقيم)|Surgical Sutures Box (12 pcs)|210||علبة سوتشرز خيوط جراحية 210ج
+Disposables (مستهلكات وتعقيم)|Stainless Steel Cotton Holder Jar|375||علبة قطن ستانلس 375ج
+Disposables (مستهلكات وتعقيم)|Large Stainless Steel Instrument Sterilization Tray|375||صينية تعقيم أدوات ميتال كبيرة 375ج`;
 
 export const matItems = RAW_MATERIALS.split("\n").filter(Boolean).map((line, idx) => {
   const parts = line.split("|");
@@ -316,7 +419,8 @@ export const matItems = RAW_MATERIALS.split("\n").filter(Boolean).map((line, idx
   const n = (parts[1] || "").trim();
   const p = Number(parts[2]) || 0;
   const img = (parts[3] || "").trim();
-  return { id: idx, c, n, p, img };
+  const ar = (parts[4] || "").trim();
+  return { id: idx, c, n, p, img, ar };
 });
 
 export const matCats = ["الكل", ...new Set(matItems.map(i => i.c))];
@@ -639,6 +743,7 @@ const CLIENT_ID = 'mat_' + Math.random().toString(36).substring(2, 9) + '_' + Da
 let currentCat = "الكل";
 let cart = {};
 let customItems = {};
+let itemNotes = {};
 let lastUpdatedBy = "";
 let lastUpdatedAt = "";
 let customerDetails = {};
@@ -649,10 +754,12 @@ let _isFetching = false;
 try {
   cart = JSON.parse(localStorage.getItem("zd_mat_cart") || localStorage.getItem("cart") || "{}");
   customItems = JSON.parse(localStorage.getItem("zd_mat_custom_items") || "{}");
+  itemNotes = JSON.parse(localStorage.getItem("zd_mat_item_notes") || "{}");
   customerDetails = JSON.parse(localStorage.getItem("zd_mat_customer") || "{}");
 } catch (e) {
   cart = {};
   customItems = {};
+  itemNotes = {};
   customerDetails = {};
 }
 
@@ -660,6 +767,12 @@ function saveCartLocal() {
   try {
     localStorage.setItem("zd_mat_cart", JSON.stringify(cart));
     localStorage.setItem("cart", JSON.stringify(cart));
+  } catch (e) {}
+}
+
+function saveItemNotesLocal() {
+  try {
+    localStorage.setItem("zd_mat_item_notes", JSON.stringify(itemNotes));
   } catch (e) {}
 }
 
@@ -728,6 +841,10 @@ export async function fetchSharedCart(notifyUser = false) {
           customItems = parsed.custom_items;
           saveCustomItemsLocal();
         }
+        if (parsed.item_notes && typeof parsed.item_notes === 'object') {
+          itemNotes = parsed.item_notes;
+          saveItemNotesLocal();
+        }
         lastUpdatedBy = parsed.updated_by || "";
         lastUpdatedAt = parsed.updated_at || "";
 
@@ -739,6 +856,7 @@ export async function fetchSharedCart(notifyUser = false) {
         }
 
         saveCartLocal();
+        saveItemNotesLocal();
         matTabs();
         matRender();
         matTot();
@@ -769,6 +887,7 @@ async function initSharedRecord() {
     const payload = {
       cart: cart || {},
       custom_items: customItems || {},
+      item_notes: itemNotes || {},
       customer: customerDetails || {},
       updated_by: getCurrentUserName(),
       updated_at: new Date().toISOString()
@@ -788,6 +907,7 @@ async function initSharedRecord() {
 export function pushSharedCart(triggerBroadcast = true) {
   saveCartLocal();
   saveCustomItemsLocal();
+  saveItemNotesLocal();
   matTot();
 
   const userName = getCurrentUserName();
@@ -802,6 +922,7 @@ export function pushSharedCart(triggerBroadcast = true) {
       client_id: CLIENT_ID,
       cart,
       custom_items: customItems,
+      item_notes: itemNotes,
       customer: customerDetails,
       updated_by: userName,
       updated_at: timestamp
@@ -815,6 +936,7 @@ export function pushSharedCart(triggerBroadcast = true) {
       const payload = {
         cart,
         custom_items: customItems,
+        item_notes: itemNotes,
         customer: customerDetails,
         updated_by: userName,
         updated_at: timestamp
@@ -848,6 +970,10 @@ export function handleIncomingCartUpdate(payload) {
       customItems = payload.custom_items;
       saveCustomItemsLocal();
     }
+    if (payload.item_notes && typeof payload.item_notes === 'object') {
+      itemNotes = payload.item_notes;
+      saveItemNotesLocal();
+    }
     lastUpdatedBy = payload.updated_by || "عضو بالفريق";
     lastUpdatedAt = payload.updated_at || new Date().toISOString();
 
@@ -859,6 +985,7 @@ export function handleIncomingCartUpdate(payload) {
     }
 
     saveCartLocal();
+    saveItemNotesLocal();
     matTabs();
     matRender();
     matTot();
@@ -996,6 +1123,7 @@ export function matRender() {
     const matchCat = currentCat === "الكل" || i.c === currentCat;
     const matchSearch = !s ||
       (i.n && i.n.toLowerCase().includes(s)) ||
+      (i.ar && i.ar.toLowerCase().includes(s)) ||
       (i.c && i.c.toLowerCase().includes(s)) ||
       (i.note && i.note.toLowerCase().includes(s));
     return matchCat && matchSearch;
@@ -1033,9 +1161,10 @@ export function matRender() {
         ${renderMatThumb(i, 'md')}
         <div class="mat-n">
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-            <span>${i.n}</span>
+            <span style="font-size:14.5px;font-weight:700;line-height:1.45">${i.n}</span>
             ${isCustom ? `<span class="mat-custom-badge">⭐ طلب خاص</span>` : ""}
           </div>
+          ${i.ar ? `<div class="mat-item-ar-sub" style="font-size:12px;color:var(--mat-mut);margin-top:2px">${i.ar}</div>` : ""}
           <div class="mat-p">
             ${priceDisplay}
             <span style="font-size:12px;color:var(--mat-mut);font-weight:normal">(${i.c || "عام"})</span>
@@ -1092,8 +1221,12 @@ export function matLines() {
       item = matItems.find(i => String(i.id) === String(id)) || matItems[Number(id)];
     }
     if (!item) return null;
+    const effectiveNote = (itemNotes[id] !== undefined && itemNotes[id] !== null)
+      ? itemNotes[id]
+      : (item.note || "");
     return {
       ...item,
+      note: effectiveNote,
       q: cart[id]
     };
   }).filter(Boolean);
@@ -1145,35 +1278,144 @@ export function matRenderCart() {
   cartBody.innerHTML = lines.map(line => {
     const isCustom = !!line.is_custom;
     const hasPrice = Number(line.p) > 0;
+    const hasNote = !!line.note;
     const priceText = hasPrice
       ? `${fmt(line.p * line.q)} ج <span style="font-size:12px;color:var(--mat-mut);font-weight:normal">(${fmt(line.p)} ج × ${line.q})</span>`
       : `<span style="color:#d97706;font-size:12.5px;font-weight:700">السعر عند التوريد / حسب الفاتورة</span>`;
 
     return `
-      <div class="mat-it ${isCustom ? "mat-it-custom" : ""}">
-        ${renderMatThumb(line, 'sm')}
-        <div class="mat-n">
-          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-            <span>${line.n}</span>
-            ${isCustom ? `<span class="mat-custom-badge">⭐ طلب خاص</span>` : ""}
+      <div class="mat-it mat-cart-it ${isCustom ? "mat-it-custom" : ""}">
+        <div class="mat-it-main">
+          ${renderMatThumb(line, 'sm')}
+          <div class="mat-n">
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+              <span style="font-size:15px;font-weight:700;line-height:1.5">${line.n}</span>
+              ${isCustom ? `<span class="mat-custom-badge">⭐ طلب خاص</span>` : ""}
+            </div>
+            ${line.ar ? `<div class="mat-item-ar-sub" style="font-size:12px;color:var(--mat-mut);margin-top:2px">${line.ar}</div>` : ""}
+            <div class="mat-p">${priceText}</div>
+            ${hasNote ? `
+              <div class="mat-item-note-pill" onclick="window.openMatNoteModal('${line.id}')" title="انقر لتعديل الملاحظة">
+                <span>📝</span>
+                <span>${line.note}</span>
+                <span style="font-size:10.5px;opacity:0.75;margin-right:4px">(تعديل)</span>
+              </div>
+            ` : ""}
+            ${isCustom && line.added_by ? `<div style="font-size:11px;color:var(--mat-mut);margin-top:2px">بواسطة: ${line.added_by}</div>` : ""}
           </div>
-          <div class="mat-p">${priceText}</div>
-          ${line.note ? `<div style="font-size:12px;color:var(--mat-mut);margin-top:2px">📝 ${line.note}</div>` : ""}
-          ${isCustom && line.added_by ? `<div style="font-size:11px;color:var(--mat-mut);margin-top:1px">بواسطة: ${line.added_by}</div>` : ""}
         </div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div class="mat-q">
-            <button type="button" onclick="window.matCh('${line.id}', -1)">−</button>
-            <b>${line.q}</b>
-            <button type="button" onclick="window.matCh('${line.id}', 1)">+</button>
+        <div class="mat-it-actions">
+          <button type="button" class="mat-note-btn ${hasNote ? "has-note" : ""}" onclick="window.openMatNoteModal('${line.id}')" title="${hasNote ? 'تعديل الملاحظة' : 'إضافة ملاحظة على الصنف تظهر في الفاتورة'}">
+            <span>${hasNote ? "📝 تعديل الملاحظة" : "➕ إضافة ملاحظة"}</span>
+          </button>
+          <div class="mat-it-actions-right">
+            <div class="mat-q">
+              <button type="button" onclick="window.matCh('${line.id}', -1)">−</button>
+              <b>${line.q}</b>
+              <button type="button" onclick="window.matCh('${line.id}', 1)">+</button>
+            </div>
+            <button type="button" class="mat-del-btn" onclick="window.matRemoveItem('${line.id}')" title="حذف الصنف من السلة">🗑️</button>
           </div>
-          <button type="button" class="mat-del-btn" onclick="window.matRemoveItem('${line.id}')" title="حذف الصنف من السلة">🗑️</button>
         </div>
       </div>
     `;
   }).join("");
 
   if (ctotEl) ctotEl.textContent = fmt(matTotal());
+}
+
+// --------------------------------------------------
+// Cart Item Note Handlers
+// --------------------------------------------------
+export function openMatNoteModal(id) {
+  const modal = $("mat-note-modal");
+  if (!modal) return;
+
+  const idInput = $("mat-note-item-id");
+  const textInput = $("mat-note-text");
+  const itemNameEl = $("mat-note-modal-item-name");
+  const delBtn = $("mat-note-del-btn");
+
+  let item = customItems[id];
+  if (!item) {
+    item = matItems.find(i => String(i.id) === String(id)) || matItems[Number(id)];
+  }
+
+  const currentNote = (itemNotes[id] !== undefined && itemNotes[id] !== null)
+    ? itemNotes[id]
+    : (item?.note || "");
+
+  if (idInput) idInput.value = String(id);
+  if (textInput) textInput.value = currentNote;
+  if (itemNameEl) {
+    itemNameEl.textContent = item?.n ? `الصنف: ${item.n}` : "إضافة ملاحظة أو مواصفات خاصة للصنف في الفاتورة";
+  }
+  if (delBtn) {
+    delBtn.style.display = currentNote ? "inline-flex" : "none";
+  }
+
+  modal.style.display = "flex";
+  setTimeout(() => {
+    if (textInput) {
+      textInput.focus();
+      textInput.select();
+    }
+  }, 80);
+}
+
+export function closeMatNoteModal() {
+  const modal = $("mat-note-modal");
+  if (modal) modal.style.display = "none";
+}
+
+export function saveMatItemNote(event) {
+  if (event && event.preventDefault) event.preventDefault();
+
+  const idInput = $("mat-note-item-id");
+  const textInput = $("mat-note-text");
+  if (!idInput) return;
+
+  const id = idInput.value;
+  const note = (textInput?.value || "").trim();
+
+  if (note) {
+    itemNotes[id] = note;
+    if (customItems[id]) {
+      customItems[id].note = note;
+    }
+  } else {
+    delete itemNotes[id];
+    if (customItems[id]) {
+      customItems[id].note = "";
+    }
+  }
+
+  pushSharedCart(true);
+  matRenderCart();
+  closeMatNoteModal();
+
+  if (window.toast) {
+    window.toast(note ? "تم حفظ الملاحظة بنجاح وستظهر في الفاتورة 📝✓" : "تمت إزالة الملاحظة");
+  }
+}
+
+export function deleteMatItemNote() {
+  const idInput = $("mat-note-item-id");
+  if (!idInput) return;
+
+  const id = idInput.value;
+  delete itemNotes[id];
+  if (customItems[id]) {
+    customItems[id].note = "";
+  }
+
+  pushSharedCart(true);
+  matRenderCart();
+  closeMatNoteModal();
+
+  if (window.toast) {
+    window.toast("تمت إزالة ملاحظة الصنف");
+  }
 }
 
 // --------------------------------------------------
@@ -1419,9 +1661,9 @@ export function matMakeInv() {
               <td>
                 <b>${line.n}</b>
                 ${line.is_custom ? `<span style="display:inline-block;margin-right:6px;font-size:11px;background:#e0f2fe;color:#0369a1;padding:1px 6px;border-radius:4px;font-weight:700">طلب خاص</span>` : ""}
-                ${line.note ? `<div style="font-size:12px;color:var(--mat-mut);margin-top:2px">📝 ${line.note}</div>` : ""}
+                ${line.note ? `<div style="font-size:12.5px;color:#92400e;background:#fef3c7;border:1px solid #fde68a;border-radius:6px;padding:3px 8px;margin-top:4px;display:inline-block;font-weight:600">📝 ملاحظة: ${line.note}</div>` : ""}
               </td>
-              <td style="text-align:center">${line.q}</td>
+              <td style="text-align:center"><b>${line.q}</b></td>
               <td>${hasPrice ? `${fmt(line.p)} ج` : "حسب الفاتورة"}</td>
               <td><b>${hasPrice ? `${fmt(line.p * line.q)} ج` : "—"}</b></td>
             </tr>

@@ -79,25 +79,97 @@ try {
 }
 
 export function getCurrentUser() {
-  try {
-    const stored = localStorage.getItem("zd_user");
-    if (stored) return JSON.parse(stored);
-  } catch (e) {}
   return USER;
 }
 
 export function setCurrentUser(u) {
   USER = u;
   if (u) {
-    localStorage.setItem("zd_user", JSON.stringify(u));
+    try { localStorage.setItem("zd_user", JSON.stringify(u)); } catch (e) {}
   } else {
-    localStorage.removeItem("zd_user");
+    try { localStorage.removeItem("zd_user"); } catch (e) {}
   }
 }
 
 export function isAdmin() {
   const u = getCurrentUser();
   return u?.role === 'admin';
+}
+
+// Verify whether there is an authentic signed Supabase JWT session
+export async function verifyActiveSession() {
+  try {
+    const client = getSb();
+    if (!client?.auth) return false;
+    const { data: { session }, error } = await client.auth.getSession();
+    if (error || !session?.user) {
+      return false;
+    }
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+// Synchronize staff profile from an active Supabase Auth session
+export async function syncUserFromSession(session) {
+  if (!session?.user) {
+    setCurrentUser(null);
+    return null;
+  }
+
+  const email = session.user.email || "";
+  const username = email.includes("@") ? email.split("@")[0] : email;
+  const meta = session.user.user_metadata || {};
+
+  try {
+    // Attempt to query staff profile with the authenticated session (allowed by RLS)
+    const { data: staff, error } = await sb
+      .from("staff")
+      .select("id,username,full_name,role,phone,is_active")
+      .or(`username.eq.${username},email.eq.${email}`)
+      .eq("is_active", true)
+      .maybeSingle();
+
+    if (staff) {
+      setCurrentUser(staff);
+      return staff;
+    }
+  } catch (e) {
+    console.debug("Staff profile lookup via session:", e);
+  }
+
+  // Fallback to authenticated session metadata
+  const fallbackUser = {
+    id: session.user.id,
+    username: meta.username || username,
+    full_name: meta.full_name || (username === 'admin' ? (isAr() ? "د. عبد الله سامي زين" : "Dr. Abdullah Zain") : username),
+    role: meta.role || (username === 'admin' ? 'admin' : 'assistant'),
+    email: email,
+    is_active: true
+  };
+  setCurrentUser(fallbackUser);
+  return fallbackUser;
+}
+
+// Global Supabase Auth state listener
+if (typeof window !== 'undefined') {
+  setTimeout(() => {
+    try {
+      const client = getSb();
+      if (client?.auth?.onAuthStateChange) {
+        client.auth.onAuthStateChange(async (event, session) => {
+          if (event === 'SIGNED_OUT' || !session) {
+            setCurrentUser(null);
+          } else if (session?.user && (!USER || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+            await syncUserFromSession(session);
+          }
+        });
+      }
+    } catch (e) {
+      console.debug("Auth state change setup:", e);
+    }
+  }, 200);
 }
 
 export let _niPatId = null, _naPatId = null, _clPatId = null, _invFilter = "all";

@@ -1084,6 +1084,22 @@ export async function saveStaff() {
   else { ({ error } = await sb.from("staff").insert(updateData)); }
 
   if (!error) {
+    if (pass) {
+      try {
+        const staffEmail = `${username}@zaindental.clinic`;
+        sb.auth.signUp({
+          email: staffEmail,
+          password: pass,
+          options: {
+            data: {
+              full_name: name,
+              role: role,
+              username: username
+            }
+          }
+        }).catch(e => console.debug("Supabase auth staff signUp note:", e));
+      } catch (authErr) {}
+    }
     toast(_editStfId ? (isAr() ? "تم تحديث بيانات الموظف ✓" : "Staff member updated ✓") : (isAr() ? "تمت إضافة الموظف بنجاح ✓" : "Staff member added ✓"));
     closeSheet("staff-edit");
     loadStaffMgmt();
