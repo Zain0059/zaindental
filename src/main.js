@@ -50,12 +50,6 @@ Object.keys(allModules).forEach(key => {
   }
 });
 
-// Explicit top-level bindings to prevent any masking or scoping issues
-window.openSheet = handlers.openSheet;
-window.closeSheet = handlers.closeSheet;
-window.sw = handlers.sw;
-window.isAdmin = app.isAdmin;
-
 // Setup on DOM Ready with cryptographic session verification
 document.addEventListener("DOMContentLoaded", async () => {
   // Apply Language & Direction

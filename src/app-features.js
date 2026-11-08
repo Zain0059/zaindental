@@ -745,16 +745,13 @@ export async function submitInvoice() {
   const { data: pat } = await sb.from("patients").select("first_name,last_name").eq("id", _niPatId).single();
   const pname = pat ? `${pat.first_name} ${pat.last_name}` : "";
 
-  const dtInput = document.getElementById("ni-date");
-  const invDate = (dtInput && dtInput.value) ? dtInput.value : today();
-
   const user = getCurrentUser();
   const { data: inv, error } = await sb.from("invoices").insert({
     patient_id: _niPatId,
     patient_name: pname,
     total_amount: total,
     notes: document.getElementById("ni-notes").value,
-    issue_date: invDate,
+    issue_date: today(),
     created_by: user?.full_name || "Staff"
   }).select().single();
 
@@ -765,7 +762,7 @@ export async function submitInvoice() {
     patient_id: _niPatId,
     procedure_name: it.description,
     cost: it.total_price,
-    date_performed: invDate,
+    date_performed: today(),
     dentist_name: user?.full_name || "Dr. Abdullah Zain",
     diagnosis: "Via Invoice " + inv.invoice_number
   }));
@@ -777,7 +774,6 @@ export async function submitInvoice() {
   _niItems = [];
   document.getElementById("ni-psel").style.display = "none";
   document.getElementById("ni-notes").value = "";
-  if (dtInput) dtInput.value = today();
   document.getElementById("ni-item-rows").innerHTML = "";
   document.getElementById("ni-total").textContent = "EGP 0.00";
   loadInvoices();

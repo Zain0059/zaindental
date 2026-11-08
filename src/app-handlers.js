@@ -120,9 +120,6 @@ export async function doLogin() {
     }
 
     if (staffData) {
-      if (String(staffData.username || "").toLowerCase() === 'admin') {
-        staffData.role = 'admin';
-      }
       setCurrentUser(staffData);
     }
 
@@ -139,10 +136,7 @@ export async function doLogout() {
     await sb.auth.signOut();
   } catch (e) {}
   setCurrentUser(null);
-  try {
-    localStorage.removeItem("zd_user");
-    sessionStorage.removeItem("zd_user");
-  } catch (e) {}
+  try { localStorage.removeItem("zd_user"); } catch (e) {}
   location.reload();
 }
 
@@ -259,15 +253,6 @@ export function sw(tab) {
     const clQ = document.getElementById("cl-q");
     if (clQ) clQ.value = "";
     loadRecentClinical();
-  }
-  if (tab === "more") {
-    const isAdm = isAdmin();
-    const btnReports = document.getElementById("btn-reports");
-    const btnStaff = document.getElementById("btn-staff");
-    const btnExpenses = document.getElementById("btn-expenses");
-    if (btnReports) btnReports.style.display = isAdm ? "flex" : "none";
-    if (btnStaff) btnStaff.style.display = isAdm ? "flex" : "none";
-    if (btnExpenses) btnExpenses.style.display = isAdm ? "flex" : "none";
   }
 }
 

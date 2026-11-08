@@ -72,124 +72,28 @@ export const MONTHS_AR = ["يناير","فبراير","مارس","أبريل","�
 
 export let USER = null;
 try {
-  const stored = localStorage.getItem("zd_user") || sessionStorage.getItem("zd_user");
+  const stored = localStorage.getItem("zd_user");
   if (stored) USER = JSON.parse(stored);
 } catch (e) {
-  console.debug("Error restoring user from storage:", e);
+  localStorage.removeItem("zd_user");
 }
 
 export function getCurrentUser() {
-  if (!USER) {
-    try {
-      const stored = localStorage.getItem("zd_user") || sessionStorage.getItem("zd_user");
-      if (stored) {
-        USER = JSON.parse(stored);
-      }
-    } catch (e) {}
-  }
-
-  // Fallback if UI is open and shows Admin / Dr. Abdullah
-  if (!USER && typeof document !== 'undefined') {
-    const hdrEl = document.getElementById("hdr-user");
-    const hdrText = hdrEl?.textContent?.trim()?.toLowerCase() || "";
-    if (hdrText === 'admin' || hdrText.includes('عبد الله') || hdrText.includes('abdullah')) {
-      USER = {
-        id: 12,
-        username: 'admin',
-        full_name: 'Admin',
-        role: 'admin',
-        phone: '01093937300',
-        is_active: true
-      };
-      try {
-        localStorage.setItem("zd_user", JSON.stringify(USER));
-        sessionStorage.setItem("zd_user", JSON.stringify(USER));
-      } catch (e) {}
-    }
-  }
-
   return USER;
 }
 
 export function setCurrentUser(u) {
   USER = u;
   if (u) {
-    try {
-      localStorage.setItem("zd_user", JSON.stringify(u));
-      sessionStorage.setItem("zd_user", JSON.stringify(u));
-    } catch (e) {}
+    try { localStorage.setItem("zd_user", JSON.stringify(u)); } catch (e) {}
   } else {
-    try {
-      localStorage.removeItem("zd_user");
-      sessionStorage.removeItem("zd_user");
-    } catch (e) {}
+    try { localStorage.removeItem("zd_user"); } catch (e) {}
   }
 }
 
 export function isAdmin() {
   const u = getCurrentUser();
-  if (u) {
-    const role = String(u.role || "").toLowerCase().trim();
-    const username = String(u.username || "").toLowerCase().trim();
-    const fullName = String(u.full_name || "").toLowerCase().trim();
-    if (
-      role === 'admin' ||
-      role === 'administrator' ||
-      role === 'مدير' ||
-      role === 'مدير النظام' ||
-      username === 'admin' ||
-      fullName === 'admin'
-    ) {
-      return true;
-    }
-  }
-
-  // Direct check from storage
-  try {
-    const stored = localStorage.getItem("zd_user") || sessionStorage.getItem("zd_user");
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      const role = String(parsed?.role || "").toLowerCase().trim();
-      const username = String(parsed?.username || "").toLowerCase().trim();
-      const fullName = String(parsed?.full_name || "").toLowerCase().trim();
-      if (
-        role === 'admin' ||
-        role === 'administrator' ||
-        role === 'مدير' ||
-        role === 'مدير النظام' ||
-        username === 'admin' ||
-        fullName === 'admin'
-      ) {
-        if (!USER) USER = parsed;
-        return true;
-      }
-    }
-  } catch (e) {}
-
-  // Contextual DOM fallback if logged in as Admin
-  try {
-    const hdrEl = document.getElementById("hdr-user");
-    const hdrText = hdrEl?.textContent?.trim()?.toLowerCase() || "";
-    if (hdrText === 'admin' || hdrText.includes('عبد الله') || hdrText.includes('abdullah')) {
-      if (!USER) {
-        USER = {
-          id: 12,
-          username: 'admin',
-          full_name: 'Admin',
-          role: 'admin',
-          phone: '01093937300',
-          is_active: true
-        };
-        try {
-          localStorage.setItem("zd_user", JSON.stringify(USER));
-          sessionStorage.setItem("zd_user", JSON.stringify(USER));
-        } catch (e) {}
-      }
-      return true;
-    }
-  } catch (e) {}
-
-  return false;
+  return u?.role === 'admin';
 }
 
 // Verify whether there is an authentic signed Supabase JWT session
@@ -210,6 +114,7 @@ export async function verifyActiveSession() {
 // Synchronize staff profile from an active Supabase Auth session
 export async function syncUserFromSession(session) {
   if (!session?.user) {
+    setCurrentUser(null);
     return null;
   }
 
@@ -254,13 +159,8 @@ if (typeof window !== 'undefined') {
       const client = getSb();
       if (client?.auth?.onAuthStateChange) {
         client.auth.onAuthStateChange(async (event, session) => {
-          // CRITICAL: Never wipe staff table users when !session, because staff accounts
-          // authenticate against the staff database table without Supabase Auth session tokens.
-          if (event === 'SIGNED_OUT') {
-            // Only if signed out explicitly and there is no active staff storage
-            if (!localStorage.getItem("zd_user") && !sessionStorage.getItem("zd_user")) {
-              setCurrentUser(null);
-            }
+          if (event === 'SIGNED_OUT' || !session) {
+            setCurrentUser(null);
           } else if (session?.user && (!USER || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
             await syncUserFromSession(session);
           }
