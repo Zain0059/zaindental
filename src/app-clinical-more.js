@@ -911,95 +911,105 @@ export async function loadReports() {
   if (!el) return;
   el.innerHTML = '<div class="ldg"><div class="spin"></div></div>';
 
-  const td = today();
-  const startYear = td.slice(0, 4) + "-01-01";
-  const startMonth = td.slice(0, 7) + "-01";
+  try {
+    const td = today();
+    const startYear = td.slice(0, 4) + "-01-01";
+    const startMonth = td.slice(0, 7) + "-01";
 
-  const [{ data: invs }, { data: appts }, { data: txs }, { count: totalPats }, { data: exps }] = await Promise.all([
-    sb.from("invoices").select("total_amount,paid_amount,issue_date,status").gte("issue_date", startYear),
-    sb.from("appointments").select("status").gte("appointment_date", startYear),
-    sb.from("treatments").select("procedure_name,cost").gte("date_performed", startYear),
-    sb.from("patients").select("*", { count: "exact", head: true }),
-    sb.from("clinic_expenses").select("amount,category,expense_date").gte("expense_date", startYear)
-  ]);
+    const [{ data: invs }, { data: appts }, { data: txs }, { count: totalPats }, { data: exps }] = await Promise.all([
+      sb.from("invoices").select("total_amount,paid_amount,issue_date,status").gte("issue_date", startYear),
+      sb.from("appointments").select("status").gte("appointment_date", startYear),
+      sb.from("treatments").select("procedure_name,cost").gte("date_performed", startYear),
+      sb.from("patients").select("*", { count: "exact", head: true }),
+      sb.from("clinic_expenses").select("amount,category,expense_date").gte("expense_date", startYear)
+    ]);
 
-  const rev = new Array(12).fill(0);
-  (invs || []).forEach(i => {
-    const m = new Date(i.issue_date).getMonth();
-    if (m >= 0 && m < 12) rev[m] += (+i.total_amount || 0);
-  });
-  const maxR = Math.max(...rev, 1);
-  const revBars = rev.map((v, i) => `<div class="bar-row"><div class="bar-label">${MONTHS[i]}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v / maxR * 100)}%;background:linear-gradient(90deg, #0EA5A4, #14B8B6)">${v > 0 ? `<span class="bar-val">${fmt(v)}</span>` : ""}</div></div></div>`).join("");
+    const rev = new Array(12).fill(0);
+    (invs || []).forEach(i => {
+      const m = new Date(i.issue_date).getMonth();
+      if (m >= 0 && m < 12) rev[m] += (+i.total_amount || 0);
+    });
+    const maxR = Math.max(...rev, 1);
+    const revBars = rev.map((v, i) => `<div class="bar-row"><div class="bar-label">${MONTHS[i]}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v / maxR * 100)}%;background:linear-gradient(90deg, #0EA5A4, #14B8B6)">${v > 0 ? `<span class="bar-val">${fmt(v)}</span>` : ""}</div></div></div>`).join("");
 
-  const byStatus = {};
-  (appts || []).forEach(a => { byStatus[a.status] = (byStatus[a.status] || 0) + 1; });
-  const apptBars = Object.entries(byStatus).map(([s, c]) => `<div class="bar-row"><div class="bar-label" style="width:80px;text-align:right;font-size:10px;color:${SC[s] || "#64748B"}">${SL[s] || s}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(c / Math.max(...Object.values(byStatus), 1) * 100)}%;background:${SC[s] || "#64748B"}"><span class="bar-val">${c}</span></div></div></div>`).join("");
+    const byStatus = {};
+    (appts || []).forEach(a => { byStatus[a.status] = (byStatus[a.status] || 0) + 1; });
+    const apptBars = Object.entries(byStatus).map(([s, c]) => `<div class="bar-row"><div class="bar-label" style="width:80px;text-align:right;font-size:10px;color:${SC[s] || "#64748B"}">${SL[s] || s}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(c / Math.max(...Object.values(byStatus), 1) * 100)}%;background:${SC[s] || "#64748B"}"><span class="bar-val">${c}</span></div></div></div>`).join("");
 
-  const procMap = {};
-  (txs || []).forEach(t => {
-    if (!procMap[t.procedure_name]) procMap[t.procedure_name] = { cnt: 0, rev: 0 };
-    procMap[t.procedure_name].cnt++;
-    procMap[t.procedure_name].rev += (+t.cost || 0);
-  });
-  const topProcs = Object.entries(procMap).sort((a, b) => b[1].cnt - a[1].cnt).slice(0, 8);
-  const maxP = Math.max(...topProcs.map(([, v]) => v.cnt), 1);
-  const procBars = topProcs.map(([name, v]) => `<div class="bar-row"><div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);margin-bottom:3px"><span>${esc(name)}</span><span style="color:var(--teal);font-weight:700">${v.cnt}× · ${fmt(v.rev)}</span></div><div class="bar-track" style="height:14px"><div class="bar-fill" style="width:${Math.round(v.cnt / maxP * 100)}%;background:linear-gradient(90deg, var(--teal), var(--teal-light))"></div></div></div></div>`).join("");
+    const procMap = {};
+    (txs || []).forEach(t => {
+      if (!procMap[t.procedure_name]) procMap[t.procedure_name] = { cnt: 0, rev: 0 };
+      procMap[t.procedure_name].cnt++;
+      procMap[t.procedure_name].rev += (+t.cost || 0);
+    });
+    const topProcs = Object.entries(procMap).sort((a, b) => b[1].cnt - a[1].cnt).slice(0, 8);
+    const maxP = Math.max(...topProcs.map(([, v]) => v.cnt), 1);
+    const procBars = topProcs.map(([name, v]) => `<div class="bar-row"><div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);margin-bottom:3px"><span>${esc(name)}</span><span style="color:var(--teal);font-weight:700">${v.cnt}× · ${fmt(v.rev)}</span></div><div class="bar-track" style="height:14px"><div class="bar-fill" style="width:${Math.round(v.cnt / maxP * 100)}%;background:linear-gradient(90deg, var(--teal), var(--teal-light))"></div></div></div></div>`).join("");
 
-  const totalYear = rev.reduce((a, b) => a + b, 0);
-  const outstanding = (invs || []).filter(i => i.status !== "paid").reduce((s, i) => s + Math.max(0, (+i.total_amount || 0) - (+i.paid_amount || 0)), 0);
-  const totalExpenses = (exps || []).reduce((s, e) => s + (+e.amount || 0), 0);
-  const netProfit = totalYear - totalExpenses;
+    const totalYear = rev.reduce((a, b) => a + b, 0);
+    const outstanding = (invs || []).filter(i => i.status !== "paid").reduce((s, i) => s + Math.max(0, (+i.total_amount || 0) - (+i.paid_amount || 0)), 0);
+    const totalExpenses = (exps || []).reduce((s, e) => s + (+e.amount || 0), 0);
+    const netProfit = totalYear - totalExpenses;
 
-  const expRev = new Array(12).fill(0);
-  (exps || []).forEach(e => {
-    const m = new Date(e.expense_date).getMonth();
-    if (m >= 0 && m < 12) expRev[m] += (+e.amount || 0);
-  });
-  const maxE = Math.max(...expRev, 1);
-  const expBars = expRev.map((v, i) => `<div class="bar-row"><div class="bar-label">${MONTHS[i]}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v / maxE * 100)}%;background:linear-gradient(90deg, #EF4444, #F87171)">${v > 0 ? `<span class="bar-val">${fmt(v)}</span>` : ""}</div></div></div>`).join("");
+    const expRev = new Array(12).fill(0);
+    (exps || []).forEach(e => {
+      const m = new Date(e.expense_date).getMonth();
+      if (m >= 0 && m < 12) expRev[m] += (+e.amount || 0);
+    });
+    const maxE = Math.max(...expRev, 1);
+    const expBars = expRev.map((v, i) => `<div class="bar-row"><div class="bar-label">${MONTHS[i]}</div><div class="bar-track"><div class="bar-fill" style="width:${Math.round(v / maxE * 100)}%;background:linear-gradient(90deg, #EF4444, #F87171)">${v > 0 ? `<span class="bar-val">${fmt(v)}</span>` : ""}</div></div></div>`).join("");
 
-  const expCats = {};
-  (exps || []).forEach(e => { expCats[e.category] = (expCats[e.category] || 0) + (+e.amount || 0); });
-  const expCatHtml = Object.entries(expCats).sort((a, b) => b[1] - a[1]).map(([c, a]) => `<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><span style="font-size:13px;color:var(--text)">${esc(c)}</span><span style="font-size:13px;font-weight:700;color:var(--error);font-family:var(--font-mono)">${fmt(a)}</span></div>`).join("");
+    const expCats = {};
+    (exps || []).forEach(e => { expCats[e.category] = (expCats[e.category] || 0) + (+e.amount || 0); });
+    const expCatHtml = Object.entries(expCats).sort((a, b) => b[1] - a[1]).map(([c, a]) => `<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)"><span style="font-size:13px;color:var(--text)">${esc(c)}</span><span style="font-size:13px;font-weight:700;color:var(--error);font-family:var(--font-mono)">${fmt(a)}</span></div>`).join("");
 
-  el.innerHTML = `
-    <div class="sg">
-      <div class="sc sc-featured" style="--ac:var(--teal)">
-        <div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-        <div class="sc-val">${fmt(totalYear || 0)}</div>
-        <div class="sc-lbl">${td.slice(0, 4)} ${isAr() ? "إجمالي الإيرادات" : "Gross Revenue"}</div>
+    el.innerHTML = `
+      <div class="sg">
+        <div class="sc sc-featured" style="--ac:var(--teal)">
+          <div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          <div class="sc-val">${fmt(totalYear || 0)}</div>
+          <div class="sc-lbl">${td.slice(0, 4)} ${isAr() ? "إجمالي الإيرادات" : "Gross Revenue"}</div>
+        </div>
+        <div class="sc" style="--ac:var(--error)">
+          <div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          <div class="sc-val">${fmt(totalExpenses || 0)}</div>
+          <div class="sc-lbl">${td.slice(0, 4)} ${isAr() ? "إجمالي المصروفات" : "Clinic Expenses"}</div>
+        </div>
+        <div class="sc" style="--ac:${netProfit >= 0 ? "var(--success)" : "var(--error)"}">
+          <div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg></div>
+          <div class="sc-val">${fmt(Math.abs(netProfit || 0))}</div>
+          <div class="sc-lbl">${isAr() ? (netProfit >= 0 ? "صافي الأرباح التشغيلية" : "صافي الخسائر") : ("Net " + (netProfit >= 0 ? "Operating Profit" : "Loss"))}</div>
+        </div>
+        <div class="sc" style="--ac:var(--warning)">
+          <div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div>
+          <div class="sc-val">${fmt(outstanding || 0)}</div>
+          <div class="sc-lbl">${isAr() ? "المستحقات غير المحصلة" : "Outstanding Balance"}</div>
+        </div>
       </div>
-      <div class="sc" style="--ac:var(--error)">
-        <div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-        <div class="sc-val">${fmt(totalExpenses || 0)}</div>
-        <div class="sc-lbl">${td.slice(0, 4)} ${isAr() ? "إجمالي المصروفات" : "Clinic Expenses"}</div>
-      </div>
-      <div class="sc" style="--ac:${netProfit >= 0 ? "var(--success)" : "var(--error)"}">
-        <div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg></div>
-        <div class="sc-val">${fmt(Math.abs(netProfit || 0))}</div>
-        <div class="sc-lbl">${isAr() ? (netProfit >= 0 ? "صافي الأرباح التشغيلية" : "صافي الخسائر") : ("Net " + (netProfit >= 0 ? "Operating Profit" : "Loss"))}</div>
-      </div>
-      <div class="sc" style="--ac:var(--warning)">
-        <div class="sc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg></div>
-        <div class="sc-val">${fmt(outstanding || 0)}</div>
-        <div class="sc-lbl">${isAr() ? "المستحقات غير المحصلة" : "Outstanding Balance"}</div>
-      </div>
-    </div>
 
-    <div class="slbl">${isAr() ? "حركة الإيرادات السنوية" : "Annual Revenue Trajectory"} (${td.slice(0, 4)})</div>
-    <div class="card" style="padding:16px"><div class="bar-wrap">${revBars}</div></div>
+      <div class="slbl">${isAr() ? "حركة الإيرادات السنوية" : "Annual Revenue Trajectory"} (${td.slice(0, 4)})</div>
+      <div class="card" style="padding:16px"><div class="bar-wrap">${revBars}</div></div>
 
-    <div class="slbl">${isAr() ? "المصروفات الشهرية للعيادة" : "Monthly Clinic Expenses"} (${td.slice(0, 4)})</div>
-    <div class="card" style="padding:16px"><div class="bar-wrap">${expBars}</div></div>
+      <div class="slbl">${isAr() ? "المصروفات الشهرية للعيادة" : "Monthly Clinic Expenses"} (${td.slice(0, 4)})</div>
+      <div class="card" style="padding:16px"><div class="bar-wrap">${expBars}</div></div>
 
-    <div class="slbl">${isAr() ? "المصروفات حسب البند / التصنيف" : "Expenses by Category"}</div>
-    <div class="card" style="padding:16px">${expCatHtml || `<div class="empty">${isAr() ? "لا توجد مصروفات مسجلة" : "No expenses recorded"}</div>`}</div>
+      <div class="slbl">${isAr() ? "المصروفات حسب البند / التصنيف" : "Expenses by Category"}</div>
+      <div class="card" style="padding:16px">${expCatHtml || `<div class="empty">${isAr() ? "لا توجد مصروفات مسجلة" : "No expenses recorded"}</div>`}</div>
 
-    <div class="slbl">${isAr() ? "توزيع حالات المواعيد" : "Appointments Breakdown"}</div>
-    <div class="card" style="padding:16px"><div class="bar-wrap">${apptBars || `<div class="empty">${isAr() ? "لا توجد بيانات" : "No data"}</div>`}</div></div>
+      <div class="slbl">${isAr() ? "توزيع حالات المواعيد" : "Appointments Breakdown"}</div>
+      <div class="card" style="padding:16px"><div class="bar-wrap">${apptBars || `<div class="empty">${isAr() ? "لا توجد بيانات" : "No data"}</div>`}</div></div>
 
-    <div class="slbl">${isAr() ? "أكثر الإجراءات الطبية طلباً" : "Top Performed Procedures"}</div>
-    <div class="card" style="padding:16px"><div class="bar-wrap">${procBars || `<div class="empty">${isAr() ? "لا توجد بيانات" : "No data"}</div>`}</div></div>`;
+      <div class="slbl">${isAr() ? "أكثر الإجراءات الطبية طلباً" : "Top Performed Procedures"}</div>
+      <div class="card" style="padding:16px"><div class="bar-wrap">${procBars || `<div class="empty">${isAr() ? "لا توجد بيانات" : "No data"}</div>`}</div></div>`;
+  } catch (err) {
+    console.error("Error loading reports:", err);
+    el.innerHTML = `<div class="empty" style="padding:40px 20px;text-align:center">
+      <div style="font-size:32px;margin-bottom:12px">📊</div>
+      <div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:8px">${isAr() ? "تعذر تحميل التحليلات والتقارير" : "Unable to load analytics"}</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px">${isAr() ? "يرجى التحقق من الاتصال بالإنترنت والمحاولة مجدداً" : "Please check your network and try again"}</div>
+      <button class="btn-primary" style="display:inline-flex;padding:10px 20px;border-radius:var(--r-md)" onclick="window.loadReports()">${isAr() ? "إعادة المحاولة 🔄" : "Retry"}</button>
+    </div>`;
+  }
 }
 
 // Staff Management
@@ -1007,30 +1017,45 @@ export async function loadStaffMgmt() {
   const el = document.getElementById("sh-staff-mgmt-body");
   if (!el) return;
   el.innerHTML = '<div class="ldg"><div class="spin"></div></div>';
-  const { data } = await sb.from("staff").select("id,username,full_name,role,phone,is_active").order("full_name");
-  if (!data) { el.innerHTML = `<div class="empty">${isAr() ? "فشل تحميل قائمة الكادر الطبي" : "Failed to load staff"}</div>`; return; }
 
-  el.innerHTML = `<div class="card">
-    ${data.map(s => {
-      const roleName = s.role === 'admin' ? (isAr() ? 'مدير النظام' : 'ADMIN') : s.role === 'dentist' ? (isAr() ? 'طبيب أسنان' : 'DENTIST') : (isAr() ? 'مساعد / تمريض' : 'ASSISTANT');
-      const activeText = s.is_active ? (isAr() ? '● نشط' : '● Active') : (isAr() ? '○ غير نشط' : '○ Inactive');
-      return `
-    <div class="row-sep" style="display:flex;align-items:center;padding:14px 18px;gap:14px;cursor:pointer" onclick="window.editStaff(${s.id},'${esc(s.full_name)}','${esc(s.username)}','${s.role}','${esc(s.phone || '')}',${s.is_active})">
-      <div class="av">
-        ${(s.full_name || "?")[0].toUpperCase()}
-      </div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:14px;font-weight:700;color:var(--navy)">${esc(s.full_name)}</div>
-        <div style="font-size:12px;color:var(--text-muted);margin-top:2px">${isAr() ? "الدور:" : "Role:"} ${roleName} · @${esc(s.username)}</div>
-        ${s.phone ? `<div style="font-size:11px;color:var(--text-light)" dir="ltr">📞 ${esc(s.phone)}</div>` : ""}
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-        <span class="role-badge ${s.role === 'admin' ? 'r-admin' : s.role === 'dentist' ? 'r-dentist' : 'r-assistant'}">${roleName}</span>
-        <span style="font-size:11px;font-weight:700;color:${s.is_active ? "var(--success)" : "var(--error)"}">${activeText}</span>
-      </div>
+  try {
+    const { data, error } = await sb.from("staff").select("id,username,full_name,role,phone,is_active").order("full_name");
+    if (error || !data) {
+      el.innerHTML = `<div class="empty" style="padding:40px 20px;text-align:center">
+        <p style="margin-bottom:12px;color:var(--text-muted)">${isAr() ? "فشل تحميل قائمة الكادر الطبي" : "Failed to load staff"}</p>
+        <button class="btn-primary" style="display:inline-flex;padding:8px 18px;border-radius:var(--r-md)" onclick="window.loadStaffMgmt()">${isAr() ? "إعادة المحاولة 🔄" : "Retry"}</button>
+      </div>`;
+      return;
+    }
+
+    el.innerHTML = `<div class="card">
+      ${data.map(s => {
+        const roleName = s.role === 'admin' ? (isAr() ? 'مدير النظام' : 'ADMIN') : s.role === 'dentist' ? (isAr() ? 'طبيب أسنان' : 'DENTIST') : (isAr() ? 'مساعد / تمريض' : 'ASSISTANT');
+        const activeText = s.is_active ? (isAr() ? '● نشط' : '● Active') : (isAr() ? '○ غير نشط' : '○ Inactive');
+        return `
+      <div class="row-sep" style="display:flex;align-items:center;padding:14px 18px;gap:14px;cursor:pointer" onclick="window.editStaff(${s.id},'${esc(s.full_name)}','${esc(s.username)}','${s.role}','${esc(s.phone || '')}',${s.is_active})">
+        <div class="av">
+          ${(s.full_name || "?")[0].toUpperCase()}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:700;color:var(--navy)">${esc(s.full_name)}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:2px">${isAr() ? "الدور:" : "Role:"} ${roleName} · @${esc(s.username)}</div>
+          ${s.phone ? `<div style="font-size:11px;color:var(--text-light)" dir="ltr">📞 ${esc(s.phone)}</div>` : ""}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+          <span class="role-badge ${s.role === 'admin' ? 'r-admin' : s.role === 'dentist' ? 'r-dentist' : 'r-assistant'}">${roleName}</span>
+          <span style="font-size:11px;font-weight:700;color:${s.is_active ? "var(--success)" : "var(--error)"}">${activeText}</span>
+        </div>
+      </div>`;
+      }).join("")}
     </div>`;
-    }).join("")}
-  </div>`;
+  } catch (err) {
+    console.error("Error loading staff:", err);
+    el.innerHTML = `<div class="empty" style="padding:40px 20px;text-align:center">
+      <p style="margin-bottom:12px;color:var(--text-muted)">${isAr() ? "تعذر تحميل الطاقم الطبي" : "Unable to load staff"}</p>
+      <button class="btn-primary" style="display:inline-flex;padding:8px 18px;border-radius:var(--r-md)" onclick="window.loadStaffMgmt()">${isAr() ? "إعادة المحاولة 🔄" : "Retry"}</button>
+    </div>`;
+  }
 }
 
 export function openAddStaff() {
@@ -1142,24 +1167,43 @@ export async function loadServices() {
   const el = document.getElementById("sh-services-body");
   if (!el) return;
   el.innerHTML = '<div class="ldg"><div class="spin"></div></div>';
-  const { data } = await sb.from("procedures_catalog").select("*").order("category,name");
-  if (!data) { el.innerHTML = `<div class="empty">${isAr() ? "فشل تحميل لائحة الخدمات" : "Failed to load services"}</div>`; return; }
 
-  const cats = {};
-  data.filter(s => !s.category || !s.category.startsWith("__")).forEach(s => { const c = s.category || (isAr() ? "أخرى" : "Other"); if (!cats[c]) cats[c] = []; cats[c].push(s); });
+  try {
+    const { data, error } = await sb.from("procedures_catalog").select("*").order("category,name");
+    if (error || !data) {
+      el.innerHTML = `<div class="empty" style="padding:40px 20px;text-align:center">
+        <p style="margin-bottom:12px;color:var(--text-muted)">${isAr() ? "فشل تحميل لائحة الخدمات" : "Failed to load services"}</p>
+        <button class="btn-primary" style="display:inline-flex;padding:8px 18px;border-radius:var(--r-md)" onclick="window.loadServices()">${isAr() ? "إعادة المحاولة 🔄" : "Retry"}</button>
+      </div>`;
+      return;
+    }
 
-  let html = "";
-  for (const [cat, svcs] of Object.entries(cats)) {
-    html += `<div class="slbl" style="margin-top:14px">${esc(cat)}</div><div class="card">`;
-    html += svcs.map(s => `
-      <div class="row-sep" style="display:flex;align-items:center;padding:14px 18px;gap:12px;cursor:pointer" onclick="window.editService(${s.id},'${esc(s.name)}',${s.default_cost},'${esc(s.category || (isAr() ? 'عام' : 'Other'))}')">
-        <div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--navy)">${esc(s.name)}</div></div>
-        <div style="font-size:15px;font-weight:800;color:var(--teal);font-family:var(--font-mono)">${fmt(+s.default_cost || 0)}</div>
-        <div style="color:var(--text-light);font-size:16px">›</div>
-      </div>`).join("");
-    html += "</div>";
+    const cats = {};
+    data.filter(s => !s.category || !s.category.startsWith("__")).forEach(s => {
+      const c = s.category || (isAr() ? "أخرى" : "Other");
+      if (!cats[c]) cats[c] = [];
+      cats[c].push(s);
+    });
+
+    let html = "";
+    for (const [cat, svcs] of Object.entries(cats)) {
+      html += `<div class="slbl" style="margin-top:14px">${esc(cat)}</div><div class="card">`;
+      html += svcs.map(s => `
+        <div class="row-sep" style="display:flex;align-items:center;padding:14px 18px;gap:12px;cursor:pointer" onclick="window.editService(${s.id},'${esc(s.name)}',${s.default_cost},'${esc(s.category || (isAr() ? 'عام' : 'Other'))}')">
+          <div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--navy)">${esc(s.name)}</div></div>
+          <div style="font-size:15px;font-weight:800;color:var(--teal);font-family:var(--font-mono)">${fmt(+s.default_cost || 0)}</div>
+          <div style="color:var(--text-light);font-size:16px">›</div>
+        </div>`).join("");
+      html += "</div>";
+    }
+    el.innerHTML = html || `<div class="empty">${isAr() ? "لا توجد خدمات في لائحة الأسعار" : "No services in price list"}</div>`;
+  } catch (err) {
+    console.error("Error loading services:", err);
+    el.innerHTML = `<div class="empty" style="padding:40px 20px;text-align:center">
+      <p style="margin-bottom:12px;color:var(--text-muted)">${isAr() ? "تعذر تحميل لائحة الخدمات" : "Unable to load services"}</p>
+      <button class="btn-primary" style="display:inline-flex;padding:8px 18px;border-radius:var(--r-md)" onclick="window.loadServices()">${isAr() ? "إعادة المحاولة 🔄" : "Retry"}</button>
+    </div>`;
   }
-  el.innerHTML = html || `<div class="empty">${isAr() ? "لا توجد خدمات في لائحة الأسعار" : "No services in price list"}</div>`;
 }
 
 export function openAddService() {
@@ -1300,6 +1344,8 @@ export async function openEditInv(optId) {
   _editInvOrigItems = items ? [...items] : [];
   document.getElementById("einv-notes").value = inv?.notes || "";
   document.getElementById("einv-status").value = inv?.status || "unpaid";
+  const einvDate = document.getElementById("einv-date");
+  if (einvDate) einvDate.value = inv?.issue_date ? String(inv.issue_date).slice(0, 10) : today();
   const rows = document.getElementById("einv-item-rows");
   rows.innerHTML = "";
   _editInvItems.forEach((it, i) => renderEditInvItem(it, i));
@@ -1377,6 +1423,8 @@ export async function saveEditInv() {
   }
 
   const invUpdate = { total_amount: total, status: newStatus, notes };
+  const einvDate = document.getElementById("einv-date")?.value;
+  if (einvDate) invUpdate.issue_date = einvDate;
   if (newStatus === "unpaid") invUpdate.paid_amount = 0;
 
   const { error } = await sb.from("invoices").update(invUpdate).eq("id", invId);
@@ -1456,41 +1504,60 @@ export async function deleteInv() {
 
 // Expenses
 export async function loadExpenses() {
-  const month = document.getElementById("exp-month").value;
-  document.getElementById("exp-month-sub").textContent = month || "";
+  const expMonthEl = document.getElementById("exp-month");
+  const month = expMonthEl?.value || today().slice(0, 7);
+  if (expMonthEl && !expMonthEl.value) expMonthEl.value = month;
+
+  const subEl = document.getElementById("exp-month-sub");
+  if (subEl) subEl.textContent = month || "";
+
   const el = document.getElementById("exp-list");
   const sumEl = document.getElementById("exp-summary");
   if (!el || !sumEl) return;
   el.innerHTML = '<div class="ldg"><div class="spin"></div></div>';
 
-  const startDate = month + "-01";
-  const [y, m] = month.split("-").map(Number);
-  const lastDay = new Date(y, m, 0).getDate();
-  const endDate = month + "-" + String(lastDay).padStart(2, "0");
+  try {
+    const startDate = month + "-01";
+    const [y, m] = month.split("-").map(Number);
+    const lastDay = new Date(y, m, 0).getDate();
+    const endDate = month + "-" + String(lastDay).padStart(2, "0");
 
-  const { data } = await sb.from("clinic_expenses").select("*").gte("expense_date", startDate).lte("expense_date", endDate).order("expense_date", { ascending: false });
-  if (!data) { el.innerHTML = `<div class="empty">${isAr() ? "فشل تحميل المصروفات" : "Failed to load expenses"}</div>`; return; }
+    const { data, error } = await sb.from("clinic_expenses").select("*").gte("expense_date", startDate).lte("expense_date", endDate).order("expense_date", { ascending: false });
+    if (error || !data) {
+      el.innerHTML = `<div class="empty" style="padding:40px 20px;text-align:center">
+        <p style="margin-bottom:12px;color:var(--text-muted)">${isAr() ? "فشل تحميل المصروفات" : "Failed to load expenses"}</p>
+        <button class="btn-primary" style="display:inline-flex;padding:8px 18px;border-radius:var(--r-md)" onclick="window.loadExpenses()">${isAr() ? "إعادة المحاولة 🔄" : "Retry"}</button>
+      </div>`;
+      return;
+    }
 
-  const total = data.reduce((s, e) => s + (+e.amount || 0), 0);
-  const cats = {};
-  data.forEach(e => { cats[e.category] = (cats[e.category] || 0) + (+e.amount || 0); });
+    const total = data.reduce((s, e) => s + (+e.amount || 0), 0);
+    const cats = {};
+    data.forEach(e => { cats[e.category] = (cats[e.category] || 0) + (+e.amount || 0); });
 
-  const catBars = Object.entries(cats).sort((a, b) => b[1] - a[1]).map(([cat, amt]) => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)"><div style="font-size:13px;color:var(--text)">${esc(cat)}</div><div style="font-size:13px;font-weight:700;color:var(--error);font-family:var(--font-mono)">${fmt(+amt)}</div></div>`).join("");
+    const catBars = Object.entries(cats).sort((a, b) => b[1] - a[1]).map(([cat, amt]) => `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)"><div style="font-size:13px;color:var(--text)">${esc(cat)}</div><div style="font-size:13px;font-weight:700;color:var(--error);font-family:var(--font-mono)">${fmt(+amt)}</div></div>`).join("");
 
-  sumEl.innerHTML = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px;margin-bottom:16px;box-shadow:var(--shadow-sm)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:${Object.keys(cats).length ? "12px" : "0"}"><div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px">${isAr() ? "إجمالي مصروفات الشهر" : "Monthly Total Expenses"}</div><div style="font-size:22px;font-weight:800;color:var(--error);font-family:var(--font-mono)">${fmt(total)}</div></div>${catBars}</div>`;
+    sumEl.innerHTML = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px;margin-bottom:16px;box-shadow:var(--shadow-sm)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:${Object.keys(cats).length ? "12px" : "0"}"><div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px">${isAr() ? "إجمالي مصروفات الشهر" : "Monthly Total Expenses"}</div><div style="font-size:22px;font-weight:800;color:var(--error);font-family:var(--font-mono)">${fmt(total)}</div></div>${catBars}</div>`;
 
-  if (!data.length) { el.innerHTML = `<div class="empty">${isAr() ? "لا توجد مصروفات مسجلة لهذا الشهر" : "No expenses recorded for this month"}</div>`; return; }
+    if (!data.length) { el.innerHTML = `<div class="empty">${isAr() ? "لا توجد مصروفات مسجلة لهذا الشهر" : "No expenses recorded for this month"}</div>`; return; }
 
-  const byDate = {};
-  data.forEach(e => { const d = e.expense_date || ""; if (!byDate[d]) byDate[d] = []; byDate[d].push(e); });
+    const byDate = {};
+    data.forEach(e => { const d = e.expense_date || ""; if (!byDate[d]) byDate[d] = []; byDate[d].push(e); });
 
-  let html = "";
-  for (const [date, items] of Object.entries(byDate)) {
-    html += `<div class="slbl" style="margin-top:14px;font-family:var(--font-mono)">📅 ${date}</div><div class="card">`;
-    html += items.map(e => `<div class="row-sep" style="display:flex;align-items:center;padding:14px 18px;gap:12px;cursor:pointer" onclick="window.openEditExpense(${e.id},'${esc(e.title)}',${e.amount},'${esc(e.category)}','${e.expense_date}','${esc(e.notes || '')}')"><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:var(--navy)">${esc(e.title)}</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px">${esc(e.category)}${e.notes ? " · " + esc(e.notes) : ""}</div></div><div style="font-size:14px;font-weight:800;color:var(--error);flex-shrink:0;font-family:var(--font-mono)">${fmt(+e.amount)}</div><div style="color:var(--text-light);font-size:16px">›</div></div>`).join("");
-    html += "</div>";
+    let html = "";
+    for (const [date, items] of Object.entries(byDate)) {
+      html += `<div class="slbl" style="margin-top:14px;font-family:var(--font-mono)">📅 ${date}</div><div class="card">`;
+      html += items.map(e => `<div class="row-sep" style="display:flex;align-items:center;padding:14px 18px;gap:12px;cursor:pointer" onclick="window.openEditExpense(${e.id},'${esc(e.title)}',${e.amount},'${esc(e.category)}','${e.expense_date}','${esc(e.notes || '')}')"><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:var(--navy)">${esc(e.title)}</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px">${esc(e.category)}${e.notes ? " · " + esc(e.notes) : ""}</div></div><div style="font-size:14px;font-weight:800;color:var(--error);flex-shrink:0;font-family:var(--font-mono)">${fmt(+e.amount)}</div><div style="color:var(--text-light);font-size:16px">›</div></div>`).join("");
+      html += "</div>";
+    }
+    el.innerHTML = html;
+  } catch (err) {
+    console.error("Error loading expenses:", err);
+    el.innerHTML = `<div class="empty" style="padding:40px 20px;text-align:center">
+      <p style="margin-bottom:12px;color:var(--text-muted)">${isAr() ? "تعذر تحميل المصروفات" : "Unable to load expenses"}</p>
+      <button class="btn-primary" style="display:inline-flex;padding:8px 18px;border-radius:var(--r-md)" onclick="window.loadExpenses()">${isAr() ? "إعادة المحاولة 🔄" : "Retry"}</button>
+    </div>`;
   }
-  el.innerHTML = html;
 }
 
 export function openAddExpense() {

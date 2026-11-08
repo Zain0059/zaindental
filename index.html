@@ -113,6 +113,12 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
           <span data-i18n="nav_billing">الفواتير والحسابات</span>
         </button>
+        <button class="sidebar-item sidebar-item-special" data-t="materials" id="sb-item-materials" onclick="window.openSheet('materials')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          <span data-i18n="nav_materials" style="flex:1">بورصة الماتريال</span>
+          <span class="sb-mat-pill">عروض ⚡</span>
+          <span class="sb-mat-cart" id="sb-hdr-mat-badge" style="display:none">0</span>
+        </button>
         <button class="sidebar-item" data-t="clinical" onclick="window.sw('clinical')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3C9.8 3 8 4.3 7.5 6C6.7 5.5 5.5 5.6 4.8 6.5C4 7.5 4.5 9 5.3 9.8C5.6 10.1 5.7 10.5 5.7 11C5.7 14 7.5 17 9.2 18.8L9.7 20.5C9.9 21.4 10.6 22 11.5 22H12.5C13.4 22 14.1 21.4 14.3 20.5L14.8 18.8C16.5 17 18.3 14 18.3 11C18.3 10.5 18.4 10.1 18.7 9.8C19.5 9 20 7.5 19.2 6.5C18.5 5.6 17.3 5.5 16.5 6C16 4.3 14.2 3 12 3Z"/><path d="M10 10.5L11.5 12L15 8.5"/></svg>
           <span data-i18n="nav_clinical">مخطط الأسنان</span>
@@ -125,19 +131,13 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           <span data-i18n="nav_staff">إدارة الطاقم</span>
         </button>
-        <button class="sidebar-item" onclick="window.openSheet('services')">
+        <button class="sidebar-item" id="sb-item-services" onclick="window.openSheet('services')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           <span data-i18n="nav_services">قائمة الأسعار</span>
         </button>
         <button class="sidebar-item" id="sb-item-expenses" onclick="window.openSheet('expenses')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M6 12h12"/></svg>
           <span data-i18n="nav_expenses">المصروفات والعهد</span>
-        </button>
-        <button class="sidebar-item sidebar-item-special" id="sb-item-materials" onclick="window.openSheet('materials')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-          <span data-i18n="nav_materials" style="flex:1">بورصة الماتريال</span>
-          <span class="sb-mat-pill">عروض ⚡</span>
-          <span class="sb-mat-cart" id="sb-hdr-mat-badge" style="display:none">0</span>
         </button>
       </nav>
     </div>
@@ -446,6 +446,10 @@
         <div style="font-size:10px;color:var(--teal-dark);text-transform:uppercase;letter-spacing:0.6px;font-weight:700;margin-bottom:2px" data-i18n="selected_patient">المريض المحدد</div>
         <div id="ni-pname" style="font-weight:700;font-size:14px;color:var(--navy)"></div>
       </div>
+    <div class="ff">
+      <label data-i18n="invoice_date">تاريخ الفاتورة</label>
+      <input id="ni-date" type="date" class="dt-sel" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-md);font-size:14px;background:var(--surface);color:var(--text);font-family:var(--font-mono)">
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px" data-i18n="invoice_date_hint">افتراضياً تاريخ اليوم — يمكنك تغييره لتسجيل فواتير قديمة أو سابقة</div>
     </div>
     <div class="ff"><label data-i18n="invoice_notes">ملاحظات الفاتورة</label><textarea id="ni-notes" placeholder="ملاحظات اختيارية على الفاتورة..."></textarea></div>
     <div id="ni-items" style="margin-bottom:16px">
@@ -743,6 +747,7 @@
     <button class="sh-danger-btn" onclick="window.deleteInv()" data-i18n="delete">حذف</button>
   </div>
   <div class="pg" style="padding:20px 20px 40px">
+    <div class="ff"><label data-i18n="invoice_date">تاريخ الفاتورة</label><input id="einv-date" type="date" class="dt-sel" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-md);font-size:14px;background:var(--surface);color:var(--text);font-family:var(--font-mono)"></div>
     <div class="ff"><label data-i18n="invoice_notes">ملاحظات الفاتورة</label><textarea id="einv-notes"></textarea></div>
     <div class="ff"><label data-i18n="payment_status">حالة السداد</label><select id="einv-status"><option value="unpaid">غير مدفوع (Unpaid)</option><option value="partial">مدفوع جزئياً (Partial)</option><option value="paid">مدفوع بالكامل (Paid)</option></select></div>
     <div id="einv-items-section" style="margin-bottom:16px">

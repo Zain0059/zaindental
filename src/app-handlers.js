@@ -120,6 +120,9 @@ export async function doLogin() {
     }
 
     if (staffData) {
+      if (String(staffData.username || "").toLowerCase() === 'admin') {
+        staffData.role = 'admin';
+      }
       setCurrentUser(staffData);
     }
 
@@ -136,7 +139,10 @@ export async function doLogout() {
     await sb.auth.signOut();
   } catch (e) {}
   setCurrentUser(null);
-  try { localStorage.removeItem("zd_user"); } catch (e) {}
+  try {
+    localStorage.removeItem("zd_user");
+    sessionStorage.removeItem("zd_user");
+  } catch (e) {}
   location.reload();
 }
 
@@ -212,10 +218,6 @@ export async function showApp() {
 
 // Navigation
 export function sw(tab) {
-  if (tab === "materials") {
-    openSheet("materials");
-    return;
-  }
   _activeTab = tab;
   ["sched", "queue", "patients", "billing", "clinical", "more"].forEach(t => {
     const el = document.getElementById("t-" + t);
@@ -257,6 +259,15 @@ export function sw(tab) {
     const clQ = document.getElementById("cl-q");
     if (clQ) clQ.value = "";
     loadRecentClinical();
+  }
+  if (tab === "more") {
+    const isAdm = isAdmin();
+    const btnReports = document.getElementById("btn-reports");
+    const btnStaff = document.getElementById("btn-staff");
+    const btnExpenses = document.getElementById("btn-expenses");
+    if (btnReports) btnReports.style.display = isAdm ? "flex" : "none";
+    if (btnStaff) btnStaff.style.display = isAdm ? "flex" : "none";
+    if (btnExpenses) btnExpenses.style.display = isAdm ? "flex" : "none";
   }
 }
 
@@ -424,11 +435,6 @@ export async function loadSched() {
           <div class="sc-ico" style="--ac:var(--info)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
           <div class="sc-val">${totalAppts}</div>
           <div class="sc-lbl">${isAr() ? "زيارات هذا اليوم" : "Visits on This Date"}</div>
-        </div>
-        <div class="sc sc-mat-quick" onclick="window.openSheet('materials')" style="cursor:pointer" title="${isAr() ? 'فتح بورصة الماتريال وتوريدات الأسنان' : 'Open Materials Market'}">
-          <div class="sc-ico" style="--ac:#0D9488"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg></div>
-          <div class="sc-val" style="font-size:16px;color:#0D9488;font-weight:700">${isAr() ? "طلب وتوريد مستلزمات" : "Dental Supplies"}</div>
-          <div class="sc-lbl" style="color:var(--text)">${isAr() ? "🛒 بورصة الماتريال وعروض الأسعار" : "Materials Market & Pricing"}</div>
         </div>
       </div>
     `;
