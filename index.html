@@ -82,7 +82,7 @@
   
   <!-- DESKTOP SIDEBAR -->
   <aside id="desktop-sidebar">
-    <div>
+    <div class="sidebar-top-wrap">
       <div class="sidebar-brand">
         <div class="sidebar-logo-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
@@ -133,9 +133,11 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M6 12h12"/></svg>
           <span data-i18n="nav_expenses">المصروفات والعهد</span>
         </button>
-        <button class="sidebar-item" id="sb-item-materials" onclick="window.openSheet('materials')">
+        <button class="sidebar-item sidebar-item-special" id="sb-item-materials" onclick="window.openSheet('materials')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-          <span data-i18n="nav_materials">بورصة الماتريال</span>
+          <span data-i18n="nav_materials" style="flex:1">بورصة الماتريال</span>
+          <span class="sb-mat-pill">عروض ⚡</span>
+          <span class="sb-mat-cart" id="sb-hdr-mat-badge" style="display:none">0</span>
         </button>
       </nav>
     </div>
@@ -171,6 +173,19 @@
         </svg>
         <span id="hdr-title-text" data-i18n="nav_sched">الجدول والمواعيد</span>
       </div>
+
+      <!-- DESKTOP TOP HEADER TABS & QUICK SHORTCUTS -->
+      <div id="hdr-center-tabs">
+        <button class="hdr-mat-tab-btn" id="hdr-btn-materials" onclick="window.openSheet('materials')" title="فتح بورصة الماتريال وتوريدات الأسنان">
+          <span class="hdr-mat-tab-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" stroke-width="2.2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          </span>
+          <span class="hdr-mat-tab-text" data-i18n="nav_materials">بورصة الماتريال</span>
+          <span class="hdr-mat-badge-chip">عروض وطلبيات 🛒</span>
+          <span class="hdr-mat-counter" id="top-hdr-mat-badge" style="display:none">0</span>
+        </button>
+      </div>
+
       <div id="hdr-right">
         <button class="lang-toggle-btn" onclick="window.toggleLanguage()" title="Switch Language / تغيير اللغة">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
