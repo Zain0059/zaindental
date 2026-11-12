@@ -611,6 +611,12 @@ export async function openInv(id) {
       <div class="ii"><div class="ii-lbl">${isAr() ? "المتبقي المستحق" : "Outstanding Balance"}</div><div class="ii-val" style="color:${remaining > 0 ? "var(--error)" : "var(--success)"};font-family:var(--font-mono)">${fmt(remaining)}</div></div>
       ${inv.notes ? `<div class="ii full"><div class="ii-lbl">${isAr() ? "ملاحظات الفاتورة" : "Invoice Notes"}</div><div class="ii-val" style="font-size:13px;font-weight:400">${esc(inv.notes)}</div></div>` : ""}
     </div>
+    <div style="padding:0 16px 14px;display:flex;gap:8px">
+      <button type="button" class="small-btn primary" onclick="window.printInvoiceFromSettings(${id})" style="flex:1;justify-content:center;padding:10px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="15" height="15" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        <span>${isAr() ? "🖨️ طباعة الفاتورة والإيصال" : "Print Invoice"}</span>
+      </button>
+    </div>
     <div style="padding:0 16px 8px"><div class="slbl">${isAr() ? "بنود الخدمات والإجراءات" : "Line Items Breakdown"}</div></div>
     <div class="card" style="margin:0 16px 16px">${itemsHtml}</div>
     <div style="padding:0 16px 8px"><div class="slbl">${isAr() ? "سجل إيصالات السداد" : "Payment Receipts"}</div></div>

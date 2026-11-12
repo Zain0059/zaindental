@@ -117,6 +117,11 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3C9.8 3 8 4.3 7.5 6C6.7 5.5 5.5 5.6 4.8 6.5C4 7.5 4.5 9 5.3 9.8C5.6 10.1 5.7 10.5 5.7 11C5.7 14 7.5 17 9.2 18.8L9.7 20.5C9.9 21.4 10.6 22 11.5 22H12.5C13.4 22 14.1 21.4 14.3 20.5L14.8 18.8C16.5 17 18.3 14 18.3 11C18.3 10.5 18.4 10.1 18.7 9.8C19.5 9 20 7.5 19.2 6.5C18.5 5.6 17.3 5.5 16.5 6C16 4.3 14.2 3 12 3Z"/><path d="M10 10.5L11.5 12L15 8.5"/></svg>
           <span data-i18n="nav_clinical">مخطط الأسنان</span>
         </button>
+        <button class="sidebar-item" data-t="materials" id="sb-item-materials" onclick="window.sw('materials')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          <span data-i18n="nav_materials">بورصة الماتريال</span>
+        </button>
+        <div style="height:1px;background:rgba(255,255,255,0.08);margin:6px 8px"></div>
         <button class="sidebar-item" id="sb-item-reports" onclick="window.openSheet('reports')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
           <span data-i18n="nav_reports">التحليلات والتقارير</span>
@@ -133,9 +138,9 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M6 12h12"/></svg>
           <span data-i18n="nav_expenses">المصروفات والعهد</span>
         </button>
-        <button class="sidebar-item" id="sb-item-materials" onclick="window.openSheet('materials')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-          <span data-i18n="nav_materials">بورصة الماتريال</span>
+        <button class="sidebar-item" id="sb-item-settings" onclick="window.openSheet('settings')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="18" height="18" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span data-i18n="nav_settings">الإعدادات</span>
         </button>
       </nav>
     </div>
@@ -291,6 +296,119 @@
           <div id="cl-body"><div class="empty" data-i18n="search_clinical_hint">ابحث عن مريض في الأعلى لعرض مخطط الأسنان الكامل وسجل العلاجات</div></div>
         </section>
 
+        <!-- MATERIALS MARKET TAB (تبويب بورصة الماتريال) -->
+        <section id="t-materials" class="pg" style="display:none">
+          <div class="mat-tab-topbar">
+            <div>
+              <div class="pg-title" style="margin:0" data-i18n="materials_title">🦷 أوردر وبورصة الماتريال</div>
+              <p style="font-size:12.5px;color:var(--text-muted);margin:4px 0 0" data-i18n="materials_sub">طلب وتوريد مستلزمات وخامات طب الأسنان وحساب الفاتورة المشتركة للعيادة</p>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <button class="mat-hdr-cart-btn" onclick="window.matShow('cart')" title="عرض السلة">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" stroke-width="2.2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                <span>السلة</span>
+                <span class="mat-cart-badge" id="mat-hdr-badge" style="display:none">0</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="sh-materials-body">
+            <!-- View 1: Shop / Materials Catalog -->
+            <div id="mat-shop">
+              <div class="mat-sync-bar" id="mat-sync-bar">
+                <div class="mat-sync-status">
+                  <span class="mat-sync-dot"></span>
+                  <span id="mat-sync-text">سلة موحدة ومشتركة للعيادة 🤝 (الكل يراها ويعدلها)</span>
+                </div>
+                <div class="mat-sync-actions">
+                  <button type="button" class="mat-sync-btn" onclick="window.fetchSharedCart(true)" title="تحديث يدوي للسلة">🔄 تحديث</button>
+                  <button type="button" class="mat-sync-btn danger" onclick="window.matClearCart()" title="إفراغ السلة">🗑️ تفريغ</button>
+                </div>
+              </div>
+              <div class="mat-search-wrap">
+                <div class="mat-search-row">
+                  <input id="mat-q" class="mat-search-input" placeholder="🔍 ابحث عن صنف أو خامة (كمبوزيت، بنج، روتاري، جلفز...)" oninput="window.matRender()">
+                  <button type="button" class="mat-btn-add-custom-icon" onclick="window.openAddCustomMatModal()" title="إضافة صنف غير موجود في القائمة للسلة">
+                    <span>➕</span>
+                    <span class="btn-text">صنف غير موجود</span>
+                  </button>
+                </div>
+              </div>
+              <div class="mat-tabs" id="mat-tabs"></div>
+              <div id="mat-list" class="mat-list"></div>
+            </div>
+
+            <!-- View 2: Cart -->
+            <div id="mat-cart" class="mat-pg">
+              <div class="mat-cart-hdr-row">
+                <div>
+                  <h2 style="font-size:18px;margin:0 0 4px">🛒 سلة المشتريات والمستلزمات</h2>
+                  <div id="mat-cart-last-mod" class="mat-cart-sub-shared">سلة موحدة مشتركة بين جميع أطباء وموظفي العيادة</div>
+                </div>
+                <div style="display:flex;gap:6px">
+                  <button type="button" class="mat-sync-btn" onclick="window.fetchSharedCart(true)" title="تحديث السلة">🔄 تحديث</button>
+                  <button type="button" class="mat-sync-btn danger" onclick="window.matClearCart()" title="إفراغ السلة بالكامل">🗑️ إفراغ السلة</button>
+                </div>
+              </div>
+
+              <div class="mat-cart-add-custom-banner">
+                <div class="mat-cac-info">
+                  <b>➕ إضافة صنف أو مستلزم غير مدرج</b>
+                  <span>أضف أي خامة خاصة مباشرة للسلة المشتركة بالعدد والمواصفات</span>
+                </div>
+                <button type="button" class="mat-btn-custom-add" onclick="window.openAddCustomMatModal()">
+                  + إضافة صنف للسلة
+                </button>
+              </div>
+
+              <div id="mat-cartbody"></div>
+              <div class="mat-tot">الإجمالي: <span id="mat-ctot">0</span> ج</div>
+              <div class="mat-row">
+                <button type="button" class="mat-btn g" onclick="window.matShow('shop')">→ رجوع للأصناف</button>
+                <button type="button" class="mat-btn" onclick="window.matShow('co')">إتمام الطلب ←</button>
+              </div>
+            </div>
+
+            <!-- View 3: Checkout Delivery Info -->
+            <div id="mat-co" class="mat-pg">
+              <h2 style="font-size:18px;margin:0 0 14px">📍 بيانات التوصيل والاستلام</h2>
+              <label class="mat-label">اسم الطبيب / العيادة *</label>
+              <input id="mat-nm" class="mat-input" placeholder="د. عبدالله سامي / عيادة زين لطب الأسنان">
+              <label class="mat-label">رقم الموبايل 1 *</label>
+              <input id="mat-p1" class="mat-input" type="tel" inputmode="tel" placeholder="010xxxxxxxx" dir="ltr">
+              <label class="mat-label">رقم الموبايل 2 (إضافي)</label>
+              <input id="mat-p2" class="mat-input" type="tel" inputmode="tel" placeholder="015xxxxxxxx" dir="ltr">
+              <label class="mat-label">العنوان بالتفصيل *</label>
+              <textarea id="mat-ad" class="mat-textarea" rows="3" placeholder="المحافظة، المدينة، اسم الشارع، تفاصيل مقر العيادة..."></textarea>
+              <div class="mat-row">
+                <button type="button" class="mat-btn g" onclick="window.matShow('cart')">→ رجوع للسلة</button>
+                <button type="button" class="mat-btn" onclick="window.matMakeInv()">إنشاء الفاتورة ←</button>
+              </div>
+            </div>
+
+            <!-- View 4: Order Invoice -->
+            <div id="mat-inv" class="mat-pg">
+              <h2 style="font-size:18px;margin:0 0 14px">📄 فاتورة أوردر مستلزمات العيادة</h2>
+              <div id="mat-invinfo"></div>
+              <table id="mat-invt" class="mat-table"></table>
+              <div class="mat-tot" id="mat-invtot"></div>
+              <div class="mat-row mat-noprint">
+                <button type="button" class="mat-btn" onclick="window.matPrint()">📄 تحميل PDF / طباعة</button>
+                <button type="button" class="mat-btn" style="background:#25D366" onclick="window.matWa()">💬 إرسال واتساب</button>
+                <button type="button" class="mat-btn g" onclick="window.matClearAfterOrder()">أوردر جديد (إفراغ السلة)</button>
+              </div>
+              <p class="mat-noprint" style="color:var(--mat-mut);font-size:13px;margin-top:12px">
+                * من نافذة الطباعة اختر "حفظ كـ PDF" (Save as PDF). الأسعار الموضحة لا تشمل مصاريف الشحن.
+              </p>
+            </div>
+          </div>
+
+          <div class="mat-bar" id="mat-bar">
+            <div class="mat-bar-info"><b id="mat-cnt">0</b> صنف — <b id="mat-sum">0</b> ج</div>
+            <button type="button" class="mat-btn" onclick="window.matShow('cart')">السلة ←</button>
+          </div>
+        </section>
+
         <!-- MORE MODULES TAB -->
         <section id="t-more" class="pg" style="display:none">
           <div class="pg-title" data-i18n="nav_more">أدوات إدارة العيادة</div>
@@ -311,9 +429,13 @@
               <div class="more-ico" style="background:var(--warning-bg);color:var(--warning)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M6 12h12"/></svg></div>
               <div><div class="more-lbl" data-i18n="expenses_title">المصروفات والعهد التشغيلية</div><div class="more-sub">متابعة إيجار العيادة، المستهلكات، المعامل والمصروفات</div></div>
             </button>
-            <button id="btn-materials" class="more-btn" onclick="window.openSheet('materials')">
+            <button id="btn-materials" class="more-btn" onclick="window.sw('materials')">
               <div class="more-ico" style="background:rgba(15,138,126,0.12);color:#0f8a7e"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg></div>
               <div><div class="more-lbl" data-i18n="materials_title">بورصة الماتريال</div><div class="more-sub" data-i18n="materials_sub">طلب وتوريد مستلزمات وخامات طب الأسنان وحساب الفاتورة</div></div>
+            </button>
+            <button id="btn-settings" class="more-btn" onclick="window.openSheet('settings')">
+              <div class="more-ico" style="background:rgba(11,37,69,0.1);color:var(--navy)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+              <div><div class="more-lbl" data-i18n="settings_title">إعدادات العيادة والنظام</div><div class="more-sub" data-i18n="settings_sub">تفاصيل الشركة، إعدادات الطباعة، والتخصيص العام</div></div>
             </button>
           </div>
         </section>
@@ -342,6 +464,10 @@
       <button class="nb" data-t="clinical" onclick="window.sw('clinical')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3C9.8 3 8 4.3 7.5 6C6.7 5.5 5.6 5.6 4.8 6.5C4 7.5 4.5 9 5.3 9.8C5.6 10.1 5.7 10.5 5.7 11C5.7 14 7.5 17 9.2 18.8L9.7 20.5C9.9 21.4 10.6 22 11.5 22H12.5C13.4 22 14.1 21.4 14.3 20.5L14.8 18.8C16.5 17 18.3 14 18.3 11C18.3 10.5 18.4 10.1 18.7 9.8C19.5 9 20 7.5 19.2 6.5C18.5 5.6 17.3 5.5 16.5 6C16 4.3 14.2 3 12 3Z"/><path d="M10 10.5L11.5 12L15 8.5"/></svg>
         <span data-i18n="nav_clinical_short">المخطط</span>
+      </button>
+      <button class="nb" data-t="materials" onclick="window.sw('materials')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        <span data-i18n="nav_materials_short">الماتريال</span>
       </button>
       <button class="nb" data-t="more" onclick="window.sw('more')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg>
@@ -782,118 +908,25 @@
   </div>
 </div>
 
-<!-- Dental Materials Market Sheet (بورصة الماتريال) -->
-<div class="sheet" id="sh-materials">
+<!-- Clinic & System Settings Sheet (ورقة إعدادات العيادة والنظام المنزلقة) -->
+<div class="sheet" id="sh-settings">
   <div class="sh-hdr">
-    <button class="back" onclick="window.closeSheet('materials')" title="رجوع">
+    <button class="back" onclick="window.closeSheet('settings')" title="رجوع">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="22" height="22" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
-    <div class="sh-hdr-title-wrap">
-      <div class="sh-title" data-i18n="materials_title">🦷 أوردر وبورصة الماتريال</div>
-      <div class="sh-sub" data-i18n="materials_sub">توريد مستلزمات وخامات الأسنان</div>
+    <div style="flex:1">
+      <div class="sh-title" data-i18n="settings_title">⚙️ إعدادات العيادة والنظام</div>
+      <div class="sh-sub" data-i18n="settings_sub">تفاصيل الشركة، إعدادات الطباعة، والتخصيص العام</div>
     </div>
-    <button class="mat-hdr-cart-btn" onclick="window.matShow('cart')" title="عرض السلة">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16" stroke-width="2.2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-      <span>السلة</span>
-      <span class="mat-cart-badge" id="mat-hdr-badge" style="display:none">0</span>
+    <button class="small-btn primary" onclick="window.saveClinicSettingsFromUI()" style="flex-shrink:0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      <span>حفظ</span>
     </button>
   </div>
-
-  <div id="sh-materials-body">
-    <!-- View 1: Shop / Materials Catalog -->
-    <div id="mat-shop">
-      <div class="mat-sync-bar" id="mat-sync-bar">
-        <div class="mat-sync-status">
-          <span class="mat-sync-dot"></span>
-          <span id="mat-sync-text">سلة موحدة ومشتركة للعيادة 🤝 (الكل يراها ويعدلها)</span>
-        </div>
-        <div class="mat-sync-actions">
-          <button type="button" class="mat-sync-btn" onclick="window.fetchSharedCart(true)" title="تحديث يدوي للسلة">🔄 تحديث</button>
-          <button type="button" class="mat-sync-btn danger" onclick="window.matClearCart()" title="إفراغ السلة">🗑️ تفريغ</button>
-        </div>
-      </div>
-      <div class="mat-search-wrap">
-        <div class="mat-search-row">
-          <input id="mat-q" class="mat-search-input" placeholder="🔍 ابحث عن صنف أو خامة (كمبوزيت، بنج، روتاري، جلفز...)" oninput="window.matRender()">
-          <button type="button" class="mat-btn-add-custom-icon" onclick="window.openAddCustomMatModal()" title="إضافة صنف غير موجود في القائمة للسلة">
-            <span>➕</span>
-            <span class="btn-text">صنف غير موجود</span>
-          </button>
-        </div>
-      </div>
-      <div class="mat-tabs" id="mat-tabs"></div>
-      <div id="mat-list" class="mat-list"></div>
-    </div>
-
-    <!-- View 2: Cart -->
-    <div id="mat-cart" class="mat-pg">
-      <div class="mat-cart-hdr-row">
-        <div>
-          <h2 style="font-size:18px;margin:0 0 4px">🛒 سلة المشتريات والمستلزمات</h2>
-          <div id="mat-cart-last-mod" class="mat-cart-sub-shared">سلة موحدة مشتركة بين جميع أطباء وموظفي العيادة</div>
-        </div>
-        <div style="display:flex;gap:6px">
-          <button type="button" class="mat-sync-btn" onclick="window.fetchSharedCart(true)" title="تحديث السلة">🔄 تحديث</button>
-          <button type="button" class="mat-sync-btn danger" onclick="window.matClearCart()" title="إفراغ السلة بالكامل">🗑️ إفراغ السلة</button>
-        </div>
-      </div>
-
-      <div class="mat-cart-add-custom-banner">
-        <div class="mat-cac-info">
-          <b>➕ إضافة صنف أو مستلزم غير مدرج</b>
-          <span>أضف أي خامة خاصة مباشرة للسلة المشتركة بالعدد والمواصفات</span>
-        </div>
-        <button type="button" class="mat-btn-custom-add" onclick="window.openAddCustomMatModal()">
-          + إضافة صنف للسلة
-        </button>
-      </div>
-
-      <div id="mat-cartbody"></div>
-      <div class="mat-tot">الإجمالي: <span id="mat-ctot">0</span> ج</div>
-      <div class="mat-row">
-        <button type="button" class="mat-btn g" onclick="window.matShow('shop')">→ رجوع للأصناف</button>
-        <button type="button" class="mat-btn" onclick="window.matShow('co')">إتمام الطلب ←</button>
-      </div>
-    </div>
-
-    <!-- View 3: Checkout Delivery Info -->
-    <div id="mat-co" class="mat-pg">
-      <h2 style="font-size:18px;margin:0 0 14px">📍 بيانات التوصيل والاستلام</h2>
-      <label class="mat-label">اسم الطبيب / العيادة *</label>
-      <input id="mat-nm" class="mat-input" placeholder="د. عبدالله سامي / عيادة زين لطب الأسنان">
-      <label class="mat-label">رقم الموبايل 1 *</label>
-      <input id="mat-p1" class="mat-input" type="tel" inputmode="tel" placeholder="010xxxxxxxx" dir="ltr">
-      <label class="mat-label">رقم الموبايل 2 (إضافي)</label>
-      <input id="mat-p2" class="mat-input" type="tel" inputmode="tel" placeholder="015xxxxxxxx" dir="ltr">
-      <label class="mat-label">العنوان بالتفصيل *</label>
-      <textarea id="mat-ad" class="mat-textarea" rows="3" placeholder="المحافظة، المدينة، اسم الشارع، تفاصيل مقر العيادة..."></textarea>
-      <div class="mat-row">
-        <button type="button" class="mat-btn g" onclick="window.matShow('cart')">→ رجوع للسلة</button>
-        <button type="button" class="mat-btn" onclick="window.matMakeInv()">إنشاء الفاتورة ←</button>
-      </div>
-    </div>
-
-    <!-- View 4: Order Invoice -->
-    <div id="mat-inv" class="mat-pg">
-      <h2 style="font-size:18px;margin:0 0 14px">📄 فاتورة أوردر مستلزمات العيادة</h2>
-      <div id="mat-invinfo"></div>
-      <table id="mat-invt" class="mat-table"></table>
-      <div class="mat-tot" id="mat-invtot"></div>
-      <div class="mat-row mat-noprint">
-        <button type="button" class="mat-btn" onclick="window.matPrint()">📄 تحميل PDF / طباعة</button>
-        <button type="button" class="mat-btn" style="background:#25D366" onclick="window.matWa()">💬 إرسال واتساب</button>
-        <button type="button" class="mat-btn g" onclick="window.matClearAfterOrder()">أوردر جديد (إفراغ السلة)</button>
-      </div>
-      <p class="mat-noprint" style="color:var(--mat-mut);font-size:13px;margin-top:12px">
-        * من نافذة الطباعة اختر "حفظ كـ PDF" (Save as PDF). الأسعار الموضحة لا تشمل مصاريف الشحن.
-      </p>
-    </div>
+  <div id="sh-settings-body" style="padding:16px 20px 40px">
+    <!-- Rendered dynamically by app-settings.js -->
   </div>
-
-  <div class="mat-bar" id="mat-bar">
-    <div class="mat-bar-info"><b id="mat-cnt">0</b> صنف — <b id="mat-sum">0</b> ج</div>
-    <button type="button" class="mat-btn" onclick="window.matShow('cart')">السلة ←</button>
-  </div>
+</div>
 
   <!-- Modal: Add Custom / Unlisted Material -->
   <div id="mat-custom-modal" class="mat-modal-overlay" style="display:none" onclick="if(event.target===this)window.closeAddCustomMatModal()">

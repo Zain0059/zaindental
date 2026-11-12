@@ -213,7 +213,7 @@ export async function showApp() {
 // Navigation
 export function sw(tab) {
   _activeTab = tab;
-  ["sched", "queue", "patients", "billing", "clinical", "more"].forEach(t => {
+  ["sched", "queue", "patients", "billing", "clinical", "materials", "more"].forEach(t => {
     const el = document.getElementById("t-" + t);
     if (el) el.style.display = t === tab ? "block" : "none";
     const nb = document.querySelector(`.nb[data-t="${t}"]`);
@@ -228,6 +228,7 @@ export function sw(tab) {
     patients: "دليل وسجلات المرضى",
     billing: "الفواتير والحسابات المالية",
     clinical: "مخطط الأسنان والسجل الطبي",
+    materials: "بورصة الماتريال وتوريد المستلزمات",
     more: "إدارة العيادة والمزيد"
   } : {
     sched: "Schedule & Appointments",
@@ -235,6 +236,7 @@ export function sw(tab) {
     patients: "Patient Directory",
     billing: "Billing & Invoices",
     clinical: "Dental Chart & Clinical",
+    materials: "Dental Materials Market",
     more: "Practice Management"
   };
 
@@ -254,12 +256,21 @@ export function sw(tab) {
     if (clQ) clQ.value = "";
     loadRecentClinical();
   }
+  if (tab === "materials") {
+    if (typeof window.initMaterialsMarket === 'function') {
+      window.initMaterialsMarket();
+    }
+  }
 }
 
 export function openSheet(name) {
   const adminOnlySheets = ['reports', 'staff-mgmt', 'expenses'];
   if (adminOnlySheets.includes(name) && !isAdmin()) {
     toast(isAr() ? "هذا القسم مخصص للمدير فقط 🔒" : "Access restricted — Admin only 🔒");
+    return;
+  }
+  if (name === "materials") {
+    sw("materials");
     return;
   }
   const sh = document.getElementById("sh-" + name);
@@ -272,9 +283,9 @@ export function openSheet(name) {
     if (expM && !expM.value) expM.value = today().slice(0, 7);
     loadExpenses();
   }
-  if (name === "materials") {
-    if (typeof window.initMaterialsMarket === 'function') {
-      window.initMaterialsMarket();
+  if (name === "settings") {
+    if (typeof window.initSettingsSheet === 'function') {
+      window.initSettingsSheet();
     }
   }
 }

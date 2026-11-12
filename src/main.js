@@ -3,6 +3,7 @@ import * as handlers from './app-handlers.js';
 import * as features from './app-features.js';
 import * as clinicalMore from './app-clinical-more.js';
 import * as materials from './app-materials.js';
+import * as settings from './app-settings.js';
 import * as i18n from './i18n.js';
 
 // Clean up legacy notification storage keys
@@ -43,7 +44,7 @@ const SENSITIVE_EXCLUSIONS = new Set([
 ]);
 
 // Bind only safe UI action handlers to window for inline HTML template compatibility
-const allModules = { ...app, ...handlers, ...features, ...clinicalMore, ...materials, ...i18n };
+const allModules = { ...app, ...handlers, ...features, ...clinicalMore, ...materials, ...settings, ...i18n };
 Object.keys(allModules).forEach(key => {
   if (!SENSITIVE_EXCLUSIONS.has(key)) {
     window[key] = allModules[key];
@@ -54,6 +55,9 @@ Object.keys(allModules).forEach(key => {
 document.addEventListener("DOMContentLoaded", async () => {
   // Apply Language & Direction
   i18n.applyLangToDOM();
+
+  // Apply Clinic Settings & Branding
+  settings.applyClinicSettings();
 
   const lp = document.getElementById("lp");
   if (lp) {

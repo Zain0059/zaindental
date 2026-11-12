@@ -1240,20 +1240,27 @@ export function matTot() {
   const cntEl = $("mat-cnt");
   const sumEl = $("mat-sum");
   const badgeEl = $("mat-hdr-badge");
+  const topHdrBadge = $("top-hdr-mat-badge");
+  const sbBadge = $("sb-hdr-mat-badge");
   const totalCount = Object.keys(cart).length;
   const totalPrice = matTotal();
 
   if (cntEl) cntEl.textContent = fmt(totalCount);
   if (sumEl) sumEl.textContent = fmt(totalPrice);
 
-  if (badgeEl) {
+  const displayBadge = (el) => {
+    if (!el) return;
     if (totalCount > 0) {
-      badgeEl.textContent = fmt(totalCount);
-      badgeEl.style.display = "inline-flex";
+      el.textContent = fmt(totalCount);
+      el.style.display = "inline-flex";
     } else {
-      badgeEl.style.display = "none";
+      el.style.display = "none";
     }
-  }
+  };
+
+  displayBadge(badgeEl);
+  displayBadge(topHdrBadge);
+  displayBadge(sbBadge);
 }
 
 export function matRenderCart() {
