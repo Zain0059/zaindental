@@ -1083,23 +1083,107 @@ export function matShow(viewId) {
   if (sheet) sheet.scrollTop = 0;
 }
 
-export function getMatCategories() {
-  const cats = new Set(matItems.map(i => i.c));
-  Object.values(customItems || {}).forEach(ci => {
-    if (ci.c) cats.add(ci.c);
+export function getMatCategoriesWithCounts() {
+  const customs = Object.values(customItems || {});
+  const allItems = [...matItems, ...customs];
+
+  const counts = {};
+  counts["الكل"] = allItems.length;
+
+  const catsSet = new Set();
+  allItems.forEach(i => {
+    if (i.c) {
+      catsSet.add(i.c);
+      counts[i.c] = (counts[i.c] || 0) + 1;
+    }
   });
-  return ["الكل", ...cats];
+
+  return {
+    categories: ["الكل", ...catsSet],
+    counts
+  };
+}
+
+export function getMatCategories() {
+  return getMatCategoriesWithCounts().categories;
 }
 
 export function matTabs() {
   const tabsContainer = $("mat-tabs");
   if (!tabsContainer) return;
-  const cats = getMatCategories();
-  tabsContainer.innerHTML = cats.map(c => `
-    <button type="button" class="${c === currentCat ? "on" : ""}" onclick="window.setMatCategory('${c}')">
-      ${c}
-    </button>
-  `).join("");
+  const { categories, counts } = getMatCategoriesWithCounts();
+
+  const getCatIcon = (c) => {
+    if (c === "الكل") return "📦";
+    if (c.includes("بنج") || c.includes("Anesthesia")) return "💉";
+    if (c.includes("كمبوزيت") || c.includes("Composite")) return "🦷";
+    if (c.includes("فلوابل") || c.includes("Flowable") || c.includes("بوند")) return "💧";
+    if (c.includes("جذور") || c.includes("Endodontics") || c.includes("أندو")) return "🔬";
+    if (c.includes("جلاس") || c.includes("Glass")) return "🧪";
+    if (c.includes("طبعات") || c.includes("Impression")) return "🥣";
+    if (c.includes("عزل") || c.includes("Rubber")) return "🛡️";
+    if (c.includes("تلميع") || c.includes("Finishing") || c.includes("ماتريكس")) return "✨";
+    if (c.includes("أدوات") || c.includes("Instruments") || c.includes("جراحة")) return "✂️";
+    if (c.includes("تقويم") || c.includes("Orthodontics")) return "🪥";
+    if (c.includes("كونترات") || c.includes("Handpieces") || c.includes("صيانة")) return "⚙️";
+    if (c.includes("أجهزة") || c.includes("Equipment")) return "⚡";
+    if (c.includes("مستهلكات") || c.includes("Disposables") || c.includes("تعقيم")) return "🧤";
+    return "🏷️";
+  };
+
+  const topCats = [
+    "الكل",
+    "Anesthesia (بنج وتخدير)",
+    "Composite (كمبوزيت)",
+    "Endodontics (علاج جذور وأندو)",
+    "Disposables (مستهلكات وتعقيم)"
+  ];
+
+  tabsContainer.innerHTML = `
+    <div class="mat-dropdown-container">
+      <div class="mat-dropdown-control-group">
+        <label for="mat-cat-select" class="mat-dropdown-label">
+          <span class="mat-dropdown-label-icon">${getCatIcon(currentCat)}</span>
+          <span class="mat-dropdown-label-text">قسم وخامات الماتريال:</span>
+        </label>
+        
+        <div class="mat-dropdown-select-wrap">
+          <select id="mat-cat-select" class="mat-dropdown-select" onchange="window.setMatCategory(this.value)">
+            ${categories.map(c => {
+              const icon = getCatIcon(c);
+              const count = counts[c] || 0;
+              const isSelected = (c === currentCat) ? "selected" : "";
+              const label = c === "الكل" ? `الكل (جميع الأقسام — ${count} خامة)` : `${c} (${count} صنف)`;
+              return `<option value="${c}" ${isSelected}>${icon} ${label}</option>`;
+            }).join("")}
+          </select>
+          <div class="mat-dropdown-caret" pointer-events="none">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+
+        ${currentCat !== "الكل" ? `
+          <button type="button" class="mat-dropdown-clear-btn" onclick="window.setMatCategory('الكل')" title="عرض جميع الأصناف">
+            ✕ عرض الكل
+          </button>
+        ` : ""}
+      </div>
+
+      <div class="mat-dropdown-quick-pills">
+        <span class="mat-quick-label">أقسام سريعة:</span>
+        ${topCats.filter(tc => categories.includes(tc)).map(tc => {
+          const isAct = tc === currentCat;
+          const shortName = tc === "الكل" ? "الكل" : tc.split("(")[1]?.replace(")", "") || tc;
+          return `
+            <button type="button" class="mat-quick-pill ${isAct ? 'active' : ''}" onclick="window.setMatCategory('${tc}')">
+              <span>${getCatIcon(tc)}</span>
+              <span>${shortName}</span>
+            </button>
+          `;
+        }).join("")}
+      </div>
+    </div>
+  `;
 }
 
 export function setMatCategory(c) {
