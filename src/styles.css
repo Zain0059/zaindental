@@ -230,6 +230,8 @@ a {
 #desktop-sidebar {
   display: none;
   width: 260px;
+  height: 100vh;
+  max-height: 100vh;
   flex-shrink: 0;
   background: var(--navy);
   color: #FFFFFF;
@@ -237,6 +239,7 @@ a {
   justify-content: space-between;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   z-index: 50;
+  overflow: hidden;
 }
 
 @media (min-width: 1024px) {
@@ -245,12 +248,21 @@ a {
   }
 }
 
+.sidebar-main {
+  flex: 1 1 0%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .sidebar-brand {
-  padding: 24px 20px 20px;
+  padding: 22px 18px 18px;
   display: flex;
   align-items: center;
   gap: 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
 }
 
 .sidebar-logo-icon {
@@ -263,6 +275,7 @@ a {
   justify-content: center;
   color: #FFFFFF;
   box-shadow: 0 4px 12px rgba(14, 165, 164, 0.3);
+  flex-shrink: 0;
 }
 
 .sidebar-brand-text h1 {
@@ -279,12 +292,16 @@ a {
 }
 
 .sidebar-nav {
-  padding: 16px 12px;
+  padding: 12px 10px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  flex: 1;
+  gap: 3px;
+  flex: 1 1 0%;
+  min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
 }
 
 .sidebar-item {
@@ -381,11 +398,61 @@ a {
   padding: 6px;
   border-radius: var(--r-sm);
   transition: all 0.15s;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sidebar-logout-btn:hover {
   color: #EF4444;
   background: rgba(239, 68, 68, 0.1);
+}
+
+.sidebar-settings-btn {
+  color: #94A3B8;
+  padding: 6px;
+  border-radius: var(--r-sm);
+  transition: all 0.15s;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-settings-btn:hover {
+  color: var(--teal-light);
+  background: rgba(14, 165, 164, 0.15);
+}
+
+#sb-item-settings {
+  background: rgba(14, 165, 164, 0.1);
+  color: #FFFFFF;
+  border: 1px solid rgba(14, 165, 164, 0.22);
+  margin-top: 4px;
+  font-weight: 700;
+}
+
+#sb-item-settings:hover {
+  background: rgba(14, 165, 164, 0.22);
+  border-color: rgba(14, 165, 164, 0.45);
+  color: #FFFFFF;
+}
+
+#sb-item-settings svg {
+  color: var(--teal-light);
+}
+
+#sb-item-more {
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+}
+
+#sb-item-more:hover {
+  border-color: rgba(14, 165, 164, 0.4);
 }
 
 /* Main Layout Wrapper */
@@ -471,18 +538,48 @@ a {
   line-height: 1.2;
 }
 
-.out-btn {
-  background: transparent;
+.hdr-btn {
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
-  color: var(--text-muted);
-  padding: 5px 10px;
+  color: var(--text-dim);
+  padding: 5px 11px;
   font-size: var(--text-hdr-control);
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
   flex-shrink: 0;
   line-height: 1.2;
+}
+
+.hdr-btn:hover {
+  background: var(--teal-dim);
+  color: var(--teal-dark);
+  border-color: var(--teal-low);
+}
+
+.hdr-btn svg {
+  color: var(--teal);
+}
+
+#hdr-settings-btn {
+  border-color: var(--teal-low);
+  background: var(--teal-dim);
+  color: var(--teal-dark);
+}
+
+#hdr-settings-btn:hover {
+  background: var(--teal);
+  color: #FFFFFF;
+  border-color: var(--teal);
+}
+
+#hdr-settings-btn:hover svg {
+  color: #FFFFFF;
 }
 
 @media (max-width: 480px) {
